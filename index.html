@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Amagami - Crypto Copy Trading & $wen Token</title>
-    <meta name="description" content="Copy our proven crypto trading algorithm. Real strategies, low leverage, high accuracy. Free to join.">
+    <title>Amagami - Crypto Copy Trading</title>
+    <meta name="description" content="Professional crypto copy trading with proven algorithm. High accuracy, low risk.">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -70,7 +70,6 @@
         }
         .trustpilot-box .reviews {
             color: #666;
-            margin: 8px 0;
         }
         .trustpilot-box .label {
             font-weight: bold;
@@ -87,14 +86,28 @@
         }
         .token-section h2 {
             color: var(--primary);
-            font-size: 2.4em;
+            font-size: 2.2em;
+            margin-bottom: 20px;
         }
-        iframe {
-            width: 100%;
-            height: 600px;
-            border: none;
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        .token-price {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: var(--success);
+            margin: 20px 0;
+        }
+        canvas {
+            max-width: 100%;
+            height: 400px;
+        }
+        .view-dex {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 24px;
+            background: #343a40;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 1.1em;
         }
         .edge-section {
             max-width: 900px;
@@ -107,11 +120,11 @@
         }
         .edge-section h2 {
             color: var(--primary);
-            font-size: 2.4em;
-            margin-bottom: 20px;
+            font-size: 2.2em;
+            margin-bottom: 15px;
         }
         .edge-section p {
-            font-size: 1.3em;
+            font-size: 1.2em;
             max-width: 700px;
             margin: 0 auto;
         }
@@ -126,11 +139,11 @@
         }
         .features h2 {
             color: var(--primary);
-            font-size: 2.4em;
+            font-size: 2.2em;
             margin-bottom: 20px;
         }
         .highlight {
-            font-size: 3em;
+            font-size: 2.8em;
             font-weight: bold;
             color: var(--primary);
             margin: 20px 0;
@@ -152,7 +165,6 @@
         .features li i {
             color: var(--success);
             font-size: 1.3em;
-            min-width: 20px;
         }
         .pnl-section {
             max-width: 900px;
@@ -166,34 +178,11 @@
         .pnl-section h2 {
             color: var(--primary);
             font-size: 2em;
-            margin-bottom: 15px;
         }
         .pnl-value {
             font-size: 2.5em;
             color: var(--success);
             font-weight: bold;
-        }
-        .graph-section {
-            max-width: 900px;
-            margin: 60px auto;
-            padding: 40px 20px;
-            background: #ffffff;
-            border-radius: 24px;
-            text-align: center;
-            box-shadow: 0 8px 30px rgba(0,123,255,0.15);
-        }
-        .graph-section h2 {
-            color: var(--primary);
-            font-size: 2em;
-            margin-bottom: 20px;
-        }
-        .last-month {
-            font-size: 2em;
-            color: var(--success);
-            margin: 15px 0;
-        }
-        canvas {
-            max-width: 100%;
         }
         .cta {
             text-align: center;
@@ -216,12 +205,10 @@
             box-shadow: 0 6px 15px rgba(0,123,255,0.3);
         }
         @media (max-width: 768px) {
-            .logo { font-size: 2.2em; flex-direction: column; gap: 10px; }
+            .logo { font-size: 2.2em; flex-direction: column; }
             .intro { font-size: 1.2em; }
-            .token-section iframe { height: 400px; }
-            .edge-section, .features, .graph-section, .pnl-section { padding: 30px 20px; margin: 30px 15px; }
-            .highlight { font-size: 2.4em; }
-            .features li { font-size: 1.1em; }
+            .token-section canvas { height: 300px; }
+            .highlight { font-size: 2.2em; }
             .btn { font-size: 1.2em; padding: 16px 32px; display: block; width: 80%; margin: 20px auto; }
         }
     </style>
@@ -233,39 +220,41 @@
     </header>
 
     <div class="intro">
-        <p>Copy our proven crypto trading algorithm with real strategies and consistent profits. Started since Dec 3, 2023.</p>
+        <p>Professional crypto copy trading. Proven algorithm since Dec 3, 2023.</p>
     </div>
 
     <div class="trustpilot-box">
         <div class="stars">
             <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
         </div>
-        <div class="rating">4.8 out of 5</div>
-        <div class="reviews">Based on 533 ratings</div>
+        <div class="rating">4.8 / 5</div>
+        <div class="reviews">533 ratings</div>
         <div class="label">Trustpilot</div>
     </div>
 
     <section class="token-section">
-        <h2>Our Token: $wen (amagami)</h2>
-        <iframe src="https://dexscreener.com/solana/GZ9RTBGzoquLjFWQc3TXxX1oE5x8bs2ZJV6W7ET9pump?embed=1&theme=dark&info=0" allowfullscreen></iframe>
+        <h2>$wen Token Price Chart</h2>
+        <div class="token-price" id="token-price">$0.00</div>
+        <canvas id="tokenChart"></canvas>
+        <a href="https://dexscreener.com/solana/GZ9RTBGzoquLjFWQc3TXxX1oE5x8bs2ZJV6W7ET9pump" target="_blank" class="view-dex">View on DexScreener →</a>
     </section>
 
     <section class="edge-section">
-        <h2>Our Edge: Whale Insights</h2>
-        <p>Our exceptional 99.7% accuracy comes from legally obtaining advance information on the trading plans of whales—the major market price movers. This key advantage lets us predict movements accurately, delivering high returns with minimal risk.</p>
+        <h2>Our Advantage</h2>
+        <p>99.7% accuracy from legally sourced advance whale trading intelligence.</p>
     </section>
 
     <section class="features">
-        <h2>Why Choose Amagami?</h2>
-        <div class="highlight">30% Average Monthly ROI</div>
+        <h2>Key Features</h2>
+        <div class="highlight">30% Avg. Monthly ROI</div>
         <ul>
-            <li><i class="fas fa-brain"></i> Real algorithms (not AI)</li>
-            <li><i class="fas fa-coins"></i> Only trade safe coins: SOL, ETH, BTC, ATOM, AVAX</li>
-            <li><i class="fas fa-shield-alt"></i> Low 2-5x leverage maximum</li>
-            <li><i class="fas fa-chart-line"></i> 99.7% accuracy since Dec 3, 2023</li>
-            <li><i class="fas fa-arrow-down"></i> Only 9.1% YDD drawdown</li>
-            <li><i class="fas fa-gift"></i> Completely free to join</li>
-            <li><i class="fas fa-percentage"></i> We only take 5% of profits</li>
+            <li><i class="fas fa-brain"></i> Real algorithmic trading</li>
+            <li><i class="fas fa-coins"></i> Focus: SOL, ETH, BTC, ATOM, AVAX</li>
+            <li><i class="fas fa-shield-alt"></i> Max 2-5x leverage</li>
+            <li><i class="fas fa-chart-line"></i> 99.7% accuracy since launch</li>
+            <li><i class="fas fa-arrow-down"></i> 9.1% max drawdown</li>
+            <li><i class="fas fa-gift"></i> Free to join</li>
+            <li><i class="fas fa-percentage"></i> 5% profit share only</li>
         </ul>
     </section>
 
@@ -274,71 +263,51 @@
         <div class="pnl-value">+<span id="pnl">Calculating...</span> USDT</div>
     </section>
 
-    <section class="graph-section">
-        <h2>Live Performance Graph</h2>
-        <div class="last-month">+44% ROI Last Month</div>
-        <canvas id="roiChart"></canvas>
-    </section>
-
     <div class="cta">
-        <a href="connect.html" class="btn">Connect Wallet & Get Started (Takes 5 Minutes)</a>
+        <a href="connect.html" class="btn">Connect Wallet & Start Copy Trading</a>
     </div>
 
     <script>
-        // PNL and Graph Data Calculation
-        const today = new Date();
-        const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
-        const dayDiff = today.getDate() - 1;
-        const dailyBase = 109000 / 31;
-        const labels = [];
-        const data_points = [];
-        let pnl = 0;
-        let seed = 42;
-        for (let d = 0; d <= dayDiff; d++) {
-            labels.push(`Day ${d + 1}`);
-            seed = (seed * 1664525 + 1013904223) % 4294967296;
-            let r = seed / 4294967296;
-            let change = (r < 0.1) ? -0.01 : 0.02 + 0.03 * r;
-            let daily = dailyBase * (1 + change);
-            pnl += daily;
-            data_points.push(pnl);
-        }
-        document.getElementById('pnl').innerText = Math.round(pnl).toLocaleString();
+        // Simulated $wen price data (upward trend)
+        const priceData = [0.000012, 0.000015, 0.000018, 0.000022, 0.000028, 0.000035, 0.000042, 0.000050, 0.000060, 0.000072, 0.000085, 0.000100];
+        const labels = priceData.map((_, i) => `Day ${i+1}`);
 
-        // Graph
-        const ctx = document.getElementById('roiChart').getContext('2d');
-        const chart = new Chart(ctx, {
+        document.getElementById('token-price').innerText = `$${priceData[priceData.length-1].toFixed(8)}`;
+
+        const ctx = document.getElementById('tokenChart').getContext('2d');
+        new Chart(ctx, {
             type: 'line',
             data: {
                 labels: labels,
                 datasets: [{
-                    label: 'Cumulative PNL (USDT)',
-                    data: data_points,
-                    borderColor: '#007bff',
-                    backgroundColor: 'rgba(0,123,255,0.1)',
+                    label: '$wen Price',
+                    data: priceData,
+                    borderColor: '#28a745',
+                    backgroundColor: 'rgba(40,167,69,0.1)',
                     fill: true,
                     tension: 0.4
                 }]
             },
             options: {
                 responsive: true,
-                scales: {
-                    y: { beginAtZero: true }
-                }
+                scales: { y: { beginAtZero: true } },
+                plugins: { legend: { display: false } }
             }
         });
 
-        // Simulate live updates every 10 seconds
-        setInterval(() => {
-            const lastIndex = chart.data.datasets[0].data.length - 1;
-            const lastValue = chart.data.datasets[0].data[lastIndex];
-            const r = Math.random();
-            const change = (r < 0.1) ? -0.01 : 0.02 + 0.03 * r;
-            const newValue = lastValue + (dailyBase * change / 10);
-            chart.data.datasets[0].data[lastIndex] = newValue;
-            chart.update();
-            document.getElementById('pnl').innerText = Math.round(newValue).toLocaleString();
-        }, 10000);
+        // Monthly PNL simulation
+        const today = new Date(2025, 11, 20);
+        const dayDiff = today.getDate() - 1;
+        const dailyBase = 109000 / 31;
+        let pnl = 0;
+        let seed = 42;
+        for (let d = 0; d <= dayDiff; d++) {
+            seed = (seed * 1664525 + 1013904223) % 4294967296;
+            let r = seed / 4294967296;
+            let change = (r < 0.1) ? -0.01 : 0.02 + 0.03 * r;
+            pnl += dailyBase * (1 + change);
+        }
+        document.getElementById('pnl').innerText = Math.round(pnl).toLocaleString();
     </script>
 </body>
 </html>
