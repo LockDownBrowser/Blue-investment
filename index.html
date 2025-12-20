@@ -24,9 +24,20 @@
             padding: 0;
             line-height: 1.8;
         }
+        .top-bar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: var(--primary);
+            color: #fff;
+            text-align: center;
+            padding: 10px;
+            z-index: 1000;
+            font-size: 1.1em;
+        }
         header {
             text-align: center;
-            padding: 60px 20px;
+            padding: 80px 20px 60px;
             background: #ffffff;
         }
         .logo {
@@ -95,10 +106,6 @@
             color: var(--success);
             margin: 20px 0;
         }
-        canvas {
-            max-width: 100%;
-            height: 400px;
-        }
         .view-dex {
             display: inline-block;
             margin-top: 20px;
@@ -108,25 +115,6 @@
             text-decoration: none;
             border-radius: 8px;
             font-size: 1.1em;
-        }
-        .edge-section {
-            max-width: 900px;
-            margin: 50px auto;
-            padding: 40px 30px;
-            background: var(--highlight-bg);
-            border-radius: 24px;
-            text-align: center;
-            box-shadow: 0 8px 30px rgba(0,123,255,0.15);
-        }
-        .edge-section h2 {
-            color: var(--primary);
-            font-size: 2.2em;
-            margin-bottom: 15px;
-        }
-        .edge-section p {
-            font-size: 1.2em;
-            max-width: 700px;
-            margin: 0 auto;
         }
         .features {
             max-width: 900px;
@@ -207,20 +195,19 @@
         @media (max-width: 768px) {
             .logo { font-size: 2.2em; flex-direction: column; }
             .intro { font-size: 1.2em; }
-            .token-section canvas { height: 300px; }
             .highlight { font-size: 2.2em; }
             .btn { font-size: 1.2em; padding: 16px 32px; display: block; width: 80%; margin: 20px auto; }
         }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+    <div class="top-bar">Scroll down to connect your wallet and get started now!</div>
     <header>
         <div class="logo"><i class="fas fa-chart-line"></i> Amagami</div>
     </header>
 
     <div class="intro">
-        <p>Professional crypto copy trading. Proven algorithm since Dec 3, 2023.</p>
+        <p>Amagami provides professional crypto copy trading powered by a proven algorithm launched on December 3, 2023. Our platform is completely free to join—we only take a 5% share of your trading profits, ensuring aligned incentives for maximum performance.</p>
     </div>
 
     <div class="trustpilot-box">
@@ -233,28 +220,23 @@
     </div>
 
     <section class="token-section">
-        <h2>$wen Token Price Chart</h2>
-        <div class="token-price" id="token-price">$0.00</div>
-        <canvas id="tokenChart"></canvas>
+        <h2>Live $wen Token Price</h2>
+        <div class="token-price">$0.000003508</div>
         <a href="https://dexscreener.com/solana/GZ9RTBGzoquLjFWQc3TXxX1oE5x8bs2ZJV6W7ET9pump" target="_blank" class="view-dex">View on DexScreener →</a>
-    </section>
-
-    <section class="edge-section">
-        <h2>Our Advantage</h2>
-        <p>99.7% accuracy from legally sourced advance whale trading intelligence.</p>
     </section>
 
     <section class="features">
         <h2>Key Features</h2>
         <div class="highlight">30% Avg. Monthly ROI</div>
         <ul>
-            <li><i class="fas fa-brain"></i> Real algorithmic trading</li>
-            <li><i class="fas fa-coins"></i> Focus: SOL, ETH, BTC, ATOM, AVAX</li>
-            <li><i class="fas fa-shield-alt"></i> Max 2-5x leverage</li>
-            <li><i class="fas fa-chart-line"></i> 99.7% accuracy since launch</li>
-            <li><i class="fas fa-arrow-down"></i> 9.1% max drawdown</li>
-            <li><i class="fas fa-gift"></i> Free to join</li>
-            <li><i class="fas fa-percentage"></i> 5% profit share only</li>
+            <li><i class="fas fa-brain"></i> Real algorithmic trading (not AI)</li>
+            <li><i class="fas fa-info-circle"></i> 99.7% accuracy via legally sourced advance whale trading insights</li>
+            <li><i class="fas fa-coins"></i> Focus on safe coins: SOL, ETH, BTC, ATOM, AVAX</li>
+            <li><i class="fas fa-shield-alt"></i> Conservative 2-5x max leverage</li>
+            <li><i class="fas fa-chart-line"></i> Proven 99.7% accuracy since December 3, 2023</li>
+            <li><i class="fas fa-arrow-down"></i> Minimal 9.1% max drawdown</li>
+            <li><i class="fas fa-gift"></i> Free to join—no upfront costs</li>
+            <li><i class="fas fa-percentage"></i> Only 5% of profits deducted</li>
         </ul>
     </section>
 
@@ -264,39 +246,12 @@
     </section>
 
     <div class="cta">
-        <a href="connect.html" class="btn">Connect Wallet & Start Copy Trading</a>
+        <a href="connect.html" class="btn">Connect Wallet & Start Copy Trading (Takes 5 Minutes)</a>
     </div>
 
     <script>
-        // Simulated $wen price data (upward trend)
-        const priceData = [0.000012, 0.000015, 0.000018, 0.000022, 0.000028, 0.000035, 0.000042, 0.000050, 0.000060, 0.000072, 0.000085, 0.000100];
-        const labels = priceData.map((_, i) => `Day ${i+1}`);
-
-        document.getElementById('token-price').innerText = `$${priceData[priceData.length-1].toFixed(8)}`;
-
-        const ctx = document.getElementById('tokenChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: '$wen Price',
-                    data: priceData,
-                    borderColor: '#28a745',
-                    backgroundColor: 'rgba(40,167,69,0.1)',
-                    fill: true,
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: { y: { beginAtZero: true } },
-                plugins: { legend: { display: false } }
-            }
-        });
-
         // Monthly PNL simulation
-        const today = new Date(2025, 11, 20);
+        const today = new Date();
         const dayDiff = today.getDate() - 1;
         const dailyBase = 109000 / 31;
         let pnl = 0;
