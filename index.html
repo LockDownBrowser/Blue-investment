@@ -24,16 +24,24 @@
             padding: 0;
             line-height: 1.8;
         }
-        .top-bar {
+        .scroll-encourage {
             position: fixed;
-            top: 0;
-            width: 100%;
-            background: var(--primary);
-            color: #fff;
-            text-align: center;
-            padding: 10px;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            max-width: 300px;
+            height: 6px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 3px;
+            overflow: hidden;
             z-index: 1000;
-            font-size: 1.1em;
+        }
+        .scroll-progress {
+            height: 100%;
+            width: 0%;
+            background: var(--primary);
+            transition: width 0.3s;
         }
         header {
             text-align: center;
@@ -94,27 +102,50 @@
             border-radius: 24px;
             text-align: center;
             box-shadow: 0 8px 30px rgba(0,123,255,0.15);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        .token-logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
         }
         .token-section h2 {
             color: var(--primary);
             font-size: 2.2em;
-            margin-bottom: 20px;
+            margin: 0;
         }
         .token-price {
             font-size: 2.5em;
             font-weight: bold;
             color: var(--success);
-            margin: 20px 0;
+            margin: 0;
         }
         .view-dex {
             display: inline-block;
-            margin-top: 20px;
             padding: 12px 24px;
             background: #343a40;
             color: #fff;
             text-decoration: none;
             border-radius: 8px;
             font-size: 1.1em;
+        }
+        .roi-box {
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 40px;
+            background: var(--highlight-bg);
+            border-radius: 24px;
+            text-align: center;
+            box-shadow: 0 8px 30px rgba(0,123,255,0.15);
+        }
+        .roi-box .highlight {
+            font-size: 3em;
+            font-weight: bold;
+            color: var(--primary);
         }
         .features {
             max-width: 900px;
@@ -129,12 +160,6 @@
             color: var(--primary);
             font-size: 2.2em;
             margin-bottom: 20px;
-        }
-        .highlight {
-            font-size: 2.8em;
-            font-weight: bold;
-            color: var(--primary);
-            margin: 20px 0;
         }
         .features ul {
             list-style: none;
@@ -195,13 +220,15 @@
         @media (max-width: 768px) {
             .logo { font-size: 2.2em; flex-direction: column; }
             .intro { font-size: 1.2em; }
-            .highlight { font-size: 2.2em; }
+            .roi-box .highlight { font-size: 2.4em; }
             .btn { font-size: 1.2em; padding: 16px 32px; display: block; width: 80%; margin: 20px auto; }
         }
     </style>
 </head>
 <body>
-    <div class="top-bar">Scroll down to connect your wallet and get started now!</div>
+    <div class="scroll-encourage">
+        <div class="scroll-progress" id="progress"></div>
+    </div>
     <header>
         <div class="logo"><i class="fas fa-chart-line"></i> Amagami</div>
     </header>
@@ -220,14 +247,18 @@
     </div>
 
     <section class="token-section">
-        <h2>Live $wen Token Price</h2>
+        <img src="https://d23exngyjlavgo.cloudfront.net/solana_GZ9RTBGzoquLjFWQc3TXxX1oE5x8bs2ZJV6W7ET9pump" alt="$wen Logo" class="token-logo">
+        <h2>Our Token: $wen Live Price</h2>
         <div class="token-price">$0.000003508</div>
         <a href="https://dexscreener.com/solana/GZ9RTBGzoquLjFWQc3TXxX1oE5x8bs2ZJV6W7ET9pump" target="_blank" class="view-dex">View on DexScreener →</a>
     </section>
 
+    <div class="roi-box">
+        <div class="highlight">30% Average Monthly ROI</div>
+    </div>
+
     <section class="features">
         <h2>Key Features</h2>
-        <div class="highlight">30% Avg. Monthly ROI</div>
         <ul>
             <li><i class="fas fa-brain"></i> Real algorithmic trading (not AI)</li>
             <li><i class="fas fa-info-circle"></i> 99.7% accuracy via legally sourced advance whale trading insights</li>
@@ -250,9 +281,17 @@
     </div>
 
     <script>
-        // Monthly PNL simulation
-        const today = new Date();
-        const dayDiff = today.getDate() - 1;
+        // Scroll progress bar
+        window.addEventListener('scroll', () => {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById('progress').style.width = scrolled + '%';
+        });
+
+        // Monthly PNL simulation (December 2025, up to day 20)
+        const today = new Date(2025, 11, 20);
+        const dayDiff = today.getDate() - 1; // 19 days completed
         const dailyBase = 109000 / 31;
         let pnl = 0;
         let seed = 42;
