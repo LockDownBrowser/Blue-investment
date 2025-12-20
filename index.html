@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blue Trading - Crypto Copy Trading</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f0f8ff; color: #333; margin: 0; padding: 0; }
+        header { background-color: #007bff; color: white; padding: 20px; text-align: center; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .logo { font-size: 2em; font-weight: bold; }
+        .trustpilot { margin-top: 10px; font-size: 1.2em; }
+        .hero { text-align: center; padding: 40px 20px; background-color: #ffffff; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .highlight { color: #007bff; font-weight: bold; font-size: 1.5em; }
+        .feature { margin: 20px 0; }
+        .graph { margin: 40px 0; text-align: center; }
+        .cta { text-align: center; margin: 40px 0; }
+        .btn { background-color: #007bff; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-size: 1.2em; }
+        @media (max-width: 768px) { .container { padding: 10px; } .hero { padding: 20px 10px; } }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <div class="logo">Blue Trading</div>
+        <div class="trustpilot">Trustpilot: 4.8 ★★★★☆ (533 ratings)</div>
+    </header>
+    <div class="container">
+        <section class="hero">
+            <h1>Copy Our Proven Crypto Trading Algorithm</h1>
+            <p>We use real algorithms, not AI. Low 2-5x leverage max. 99.7% accuracy since Dec 3. Only 9.1% YDD drawdown.</p>
+            <p class="highlight">Average Monthly ROI: 30%</p>
+            <p>It's free! We take just 5% of profits from trades.</p>
+        </section>
+        <section class="graph">
+            <h2>Live Performance Graph</h2>
+            <p>Last month: 48% ROI</p>
+            <canvas id="roiChart" width="400" height="200"></canvas>
+            <script>
+                const ctx = document.getElementById('roiChart').getContext('2d');
+                const roiChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                        datasets: [{ label: 'ROI %', data: [10, 20, 35, 48], borderColor: '#007bff', fill: false }]
+                    },
+                    options: { scales: { y: { beginAtZero: true } } }
+                });
+            </script>
+        </section>
+        <section class="cta">
+            <a href="connect.html" class="btn">Connect Your Wallet & Get Started Now (Takes 5 Minutes)</a>
+        </section>
+    </div>
+</body>
+</html>
