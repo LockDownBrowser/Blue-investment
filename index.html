@@ -62,7 +62,7 @@
         }
         .intro {
             max-width: 800px;
-            margin: 30px auto;
+            margin: 40px auto;
             padding: 0 20px;
             text-align: center;
             font-size: 1.4em;
@@ -96,7 +96,7 @@
         }
         .token-section {
             max-width: 900px;
-            margin: 50px auto;
+            margin: 60px auto;
             padding: 40px 30px;
             background: #ffffff;
             border-radius: 24px;
@@ -108,10 +108,11 @@
             gap: 20px;
         }
         .token-logo {
-            width: 80px;
-            height: 80px;
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
             object-fit: cover;
+            border: 4px solid var(--accent);
         }
         .token-section h2 {
             color: var(--primary);
@@ -119,38 +120,42 @@
             margin: 0;
         }
         .token-price {
-            font-size: 2.5em;
+            font-size: 2.8em;
             font-weight: bold;
             color: var(--success);
-            margin: 0;
+            margin: 10px 0;
         }
         .view-dex {
             display: inline-block;
-            padding: 12px 24px;
+            padding: 12px 28px;
             background: #343a40;
             color: #fff;
             text-decoration: none;
-            border-radius: 8px;
+            border-radius: 12px;
             font-size: 1.1em;
+            transition: background 0.3s;
+        }
+        .view-dex:hover {
+            background: #212529;
         }
         .roi-box {
             max-width: 900px;
-            margin: 50px auto;
-            padding: 40px;
+            margin: 60px auto;
+            padding: 50px;
             background: var(--highlight-bg);
             border-radius: 24px;
             text-align: center;
             box-shadow: 0 8px 30px rgba(0,123,255,0.15);
         }
         .roi-box .highlight {
-            font-size: 3em;
+            font-size: 3.5em;
             font-weight: bold;
             color: var(--primary);
         }
         .features {
             max-width: 900px;
-            margin: 50px auto;
-            padding: 40px 30px;
+            margin: 60px auto;
+            padding: 50px 30px;
             background: #ffffff;
             border-radius: 24px;
             text-align: center;
@@ -158,31 +163,31 @@
         }
         .features h2 {
             color: var(--primary);
-            font-size: 2.2em;
-            margin-bottom: 20px;
+            font-size: 2.4em;
+            margin-bottom: 30px;
         }
         .features ul {
             list-style: none;
             padding: 0;
-            max-width: 600px;
+            max-width: 700px;
             margin: 30px auto;
             text-align: left;
         }
         .features li {
-            margin: 15px 0;
+            margin: 20px 0;
             display: flex;
             align-items: center;
-            gap: 15px;
-            font-size: 1.2em;
+            gap: 20px;
+            font-size: 1.25em;
         }
         .features li i {
             color: var(--success);
-            font-size: 1.3em;
+            font-size: 1.4em;
         }
         .pnl-section {
             max-width: 900px;
-            margin: 40px auto;
-            padding: 30px;
+            margin: 60px auto;
+            padding: 40px;
             background: #ffffff;
             border-radius: 24px;
             text-align: center;
@@ -190,38 +195,43 @@
         }
         .pnl-section h2 {
             color: var(--primary);
-            font-size: 2em;
+            font-size: 2.2em;
+            margin-bottom: 20px;
         }
         .pnl-value {
-            font-size: 2.5em;
+            font-size: 3em;
             color: var(--success);
             font-weight: bold;
         }
         .cta {
             text-align: center;
-            padding: 60px 20px;
+            padding: 80px 20px;
         }
         .btn {
             display: inline-block;
-            padding: 18px 40px;
+            padding: 20px 50px;
             background: var(--primary);
             color: #fff;
             text-decoration: none;
             border-radius: 12px;
             font-weight: bold;
-            font-size: 1.4em;
+            font-size: 1.6em;
             transition: all 0.3s;
         }
         .btn:hover {
             background: #0056b3;
-            transform: translateY(-3px);
-            box-shadow: 0 6px 15px rgba(0,123,255,0.3);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,123,255,0.3);
         }
         @media (max-width: 768px) {
             .logo { font-size: 2.2em; flex-direction: column; }
             .intro { font-size: 1.2em; }
-            .roi-box .highlight { font-size: 2.4em; }
-            .btn { font-size: 1.2em; padding: 16px 32px; display: block; width: 80%; margin: 20px auto; }
+            .token-logo { width: 80px; height: 80px; }
+            .token-price { font-size: 2.2em; }
+            .roi-box .highlight { font-size: 2.6em; }
+            .features li { font-size: 1.1em; }
+            .pnl-value { font-size: 2.4em; }
+            .btn { font-size: 1.3em; padding: 18px 40px; display: block; width: 80%; margin: 20px auto; }
         }
     </style>
 </head>
@@ -234,7 +244,7 @@
     </header>
 
     <div class="intro">
-        <p>Amagami provides professional crypto copy trading powered by a proven algorithm launched on December 3, 2023. Our platform is completely free to join—we only take a 5% share of your trading profits, ensuring aligned incentives for maximum performance.</p>
+        <p>Professional crypto copy trading platform launched December 3, 2023. Completely free to join— we only take 5% of profits.</p>
     </div>
 
     <div class="trustpilot-box">
@@ -247,7 +257,7 @@
     </div>
 
     <section class="token-section">
-        <img src="https://d23exngyjlavgo.cloudfront.net/solana_GZ9RTBGzoquLjFWQc3TXxX1oE5x8bs2ZJV6W7ET9pump" alt="$wen Logo" class="token-logo">
+        <img src="https://media.easy-peasy.ai/34a87703-4601-4c25-969b-ecea319cb603/d2baf228-8e37-4d2d-91b5-37b4f11725fe.png" alt="$wen Logo" class="token-logo">
         <h2>Our Token: $wen Live Price</h2>
         <div class="token-price">$0.000003508</div>
         <a href="https://dexscreener.com/solana/GZ9RTBGzoquLjFWQc3TXxX1oE5x8bs2ZJV6W7ET9pump" target="_blank" class="view-dex">View on DexScreener →</a>
@@ -264,10 +274,10 @@
             <li><i class="fas fa-info-circle"></i> 99.7% accuracy via legally sourced advance whale trading insights</li>
             <li><i class="fas fa-coins"></i> Focus on safe coins: SOL, ETH, BTC, ATOM, AVAX</li>
             <li><i class="fas fa-shield-alt"></i> Conservative 2-5x max leverage</li>
-            <li><i class="fas fa-chart-line"></i> Proven 99.7% accuracy since December 3, 2023</li>
+            <li><i class="fas fa-chart-line"></i> Proven since December 3, 2023</li>
             <li><i class="fas fa-arrow-down"></i> Minimal 9.1% max drawdown</li>
             <li><i class="fas fa-gift"></i> Free to join—no upfront costs</li>
-            <li><i class="fas fa-percentage"></i> Only 5% of profits deducted</li>
+            <li><i class="fas fa-percentage"></i> Only 5% profit share</li>
         </ul>
     </section>
 
@@ -289,9 +299,9 @@
             document.getElementById('progress').style.width = scrolled + '%';
         });
 
-        // Monthly PNL simulation (December 2025, up to day 20)
+        // Monthly PNL simulation (as of Dec 20, 2025)
         const today = new Date(2025, 11, 20);
-        const dayDiff = today.getDate() - 1; // 19 days completed
+        const dayDiff = today.getDate() - 1;
         const dailyBase = 109000 / 31;
         let pnl = 0;
         let seed = 42;
