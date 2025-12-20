@@ -108,11 +108,18 @@
             gap: 20px;
         }
         .token-logo {
-            width: 120px;
-            height: 120px;
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
             object-fit: cover;
-            border: 4px solid var(--accent);
+            border: 4px solid var(--primary);
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            font-weight: bold;
         }
         .token-section h2 {
             color: var(--primary);
@@ -155,7 +162,7 @@
         .features {
             max-width: 900px;
             margin: 60px auto;
-            padding: 30px;
+            padding: 50px 30px;
             background: #ffffff;
             border-radius: 24px;
             text-align: center;
@@ -166,26 +173,30 @@
             font-size: 2.4em;
             margin-bottom: 40px;
         }
-        .feature-grid {
+        .features-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
         }
         .feature-box {
             background: var(--accent);
             padding: 25px;
             border-radius: 16px;
-            text-align: center;
+            text-align: left;
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
             box-shadow: 0 4px 15px rgba(0,123,255,0.1);
         }
         .feature-box i {
             color: var(--success);
-            font-size: 2em;
-            margin-bottom: 15px;
+            font-size: 1.8em;
+            min-width: 40px;
         }
-        .feature-box p {
+        .feature-box span {
             font-size: 1.2em;
-            margin: 0;
         }
         .pnl-section {
             max-width: 900px;
@@ -229,10 +240,11 @@
         @media (max-width: 768px) {
             .logo { font-size: 2.2em; flex-direction: column; }
             .intro { font-size: 1.2em; }
-            .token-logo { width: 100px; height: 100px; }
+            .token-logo { width: 80px; height: 80px; font-size: 2.5em; }
             .token-price { font-size: 2.2em; }
             .roi-box .highlight { font-size: 2.6em; }
-            .feature-grid { grid-template-columns: 1fr; }
+            .features-grid { grid-template-columns: 1fr; }
+            .feature-box span { font-size: 1.1em; }
             .pnl-value { font-size: 2.4em; }
             .btn { font-size: 1.3em; padding: 18px 40px; display: block; width: 80%; margin: 20px auto; }
         }
@@ -260,7 +272,7 @@
     </div>
 
     <section class="token-section">
-        <img src="https://media.craiyon.com/2025-08-12/KHDoqEgpSrGmS2hm9qSVGA.webp" alt="$wen Anime Girl Logo" class="token-logo">
+        <div class="token-logo">$wen</div>
         <h2>Our Token: $wen Live Price</h2>
         <div class="token-price">$0.000003508</div>
         <a href="https://dexscreener.com/solana/GZ9RTBGzoquLjFWQc3TXxX1oE5x8bs2ZJV6W7ET9pump" target="_blank" class="view-dex">View on DexScreener →</a>
@@ -272,39 +284,15 @@
 
     <section class="features">
         <h2>Key Features</h2>
-        <div class="feature-grid">
-            <div class="feature-box">
-                <i class="fas fa-brain"></i>
-                <p>Real algorithmic trading (not AI)</p>
-            </div>
-            <div class="feature-box">
-                <i class="fas fa-info-circle"></i>
-                <p>99.7% accuracy via legally sourced advance whale trading insights</p>
-            </div>
-            <div class="feature-box">
-                <i class="fas fa-coins"></i>
-                <p>Focus on safe coins: SOL, ETH, BTC, ATOM, AVAX</p>
-            </div>
-            <div class="feature-box">
-                <i class="fas fa-shield-alt"></i>
-                <p>Conservative 2-5x max leverage</p>
-            </div>
-            <div class="feature-box">
-                <i class="fas fa-chart-line"></i>
-                <p>Proven since December 3, 2023</p>
-            </div>
-            <div class="feature-box">
-                <i class="fas fa-arrow-down"></i>
-                <p>Minimal 9.1% max drawdown</p>
-            </div>
-            <div class="feature-box">
-                <i class="fas fa-gift"></i>
-                <p>Free to join—no upfront costs</p>
-            </div>
-            <div class="feature-box">
-                <i class="fas fa-percentage"></i>
-                <p>Only 5% profit share</p>
-            </div>
+        <div class="features-grid">
+            <div class="feature-box"><i class="fas fa-brain"></i><span>Real algorithmic trading (not AI)</span></div>
+            <div class="feature-box"><i class="fas fa-info-circle"></i><span>99.7% accuracy via legally sourced advance whale trading insights</span></div>
+            <div class="feature-box"><i class="fas fa-coins"></i><span>Focus on safe coins: SOL, ETH, BTC, ATOM, AVAX</span></div>
+            <div class="feature-box"><i class="fas fa-shield-alt"></i><span>Conservative 2-5x max leverage</span></div>
+            <div class="feature-box"><i class="fas fa-chart-line"></i><span>Proven since December 3, 2023</span></div>
+            <div class="feature-box"><i class="fas fa-arrow-down"></i><span>Minimal 9.1% max drawdown</span></div>
+            <div class="feature-box"><i class="fas fa-gift"></i><span>Free to join—no upfront costs</span></div>
+            <div class="feature-box"><i class="fas fa-percentage"></i><span>Only 5% profit share</span></div>
         </div>
     </section>
 
