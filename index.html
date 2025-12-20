@@ -102,35 +102,17 @@
             border-radius: 24px;
             text-align: center;
             box-shadow: 0 8px 30px rgba(0,123,255,0.15);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-        }
-        .token-logo {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 4px solid var(--primary);
-            background: var(--primary);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3em;
-            font-weight: bold;
         }
         .token-section h2 {
             color: var(--primary);
             font-size: 2.2em;
-            margin: 0;
+            margin-bottom: 20px;
         }
         .token-price {
             font-size: 2.8em;
             font-weight: bold;
             color: var(--success);
-            margin: 10px 0;
+            margin: 20px 0;
         }
         .view-dex {
             display: inline-block;
@@ -240,7 +222,6 @@
         @media (max-width: 768px) {
             .logo { font-size: 2.2em; flex-direction: column; }
             .intro { font-size: 1.2em; }
-            .token-logo { width: 80px; height: 80px; font-size: 2.5em; }
             .token-price { font-size: 2.2em; }
             .roi-box .highlight { font-size: 2.6em; }
             .features-grid { grid-template-columns: 1fr; }
@@ -272,8 +253,7 @@
     </div>
 
     <section class="token-section">
-        <div class="token-logo">$wen</div>
-        <h2>Our Token: $wen Live Price</h2>
+        <h2>$wen Live Price</h2>
         <div class="token-price">$0.000003508</div>
         <a href="https://dexscreener.com/solana/GZ9RTBGzoquLjFWQc3TXxX1oE5x8bs2ZJV6W7ET9pump" target="_blank" class="view-dex">View on DexScreener →</a>
     </section>
@@ -314,8 +294,8 @@
             document.getElementById('progress').style.width = scrolled + '%';
         });
 
-        // Monthly PNL simulation
-        const today = new Date();
+        // Monthly PNL simulation (as of Dec 20, 2025)
+        const today = new Date(2025, 11, 20);
         const dayDiff = today.getDate() - 1;
         const dailyBase = 109000 / 31;
         let pnl = 0;
