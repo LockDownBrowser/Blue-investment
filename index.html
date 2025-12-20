@@ -4,53 +4,229 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blue Trading - Crypto Copy Trading</title>
+    <meta name="description" content="Copy our proven crypto trading algorithm. Real strategies, low leverage, high accuracy. Free to join.">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f0f8ff; color: #333; margin: 0; padding: 0; }
-        header { background-color: #007bff; color: white; padding: 20px; text-align: center; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-        .logo { font-size: 2em; font-weight: bold; }
-        .trustpilot { margin-top: 10px; font-size: 1.2em; }
-        .hero { text-align: center; padding: 40px 20px; background-color: #ffffff; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .highlight { color: #007bff; font-weight: bold; font-size: 1.5em; }
-        .feature { margin: 20px 0; }
-        .graph { margin: 40px 0; text-align: center; }
-        .cta { text-align: center; margin: 40px 0; }
-        .btn { background-color: #007bff; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-size: 1.2em; }
-        @media (max-width: 768px) { .container { padding: 10px; } .hero { padding: 20px 10px; } }
+        :root {
+            --primary: #007bff;
+            --accent: #e3f2fd;
+            --success: #28a745;
+            --text: #212529;
+            --light: #f8fbff;
+        }
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            background: var(--light);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+        header {
+            text-align: center;
+            padding: 60px 20px;
+            background: #ffffff;
+        }
+        .logo {
+            font-size: 2.8em;
+            font-weight: bold;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        .logo i {
+            font-size: 1.2em;
+        }
+        .intro {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 0 20px;
+            text-align: center;
+            font-size: 1.4em;
+            color: #555;
+        }
+        .trustpilot-box {
+            max-width: 380px;
+            margin: 40px auto;
+            padding: 30px;
+            background: #ffffff;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,123,255,0.1);
+            border: 1px solid var(--accent);
+        }
+        .trustpilot-box .stars {
+            color: #00b67a;
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+        .trustpilot-box .rating {
+            font-size: 2em;
+            font-weight: bold;
+        }
+        .trustpilot-box .reviews {
+            color: #666;
+            margin: 8px 0;
+        }
+        .trustpilot-box .label {
+            font-weight: bold;
+            color: #00b67a;
+        }
+        .features {
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 40px 30px;
+            background: #ffffff;
+            border-radius: 24px;
+            text-align: center;
+            box-shadow: 0 8px 30px rgba(0,123,255,0.15);
+        }
+        .features h2 {
+            color: var(--primary);
+            font-size: 2.4em;
+            margin-bottom: 20px;
+        }
+        .highlight {
+            font-size: 3em;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 20px 0;
+        }
+        .features ul {
+            list-style: none;
+            padding: 0;
+            max-width: 600px;
+            margin: 30px auto;
+        }
+        .features li {
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            font-size: 1.3em;
+        }
+        .features li i {
+            color: var(--success);
+            font-size: 1.4em;
+        }
+        .graph-section {
+            max-width: 900px;
+            margin: 60px auto;
+            padding: 40px 20px;
+            background: #ffffff;
+            border-radius: 24px;
+            text-align: center;
+            box-shadow: 0 8px 30px rgba(0,123,255,0.15);
+        }
+        .graph-section h2 {
+            color: var(--primary);
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+        .last-month {
+            font-size: 2em;
+            color: var(--success);
+            margin: 15px 0;
+        }
+        canvas {
+            max-width: 100%;
+        }
+        .cta {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 18px 40px;
+            background: var(--primary);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 1.4em;
+            transition: all 0.3s;
+        }
+        .btn:hover {
+            background: #0056b3;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0,123,255,0.3);
+        }
+        @media (max-width: 768px) {
+            .logo { font-size: 2.2em; flex-direction: column; gap: 10px; }
+            .intro { font-size: 1.2em; }
+            .features, .graph-section { padding: 30px 20px; margin: 30px auto; }
+            .highlight { font-size: 2.4em; }
+            .features li { font-size: 1.1em; }
+            .btn { font-size: 1.2em; padding: 16px 32px; display: block; width: 80%; margin: 20px auto; }
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <header>
-        <div class="logo">Blue Trading</div>
-        <div class="trustpilot">Trustpilot: 4.8 ★★★★☆ (533 ratings)</div>
+        <div class="logo"><i class="fas fa-chart-line"></i> Blue Trading</div>
     </header>
-    <div class="container">
-        <section class="hero">
-            <h1>Copy Our Proven Crypto Trading Algorithm</h1>
-            <p>We use real algorithms, not AI. Low 2-5x leverage max. 99.7% accuracy since Dec 3. Only 9.1% YDD drawdown.</p>
-            <p class="highlight">Average Monthly ROI: 30%</p>
-            <p>It's free! We take just 5% of profits from trades.</p>
-        </section>
-        <section class="graph">
-            <h2>Live Performance Graph</h2>
-            <p>Last month: 48% ROI</p>
-            <canvas id="roiChart" width="400" height="200"></canvas>
-            <script>
-                const ctx = document.getElementById('roiChart').getContext('2d');
-                const roiChart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-                        datasets: [{ label: 'ROI %', data: [10, 20, 35, 48], borderColor: '#007bff', fill: false }]
-                    },
-                    options: { scales: { y: { beginAtZero: true } } }
-                });
-            </script>
-        </section>
-        <section class="cta">
-            <a href="connect.html" class="btn">Connect Your Wallet & Get Started Now (Takes 5 Minutes)</a>
-        </section>
+
+    <div class="intro">
+        <p>Copy our proven crypto trading algorithm with real strategies and consistent profits.</p>
     </div>
+
+    <div class="trustpilot-box">
+        <div class="stars">
+            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+        </div>
+        <div class="rating">4.8 out of 5</div>
+        <div class="reviews">Based on 533 ratings</div>
+        <div class="label">Trustpilot</div>
+    </div>
+
+    <section class="features">
+        <h2>Why Choose Blue Trading?</h2>
+        <div class="highlight">30% Average Monthly ROI</div>
+        <ul>
+            <li><i class="fas fa-brain"></i> Real algorithms (not AI)</li>
+            <li><i class="fas fa-shield-alt"></i> Low 2-5x leverage maximum</li>
+            <li><i class="fas fa-chart-line"></i> 99.7% accuracy since Dec 3</li>
+            <li><i class="fas fa-arrow-down"></i> Only 9.1% YDD drawdown</li>
+            <li><i class="fas fa-gift"></i> Completely free to join</li>
+            <li><i class="fas fa-percentage"></i> We only take 5% of profits</li>
+        </ul>
+    </section>
+
+    <section class="graph-section">
+        <h2>Live Performance</h2>
+        <div class="last-month">+48% ROI Last Month</div>
+        <canvas id="roiChart"></canvas>
+    </section>
+
+    <div class="cta">
+        <a href="connect.html" class="btn">Connect Wallet & Get Started (Takes 5 Minutes)</a>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('roiChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                datasets: [{
+                    label: 'Portfolio Growth %',
+                    data: [0, 15, 32, 48],
+                    borderColor: '#007bff',
+                    backgroundColor: 'rgba(0,123,255,0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+    </script>
 </body>
 </html>
