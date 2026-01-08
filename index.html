@@ -28,6 +28,7 @@
         h2 { color: #2563eb; margin-top: 0; }
         #manage-trades { list-style: none; padding: 0; }
         #manage-trades li { background: #eff6ff; padding: 24px; border-radius: 16px; margin-bottom: 16px; }
+        #last-update { text-align: center; color: #64748b; font-size: 14px; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -41,6 +42,7 @@
     <div id="wallet" class="tab">
         <div id="total-usd">Loading prices...</div>
         <ul id="assets"></ul>
+        <div id="last-update"></div>
         <button id="secret-btn" class="secret">About Me</button>
         <div id="secret-section">
             <h2>Add Asset</h2>
@@ -70,6 +72,7 @@
     <div id="manage" class="tab">
         <h2>Open Trades</h2>
         <ul id="manage-trades"></ul>
+        <div id="last-update-manage"></div>
     </div>
 
     <div id="transfer" class="tab">
@@ -162,6 +165,9 @@
             if (activeTab.id === 'trade') updateTrade();
             if (activeTab.id === 'manage') updateManage();
             if (activeTab.id === 'transfer') updateSwap();
+            const now = new Date().toLocaleTimeString();
+            if (activeTab.id === 'wallet') document.getElementById('last-update').innerText = 'Last updated: ' + now;
+            if (activeTab.id === 'manage') document.getElementById('last-update-manage').innerText = 'Last updated: ' + now;
         }
 
         function showTab(id) {
@@ -227,10 +233,12 @@
                 const curr = prices[t.sym] || t.entry;
                 const pnl = (curr - t.entry) * t.pos;
                 const roi = (pnl / (t.pos * t.entry / t.lev)) * 100;
+                const liq = (t.entry * (1 - 1/t.lev)).toFixed(2);
                 const li = document.createElement('li');
                 li.innerHTML = '<strong>' + t.sym + '/USDT ×' + t.lev + '</strong><br>' +
                                'Pos: ' + t.pos.toFixed(6) + '<br>' +
                                'Entry $' + t.entry.toFixed(2) + ' → Current $' + curr.toFixed(2) + '<br>' +
+                               'Liq Price: $' + liq + '<br>' +
                                'PnL: <span style="color:' + (pnl >= 0 ? '#10b981' : '#ef4444') + '">$' + pnl.toFixed(2) + '</span> ' +
                                'ROI: <span style="color:' + (roi >= 0 ? '#10b981' : '#ef4444') + '">' + roi.toFixed(2) + '%</span><br>' +
                                '<button onclick="closeTrade(' + i + ')">Close</button>';
@@ -304,7 +312,7 @@
                 const all = [...new Set([...Object.keys(assets), ...trades.map(t => t.sym)])];
                 await fetchPrices(all);
                 refresh();
-            }, 15000);
+            }, 10000); // Update every 10 seconds for live feel
         })();
     </script>
 </body>
