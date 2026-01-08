@@ -15,12 +15,16 @@
         #total-usd { font-size: 28px; text-align: center; color: #007bff; margin-bottom: 20px; }
         ul { list-style: none; padding: 0; }
         li { display: flex; align-items: center; gap: 15px; padding: 15px; background: #f9f9f9; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        input, select { padding: 10px; border: 1px solid #ddd; border-radius: 5px; width: calc(100% - 22px); margin-bottom: 10px; }
-        button { padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; transition: background 0.3s; }
+        form { display: flex; flex-direction: column; gap: 10px; }
+        label { font-weight: bold; }
+        input, select { padding: 10px; border: 1px solid #ddd; border-radius: 5px; width: 100%; box-sizing: border-box; }
+        button { padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; transition: background 0.3s; align-self: flex-start; }
         button:hover { background: #218838; }
         .secret { background: transparent; border: none; font-size: 24px; cursor: pointer; position: absolute; top: 100px; right: 30px; }
         #secret-section { margin-top: 20px; padding: 15px; background: #e9ecef; border-radius: 8px; display: none; }
-        #liq-est, #transfer-est { margin-top: 10px; font-weight: bold; }
+        #liq-est, #transfer-est, #available-usdt { margin-top: 10px; font-weight: bold; color: #333; }
+        #leverage { width: 100%; }
+        #lev-value { margin-left: 10px; }
     </style>
 </head>
 <body>
@@ -37,17 +41,28 @@
         <button id="secret-btn" class="secret">🔒</button>
         <div id="secret-section">
             <h2>Add Crypto</h2>
-            <input id="crypto-type" list="cryptos" placeholder="Crypto (e.g., BTC)">
-            <input id="amount" placeholder="Amount" type="number">
-            <button onclick="addCrypto()">Add</button>
+            <form>
+                <label for="crypto-type">Crypto:</label>
+                <input id="crypto-type" list="cryptos" placeholder="e.g., BTC">
+                <label for="amount">Amount:</label>
+                <input id="amount" placeholder="Amount" type="number" min="0">
+                <button type="button" onclick="addCrypto()">Add</button>
+            </form>
         </div>
     </div>
     <div id="trade" class="tab">
         <h2>Trade with USDT</h2>
-        <input id="trade-crypto" list="cryptos" placeholder="Crypto (e.g., BTC)">
-        <input id="usdt-amount" placeholder="USDT Amount" type="number">
-        <input id="leverage" placeholder="Leverage" type="number" value="1">
-        <button onclick="startTrade()">Trade</button>
+        <form>
+            <label for="trade-crypto">USDT Pair:</label>
+            <input id="trade-crypto" list="cryptos" placeholder="e.g., BTC">
+            <label for="usdt-amount">USDT Amount:</label>
+            <input id="usdt-amount" placeholder="USDT Amount" type="number" min="0">
+            <div id="available-usdt"></div>
+            <label for="leverage">Leverage (1x - 100x):</label>
+            <input id="leverage" type="range" min="1" max="100" value="1">
+            <output id="lev-value">1x</output>
+            <button type="button" onclick="startTrade()">Trade</button>
+        </form>
         <div id="liq-est"></div>
     </div>
     <div id="manage" class="tab">
@@ -56,11 +71,16 @@
     </div>
     <div id="transfer" class="tab">
         <h2>Transfer Currencies</h2>
-        <select id="from-crypto"></select>
-        <select id="to-crypto"></select>
-        <input id="transfer-amount" placeholder="Amount" type="number">
-        <div id="transfer-est"></div>
-        <button onclick="transferCrypto()">Transfer (0.5% fee)</button>
+        <form>
+            <label for="from-crypto">From:</label>
+            <select id="from-crypto"></select>
+            <label for="to-crypto">To:</label>
+            <select id="to-crypto"></select>
+            <label for="transfer-amount">Amount:</label>
+            <input id="transfer-amount" placeholder="Amount" type="number" min="0">
+            <div id="transfer-est"></div>
+            <button type="button" onclick="transferCrypto()">Transfer (0.5% fee)</button>
+        </form>
     </div>
     <datalist id="cryptos">
         <option value="BTC">
@@ -68,6 +88,10 @@
         <option value="SOL">
         <option value="ADA">
         <option value="XRP">
+        <option value="BNB">
+        <option value="DOGE">
+        <option value="DOT">
+        <option value="LINK">
         <option value="USDT">
     </datalist>
     <script src="script.js"></script>
