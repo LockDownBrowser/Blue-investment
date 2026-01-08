@@ -12,7 +12,7 @@
         .tab { max-width: 900px; margin: 20px auto; padding: 30px; background: #1e293b; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); display: none; }
         #wallet { display: block; }
         #total-usd { font-size: 40px; font-weight: bold; text-align: center; color: #60a5fa; margin-bottom: 40px; }
-        #assets { list-style: none; padding: 0; }
+        #assets { list-style: none; padding: 0; margin: 0; }
         #assets li { display: flex; align-items: center; gap: 20px; padding: 20px; background: #0f172a; border-radius: 12px; margin-bottom: 16px; font-size: 20px; }
         form { display: grid; gap: 16px; max-width: 500px; }
         label { font-weight: bold; color: #93c5fd; }
@@ -23,7 +23,9 @@
         #secret-section { margin-top: 40px; padding: 25px; background: #0f172a; border-radius: 12px; display: none; }
         #current-price, #available-usdt, #liq-est, #transfer-est { font-size: 18px; font-weight: bold; color: #93c5fd; margin: 15px 0; }
         #lev-value { font-size: 20px; font-weight: bold; color: #60a5fa; }
-        h2 { color: #93c5fd; }
+        h2 { color: #93c5fd; margin-top: 0; }
+        #manage-trades { list-style: none; padding: 0; }
+        #manage-trades li { background: #0f172a; padding: 20px; border-radius: 12px; margin-bottom: 16px; }
     </style>
 </head>
 <body>
@@ -35,35 +37,31 @@
     </nav>
 
     <div id="wallet" class="tab">
-        <div id="total-usd">Loading...</div>
+        <div id="total-usd">Loading prices...</div>
         <ul id="assets"></ul>
         <button id="secret-btn" class="secret">🔒</button>
         <div id="secret-section">
             <h2>Add Asset</h2>
-            <form>
-                <label>Symbol</label>
-                <input id="crypto-type" list="cryptos" placeholder="BTC">
-                <label>Amount</label>
-                <input id="amount" type="number" step="any" min="0">
-                <button type="button" onclick="addCrypto()">Add</button>
-            </form>
+            <label>Symbol</label>
+            <input id="crypto-type" list="cryptos" placeholder="BTC">
+            <label>Amount</label>
+            <input id="amount" type="number" step="any" min="0">
+            <button type="button" id="add-btn">Add</button>
         </div>
     </div>
 
     <div id="trade" class="tab">
         <h2>Open Long Trade</h2>
-        <form>
-            <label>Pair</label>
-            <input id="trade-crypto" list="cryptos" placeholder="BTC">
-            <div id="current-price"></div>
-            <label>USDT Amount</label>
-            <input id="usdt-amount" type="number" step="any" min="0">
-            <div id="available-usdt"></div>
-            <label>Leverage</label>
-            <input id="leverage" type="range" min="1" max="100" value="1">
-            <span id="lev-value">1x</span>
-            <button type="button" onclick="startTrade()">Open</button>
-        </form>
+        <label>Pair</label>
+        <input id="trade-crypto" list="cryptos" placeholder="BTC">
+        <div id="current-price"></div>
+        <label>USDT Amount</label>
+        <input id="usdt-amount" type="number" step="any" min="0">
+        <div id="available-usdt"></div>
+        <label>Leverage</label>
+        <input id="leverage" type="range" min="1" max="100" value="1">
+        <span id="lev-value">1x</span>
+        <button type="button" id="trade-btn">Open</button>
         <div id="liq-est"></div>
     </div>
 
@@ -74,24 +72,236 @@
 
     <div id="transfer" class="tab">
         <h2>Swap Assets</h2>
-        <form>
-            <label>From</label>
-            <select id="from-crypto"></select>
-            <label>To</label>
-            <select id="to-crypto"></select>
-            <label>Amount</label>
-            <input id="transfer-amount" type="number" step="any" min="0">
-            <div id="transfer-est"></div>
-            <button type="button" onclick="transferCrypto()">Swap (0.5% fee)</button>
-        </form>
+        <label>From</label>
+        <select id="from-crypto"></select>
+        <label>To</label>
+        <select id="to-crypto"></select>
+        <label>Amount</label>
+        <input id="transfer-amount" type="number" step="any" min="0">
+        <div id="transfer-est"></div>
+        <button type="button" id="swap-btn">Swap (0.5% fee)</button>
     </div>
 
     <datalist id="cryptos">
-        <option value="BTC"><option value="ETH"><option value="SOL"><option value="USDT">
-        <option value="ADA"><option value="XRP"><option value="BNB"><option value="DOGE">
-        <option value="DOT"><option value="LINK">
+        <option value="BTC">
+        <option value="ETH">
+        <option value="SOL">
+        <option value="USDT">
+        <option value="ADA">
+        <option value="XRP">
+        <option value="BNB">
+        <option value="DOGE">
+        <option value="DOT">
+        <option value="LINK">
     </datalist>
 
-    <script src="script.js"></script>
+    <script>
+        let assets = JSON.parse(localStorage.getItem('assets')) || { USDT: 10000 };
+        let trades = JSON.parse(localStorage.getItem('trades')) || [];
+        let prices = { USDT: 1 };
+
+        const symbolToId = {
+            BTC: 'bitcoin', ETH: 'ethereum', SOL: 'solana', USDT: 'tether',
+            ADA: 'cardano', XRP: 'ripple', BNB: 'binancecoin', DOGE: 'dogecoin',
+            DOT: 'polkadot-new', LINK: 'chainlink'
+        };
+
+        async function fetchPrices(symbols) {
+            const needed = symbols.filter(s => s !== 'USDT' && !prices[s]);
+            if (needed.length === 0) return;
+            const ids = needed.map(s => symbolToId[s] || s.toLowerCase()).join(',');
+            try {
+                const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=' + ids + '&vs_currencies=usd');
+                const data = await res.json();
+                needed.forEach(s => {
+                    const id = symbolToId[s] || s.toLowerCase();
+                    if (data[id] && data[id].usd) prices[s] = data[id].usd;
+                });
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function save() {
+            localStorage.setItem('assets', JSON.stringify(assets));
+            localStorage.setItem('trades', JSON.stringify(trades));
+        }
+
+        function updateTotal() {
+            let total = 0;
+            for (const c in assets) {
+                if (assets[c] > 0) total += assets[c] * (prices[c] || 0);
+            }
+            document.getElementById('total-usd').innerText = 'Total: $' + total.toFixed(2) + ' USD';
+        }
+
+        function updateAssets() {
+            const list = document.getElementById('assets');
+            list.innerHTML = '';
+            Object.keys(assets).sort().forEach(c => {
+                if (assets[c] <= 0) return;
+                const id = symbolToId[c] || c.toLowerCase();
+                const value = (assets[c] * (prices[c] || 0)).toFixed(2);
+                const li = document.createElement('li');
+                li.innerHTML = '<img src="https://cryptologos.cc/logos/' + id + '-' + c.toLowerCase() + '-logo.png?v=029" width="40" onerror="this.src=\'https://via.placeholder.com/40\'">' +
+                               '<div><strong>' + c + '</strong>: ' + assets[c].toFixed(6) + '<br>' +
+                               '<span style="color:#60a5fa;">$' + value + '</span></div>';
+                list.appendChild(li);
+            });
+        }
+
+        function refresh() {
+            updateTotal();
+            updateAssets();
+            const activeTab = document.querySelector('.tab[style*="block"]');
+            if (!activeTab) return;
+            if (activeTab.id === 'trade') updateTrade();
+            if (activeTab.id === 'manage') updateManage();
+            if (activeTab.id === 'transfer') updateSwap();
+        }
+
+        function showTab(id) {
+            document.querySelectorAll('.tab').forEach(t => t.style.display = 'none');
+            document.getElementById(id).style.display = 'block';
+            refresh();
+        }
+
+        document.getElementById('secret-btn').onclick = () => {
+            document.getElementById('secret-section').style.display = 'block';
+        };
+
+        document.getElementById('add-btn').onclick = async () => {
+            const sym = document.getElementById('crypto-type').value.toUpperCase().trim();
+            const amt = parseFloat(document.getElementById('amount').value);
+            if (sym && amt > 0) {
+                assets[sym] = (assets[sym] || 0) + amt;
+                save();
+                await fetchPrices([sym]);
+                refresh();
+                document.getElementById('secret-section').style.display = 'none';
+                document.getElementById('amount').value = '';
+                document.getElementById('crypto-type').value = '';
+            }
+        };
+
+        function updateTrade() {
+            document.getElementById('available-usdt').innerText = 'Available: ' + (assets.USDT || 0).toFixed(2) + ' USDT';
+            const sym = document.getElementById('trade-crypto').value.toUpperCase().trim();
+            document.getElementById('current-price').innerText = prices[sym] ? 'Price: $' + prices[sym].toFixed(2) : '';
+            document.getElementById('lev-value').innerText = document.getElementById('leverage').value + 'x';
+        }
+
+        document.getElementById('trade-crypto').oninput = async () => {
+            const s = document.getElementById('trade-crypto').value.toUpperCase().trim();
+            if (s && !prices[s]) await fetchPrices([s]);
+            updateTrade();
+        };
+
+        document.getElementById('leverage').oninput = updateTrade;
+
+        document.getElementById('trade-btn').onclick = async () => {
+            const sym = document.getElementById('trade-crypto').value.toUpperCase().trim();
+            const usdt = parseFloat(document.getElementById('usdt-amount').value);
+            const lev = parseInt(document.getElementById('leverage').value);
+            if (!sym || !usdt || usdt > (assets.USDT || 0)) return;
+            await fetchPrices([sym]);
+            const price = prices[sym];
+            if (!price) return;
+            assets.USDT -= usdt;
+            const pos = (usdt * lev) / price;
+            trades.push({ sym, pos, entry: price, lev });
+            save();
+            document.getElementById('liq-est').innerText = 'Liq Price: $' + (price * (1 - 1/lev)).toFixed(2);
+            showTab('manage');
+        };
+
+        async function updateManage() {
+            await fetchPrices(trades.map(t => t.sym));
+            const list = document.getElementById('manage-trades');
+            list.innerHTML = '';
+            trades.forEach((t, i) => {
+                const curr = prices[t.sym] || t.entry;
+                const pnl = (curr - t.entry) * t.pos;
+                const roi = (pnl / (t.pos * t.entry / t.lev)) * 100;
+                const li = document.createElement('li');
+                li.innerHTML = '<strong>' + t.sym + '/USDT ×' + t.lev + '</strong><br>' +
+                               'Pos: ' + t.pos.toFixed(6) + '<br>' +
+                               'Entry $' + t.entry.toFixed(2) + ' → Current $' + curr.toFixed(2) + '<br>' +
+                               'PnL: <span style="color:' + (pnl >= 0 ? 'lime' : 'red') + '">$' + pnl.toFixed(2) + '</span> ' +
+                               'ROI: <span style="color:' + (roi >= 0 ? 'lime' : 'red') + '">' + roi.toFixed(2) + '%</span><br>' +
+                               '<button onclick="closeTrade(' + i + ')">Close</button>';
+                list.appendChild(li);
+            });
+        }
+
+        window.closeTrade = async (i) => {
+            const t = trades[i];
+            await fetchPrices([t.sym]);
+            const curr = prices[t.sym] || t.entry;
+            const pnl = (curr - t.entry) * t.pos;
+            assets.USDT = (assets.USDT || 0) + (t.pos * t.entry / t.lev) + pnl;
+            trades.splice(i, 1);
+            save();
+            refresh();
+        };
+
+        function updateSwap() {
+            const from = document.getElementById('from-crypto');
+            const to = document.getElementById('to-crypto');
+            from.innerHTML = '';
+            to.innerHTML = '';
+            Object.keys(prices).sort().forEach(c => {
+                const opt1 = document.createElement('option');
+                opt1.value = opt1.textContent = c;
+                from.appendChild(opt1);
+                const opt2 = opt1.cloneNode(true);
+                to.appendChild(opt2);
+            });
+            estimateSwap();
+        }
+
+        function estimateSwap() {
+            const from = document.getElementById('from-crypto').value;
+            const to = document.getElementById('to-crypto').value;
+            const amt = parseFloat(document.getElementById('transfer-amount').value) || 0;
+            if (from && to && amt > 0 && prices[from] && prices[to]) {
+                const value = amt * prices[from];
+                const received = value * 0.995 / prices[to];
+                document.getElementById('transfer-est').innerText = '≈ ' + received.toFixed(6) + ' ' + to + ' (0.5% fee)';
+            } else {
+                document.getElementById('transfer-est').innerText = '';
+            }
+        }
+
+        document.getElementById('transfer-amount').oninput = estimateSwap;
+        document.getElementById('from-crypto').onchange = estimateSwap;
+        document.getElementById('to-crypto').onchange = estimateSwap;
+
+        document.getElementById('swap-btn').onclick = async () => {
+            const from = document.getElementById('from-crypto').value;
+            const to = document.getElementById('to-crypto').value;
+            const amt = parseFloat(document.getElementById('transfer-amount').value);
+            if (from === to || (assets[from] || 0) < amt) return;
+            await fetchPrices([from, to]);
+            const value = amt * prices[from];
+            const received = value * 0.995 / prices[to];
+            assets[from] -= amt;
+            if (assets[from] <= 0) delete assets[from];
+            assets[to] = (assets[to] || 0) + received;
+            save();
+            showTab('wallet');
+        };
+
+        (async () => {
+            const symbols = [...new Set([...Object.keys(assets), ...trades.map(t => t.sym)])];
+            await fetchPrices(symbols);
+            refresh();
+            setInterval(async () => {
+                const all = [...new Set([...Object.keys(assets), ...trades.map(t => t.sym)])];
+                await fetchPrices(all);
+                refresh();
+            }, 15000);
+        })();
+    </script>
 </body>
 </html>
