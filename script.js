@@ -1,185 +1,197 @@
-let assets = JSON.parse(localStorage.getItem('assets')) || {};
+let assets = JSON.parse(localStorage.getItem('assets')) || { USDT: 10000 };
 let trades = JSON.parse(localStorage.getItem('trades')) || [];
-let prices = {};
+let prices = { USDT: 1 };
 const fee = 0.005;
+
 const symbolToId = {
-    'BTC': 'bitcoin',
-    'ETH': 'ethereum',
-    'SOL': 'solana',
-    'USDT': 'tether',
-    'ADA': 'cardano',
-    'XRP': 'ripple',
-    'BNB': 'binancecoin',
-    'DOGE': 'dogecoin',
-    'DOT': 'polkadot-new',
-    'LINK': 'chainlink'
+    BTC: 'bitcoin', ETH: 'ethereum', SOL: 'solana', USDT: 'tether',
+    ADA: 'cardano', XRP: 'ripple', BNB: 'binancecoin', DOGE: 'dogecoin',
+    DOT: 'polkadot-new', LINK: 'chainlink'
 };
 
-async function fetchPrices(cryptos) {
-    if (cryptos.length === 0) return;
-    const uniqueCryptos = [...new Set(cryptos)];
-    const ids = uniqueCryptos.map(c => symbolToId[c] || c.toLowerCase()).filter(id => id).join(',');
-    if (!ids) return;
+async function fetchPrices(symbols) {
+    const needed = symbols.filter(s => !prices[s] && s !== 'USDT');
+    if (needed.length === 0) return;
+    const ids = needed.map(s => symbolToId[s] || s.toLowerCase()).join(',');
     try {
         const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd`);
         const data = await res.json();
-        for (let id in data) {
-            const symbol = Object.keys(symbolToId).find(key => symbolToId[key] === id) || id.toUpperCase();
-            prices[symbol] = data[id].usd || 0;
-        }
-        prices['USDT'] = 1;
-        updateTotalUSD();
-    } catch (e) {
-        console.error('Price fetch error:', e);
-    }
+        needed.forEach(s => {
+            const id = symbolToId[s] || s.toLowerCase();
+            if (data[id]) prices[s] = data[id].usd;
+        });
+    } catch (e) { console.error(e); }
 }
 
 function updateTotalUSD() {
     let total = 0;
-    for (let crypto in assets) {
-        total += (assets[crypto] || 0) * (prices[crypto] || 0);
-    }
+    Object.keys(assets).forEach(c => {
+        if (assets[c] > 0) total += assets[c] * (prices[c] || 0);
+    });
     document.getElementById('total-usd').innerText = `Total: \[ {total.toFixed(2)} USD`;
-    updateAssetsList();
 }
 
 function updateAssetsList() {
-    let list = document.getElementById('assets');
+    const list = document.getElementById('assets');
     list.innerHTML = '';
-    for (let crypto in assets) {
-        let id = symbolToId[crypto] || crypto.toLowerCase();
-        let li = document.createElement('li');
-        li.innerHTML = `<img src="https://cryptologos.cc/logos/\( {id}- \){crypto.toLowerCase()}-logo.png?v=029" alt="${crypto} logo" width="30" onerror="this.src='https://via.placeholder.com/30'"> ${crypto}: ${assets[crypto].toFixed(6)} ( \]{ (assets[crypto] * (prices[crypto] || 0)).toFixed(2) })`;
+    Object.keys(assets).sort().forEach(c => {
+        if (assets[c] <= 0) return;
+        const id = symbolToId[c] || c.toLowerCase();
+        const value = assets[c] * (prices[c] || 0);
+        const li = document.createElement('li');
+        li.innerHTML = `<img src="https://cryptologos.cc/logos/\( {id}- \){c.toLowerCase()}-logo.png?v=029" width="36" onerror="this.src='https://via.placeholder.com/36'">
+                        <div><strong>${c}</strong>: ${assets[c].toFixed(6)}<br>
+                        <span style="color:#007bff;"> \]{value.toFixed(2)}</span></div>`;
         list.appendChild(li);
-    }
+    });
 }
 
 async function addCrypto() {
-    let type = document.getElementById('crypto-type').value.toUpperCase();
-    let amt = parseFloat(document.getElementById('amount').value);
-    if (type && amt > 0) {
-        assets[type] = (assets[type] || 0) + amt;
+    const sym = document.getElementById('crypto-type').value.toUpperCase();
+    const amt = parseFloat(document.getElementById('amount').value);
+    if (sym && amt > 0) {
+        assets[sym] = (assets[sym] || 0) + amt;
         localStorage.setItem('assets', JSON.stringify(assets));
-        await fetchPrices([type]);
+        await fetchPrices([sym]);
+        updateAll();
         document.getElementById('secret-section').style.display = 'none';
     }
 }
 
-document.getElementById('secret-btn').addEventListener('click', () => {
+document.getElementById('secret-btn').onclick = () => {
     document.getElementById('secret-section').style.display = 'block';
-});
+};
 
-function showTab(tabId) {
-    document.querySelectorAll('.tab').forEach(tab => tab.style.display = 'none');
-    document.getElementById(tabId).style.display = 'block';
-    if (tabId === 'wallet') updateTotalUSD();
-    if (tabId === 'manage') updateManageTrades();
-    if (tabId === 'transfer') updateTransferOptions();
-    if (tabId === 'trade') updateTradeForm();
+function showTab(id) {
+    document.querySelectorAll('.tab').forEach(t => t.style.display = 'none');
+    document.getElementById(id).style.display = 'block';
+    updateAll();
 }
 
-function updateTradeForm() {
-    document.getElementById('available-usdt').innerText = `Available: ${(assets['USDT'] || 0).toFixed(2)} USDT`;
-    const levInput = document.getElementById('leverage');
-    const levValue = document.getElementById('lev-value');
-    levValue.textContent = `${levInput.value}x`;
-    levInput.oninput = () => levValue.textContent = `${levInput.value}x`;
+function updateAll() {
+    updateTotalUSD();
+    updateAssetsList();
+    if (document.getElementById('trade').style.display === 'block') updateTradeUI();
+    if (document.getElementById('manage').style.display === 'block') updateManageTrades();
+    if (document.getElementById('transfer').style.display === 'block') updateTransferUI();
 }
 
-function updateTransferOptions() {
-    let from = document.getElementById('from-crypto');
-    let to = document.getElementById('to-crypto');
-    from.innerHTML = '';
-    to.innerHTML = '';
-    let allCryptos = [...new Set([...Object.keys(assets), ...Object.keys(symbolToId)])];
-    allCryptos.forEach(crypto => {
-        let opt = document.createElement('option');
-        opt.value = opt.text = crypto;
+function updateTradeUI() {
+    document.getElementById('available-usdt').innerText = `Available USDT: ${(assets.USDT || 0).toFixed(2)}`;
+    const input = document.getElementById('trade-crypto');
+    const sym = input.value.toUpperCase();
+    document.getElementById('current-price').innerText = prices[sym] ? `Current Price: \[ {prices[sym].toFixed(2)}` : '';
+    input.oninput = async () => {
+        const s = input.value.toUpperCase();
+        if (s && !prices[s]) await fetchPrices([s]);
+        document.getElementById('current-price').innerText = prices[s] ? `Current Price: \]{prices[s].toFixed(2)}` : '';
+    };
+    const lev = document.getElementById('leverage');
+    document.getElementById('lev-value').innerText = `${lev.value}x`;
+    lev.oninput = () => document.getElementById('lev-value').innerText = `${lev.value}x`;
+}
+
+async function startTrade() {
+    const sym = document.getElementById('trade-crypto').value.toUpperCase();
+    const usdt = parseFloat(document.getElementById('usdt-amount').value);
+    const lev = parseInt(document.getElementById('leverage').value);
+    if (!sym || !usdt || usdt > (assets.USDT || 0)) return;
+    await fetchPrices([sym]);
+    const price = prices[sym];
+    if (!price) return;
+    assets.USDT -= usdt;
+    const pos = (usdt * lev) / price;
+    trades.push({ sym, pos, entry: price, lev });
+    saveData();
+    document.getElementById('liq-est').innerText = `Liquidation: \[ {(price * (1 - 1/lev)).toFixed(2)}`;
+    showTab('manage');
+}
+
+async function updateManageTrades() {
+    await fetchPrices(trades.map(t => t.sym));
+    const list = document.getElementById('manage-trades');
+    list.innerHTML = '';
+    trades.forEach((t, i) => {
+        const curr = prices[t.sym] || t.entry;
+        const pnl = (curr - t.entry) * t.pos;
+        const roi = (pnl / (t.pos * t.entry / t.lev)) * 100;
+        const li = document.createElement('li');
+        li.innerHTML = `
+            <strong>\( {t.sym}/USDT Long × \){t.lev}</strong><br>
+            Position: ${t.pos.toFixed(6)} ${t.sym}<br>
+            Entry: \]{t.entry.toFixed(2)} → Current: \[ {curr.toFixed(2)}<br>
+            PnL: <span style="color:${pnl>=0?'green':'red'}"> \]{pnl.toFixed(2)}</span> 
+            ROI: <span style="color:\( {roi>=0?'green':'red'}"> \){roi.toFixed(2)}%</span><br>
+            <button onclick="closeTrade(${i})">Close</button>`;
+        list.appendChild(li);
+    });
+}
+
+async function closeTrade(i) {
+    const t = trades[i];
+    await fetchPrices([t.sym]);
+    const curr = prices[t.sym] || t.entry;
+    const pnl = (curr - t.entry) * t.pos;
+    assets.USDT = (assets.USDT || 0) + (t.pos * t.entry / t.lev) + pnl;
+    trades.splice(i, 1);
+    saveData();
+    updateAll();
+}
+
+function updateTransferUI() {
+    const from = document.getElementById('from-crypto');
+    const to = document.getElementById('to-crypto');
+    from.innerHTML = to.innerHTML = '';
+    Object.keys(prices).sort().forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = opt.text = c;
         from.appendChild(opt.cloneNode(true));
         to.appendChild(opt);
     });
-    document.getElementById('transfer-amount').oninput = updateTransferEst;
+    document.getElementById('transfer-amount').oninput = updateEst;
+    updateEst();
 }
 
-function updateTransferEst() {
-    let from = document.getElementById('from-crypto').value;
-    let to = document.getElementById('to-crypto').value;
-    let amt = parseFloat(document.getElementById('transfer-amount').value);
+function updateEst() {
+    const from = document.getElementById('from-crypto').value;
+    const to = document.getElementById('to-crypto').value;
+    const amt = parseFloat(document.getElementById('transfer-amount').value);
     if (from && to && amt > 0 && prices[from] && prices[to]) {
-        let value = amt * prices[from];
-        let feeAmt = value * fee;
-        let received = (value - feeAmt) / prices[to];
-        document.getElementById('transfer-est').innerText = `Est Received: ${received.toFixed(6)} ${to} (Fee: \[ {feeAmt.toFixed(2)})`;
+        const val = amt * prices[from];
+        const received = (val * (1 - fee)) / prices[to];
+        document.getElementById('transfer-est').innerText = `Receive ≈ ${received.toFixed(6)} ${to} (0.5% fee)`;
     } else {
         document.getElementById('transfer-est').innerText = '';
     }
 }
 
 async function transferCrypto() {
-    let from = document.getElementById('from-crypto').value;
-    let to = document.getElementById('to-crypto').value;
-    let amt = parseFloat(document.getElementById('transfer-amount').value);
-    if (from !== to && (assets[from] || 0) >= amt && prices[from] && prices[to]) {
-        let value = amt * prices[from];
-        let feeAmt = value * fee;
-        let received = (value - feeAmt) / prices[to];
-        assets[from] -= amt;
-        if (assets[from] <= 0) delete assets[from];
-        assets[to] = (assets[to] || 0) + received;
-        localStorage.setItem('assets', JSON.stringify(assets));
-        updateTotalUSD();
-        showTab('wallet');
-    }
-}
-
-async function startTrade() {
-    let crypto = document.getElementById('trade-crypto').value.toUpperCase();
-    let usdt = parseFloat(document.getElementById('usdt-amount').value);
-    let lev = parseInt(document.getElementById('leverage').value);
-    if (crypto && usdt > 0 && lev >= 1 && (assets['USDT'] || 0) >= usdt) {
-        await fetchPrices([crypto]);
-        let entryPrice = prices[crypto];
-        if (!entryPrice) return;
-        assets['USDT'] -= usdt;
-        let position = (usdt * lev) / entryPrice;
-        let trade = { crypto, position, entryPrice, lev, start: Date.now() };
-        trades.push(trade);
-        localStorage.setItem('assets', JSON.stringify(assets));
-        localStorage.setItem('trades', JSON.stringify(trades));
-        document.getElementById('liq-est').innerText = `Liq Est: \]{(entryPrice * (1 - 1/lev)).toFixed(2)}`;
-        showTab('manage');
-    }
-}
-
-async function updateManageTrades() {
-    let cryptos = trades.map(t => t.crypto);
-    await fetchPrices(cryptos);
-    let list = document.getElementById('manage-trades');
-    list.innerHTML = '';
-    trades.forEach((trade, idx) => {
-        let currentPrice = prices[trade.crypto] || trade.entryPrice;
-        let pnl = (currentPrice - trade.entryPrice) * trade.position;
-        let roi = (pnl / (trade.position * trade.entryPrice / trade.lev)) * 100;
-        let li = document.createElement('li');
-        li.innerHTML = `${trade.crypto}: Pos ${trade.position.toFixed(6)}, ROI \( {roi.toFixed(2)}% <button onclick="closeTrade( \){idx})">Close</button>`;
-        list.appendChild(li);
-    });
-}
-
-async function closeTrade(idx) {
-    let trade = trades[idx];
-    await fetchPrices([trade.crypto]);
-    let currentPrice = prices[trade.crypto] || trade.entryPrice;
-    let pnl = (currentPrice - trade.entryPrice) * trade.position;
-    assets['USDT'] = (assets['USDT'] || 0) + (trade.position * trade.entryPrice / trade.lev) + pnl;
-    trades.splice(idx, 1);
-    localStorage.setItem('assets', JSON.stringify(assets));
-    localStorage.setItem('trades', JSON.stringify(trades));
-    updateManageTrades();
+    const from = document.getElementById('from-crypto').value;
+    const to = document.getElementById('to-crypto').value;
+    const amt = parseFloat(document.getElementById('transfer-amount').value);
+    if (from === to || (assets[from] || 0) < amt) return;
+    await fetchPrices([from, to]);
+    const val = amt * prices[from];
+    const received = (val * (1 - fee)) / prices[to];
+    assets[from] -= amt;
+    if (assets[from] <= 0) delete assets[from];
+    assets[to] = (assets[to] || 0) + received;
+    saveData();
     showTab('wallet');
 }
 
+function saveData() {
+    localStorage.setItem('assets', JSON.stringify(assets));
+    localStorage.setItem('trades', JSON.stringify(trades));
+}
+
 window.onload = async () => {
-    await fetchPrices(Object.keys(assets));
-    setInterval(async () => await fetchPrices(Object.keys(assets).concat(trades.map(t => t.crypto))), 30000); // Update every 30s
+    const allSymbols = [...new Set([...Object.keys(assets), ...trades.map(t => t.sym)])];
+    await fetchPrices(allSymbols);
+    updateAll();
+    setInterval(async () => {
+        const all = [...new Set([...Object.keys(assets), ...trades.map(t => t.sym)])];
+        await fetchPrices(all);
+        updateAll();
+    }, 15000);
 };
