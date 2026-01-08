@@ -5,29 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blue Wallet</title>
     <style>
-        :root { --primary: #007bff; --success: #28a745; --text: #333; --bg: #f0f8ff; }
-        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(to bottom, #e0f2ff, #c0e0ff); color: var(--text); margin:0; }
-        header { background: var(--primary); color: white; padding: 25px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
-        nav { display: flex; justify-content: center; gap: 20px; padding: 20px; background: white; }
-        nav button { padding: 14px 28px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
-        nav button:hover { background: #0056b3; }
-        .tab { max-width: 900px; margin: 20px auto; padding: 30px; background: white; border-radius: 15px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); display: none; }
+        body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; margin: 0; min-height: 100vh; }
+        nav { display: flex; justify-content: center; gap: 20px; padding: 20px; background: #1e293b; flex-wrap: wrap; }
+        nav button { padding: 12px 28px; background: #2563eb; color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 16px; }
+        nav button:hover { background: #3b82f6; }
+        .tab { max-width: 900px; margin: 20px auto; padding: 30px; background: #1e293b; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); display: none; }
         #wallet { display: block; }
-        #total-usd { font-size: 36px; font-weight: bold; text-align: center; color: var(--primary); margin-bottom: 40px; }
-        #assets li { display: flex; align-items: center; gap: 20px; padding: 20px; background: #f0f8ff; border-radius: 12px; margin-bottom: 15px; font-size: 20px; }
-        form { display: grid; gap: 15px; max-width: 500px; }
-        label { font-weight: bold; color: var(--primary); }
-        input, select { padding: 14px; border: 1px solid #ddd; border-radius: 10px; font-size: 16px; }
-        button { padding: 14px 28px; background: var(--success); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
-        button:hover { background: #218838; }
-        .secret { position: absolute; top: 120px; right: 40px; font-size: 32px; background: none; border: none; cursor: pointer; }
-        #secret-section { margin-top: 40px; padding: 25px; background: #e3f2fd; border-radius: 12px; display: none; }
-        #current-price, #available-usdt, #liq-est, #transfer-est { font-size: 18px; font-weight: bold; color: var(--primary); margin: 15px 0; }
-        #lev-value { font-size: 20px; font-weight: bold; color: var(--primary); }
+        #total-usd { font-size: 40px; font-weight: bold; text-align: center; color: #60a5fa; margin-bottom: 40px; }
+        #assets { list-style: none; padding: 0; }
+        #assets li { display: flex; align-items: center; gap: 20px; padding: 20px; background: #0f172a; border-radius: 12px; margin-bottom: 16px; font-size: 20px; }
+        form { display: grid; gap: 16px; max-width: 500px; }
+        label { font-weight: bold; color: #93c5fd; }
+        input, select { padding: 14px; background: #1e293b; border: 1px solid #334155; border-radius: 12px; color: white; font-size: 16px; }
+        button { padding: 14px 28px; background: #10b981; color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; }
+        button:hover { background: #059669; }
+        .secret { position: fixed; bottom: 30px; right: 30px; font-size: 36px; background: #2563eb; width: 60px; height: 60px; border-radius: 50%; border: none; cursor: pointer; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+        #secret-section { margin-top: 40px; padding: 25px; background: #0f172a; border-radius: 12px; display: none; }
+        #current-price, #available-usdt, #liq-est, #transfer-est { font-size: 18px; font-weight: bold; color: #93c5fd; margin: 15px 0; }
+        #lev-value { font-size: 20px; font-weight: bold; color: #60a5fa; }
+        h2 { color: #93c5fd; }
     </style>
 </head>
 <body>
-    <header><h1>Blue Wallet</h1></header>
     <nav>
         <button onclick="showTab('wallet')">Wallet</button>
         <button onclick="showTab('trade')">Trade</button>
@@ -41,7 +40,7 @@
         <button id="secret-btn" class="secret">🔒</button>
         <div id="secret-section">
             <h2>Add Asset</h2>
-            <form id="add-form">
+            <form>
                 <label>Symbol</label>
                 <input id="crypto-type" list="cryptos" placeholder="BTC">
                 <label>Amount</label>
@@ -53,7 +52,7 @@
 
     <div id="trade" class="tab">
         <h2>Open Long Trade</h2>
-        <form id="trade-form">
+        <form>
             <label>Pair</label>
             <input id="trade-crypto" list="cryptos" placeholder="BTC">
             <div id="current-price"></div>
@@ -75,7 +74,7 @@
 
     <div id="transfer" class="tab">
         <h2>Swap Assets</h2>
-        <form id="transfer-form">
+        <form>
             <label>From</label>
             <select id="from-crypto"></select>
             <label>To</label>
