@@ -5,35 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blue Wallet</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f0f8ff; color: #1e293b; margin: 0; min-height: 100vh; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f8ff; color: #1e293b; margin: 0; min-height: 100vh; display: flex; flex-direction: column; }
         nav { display: flex; justify-content: space-around; padding: 15px; background: #ffffff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 10; }
         nav button { padding: 10px 15px; background: #3b82f6; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 14px; flex: 1; margin: 0 5px; }
         nav button:hover, nav button.active { background: #2563eb; }
-        .tab { max-width: 900px; margin: 20px auto; padding: 20px; background: #ffffff; border-radius: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.08); display: none; }
+        main { flex: 1; padding: 20px; }
+        .tab { max-width: 900px; margin: 0 auto; background: #ffffff; border-radius: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.08); padding: 25px; display: none; }
         #wallet { display: block; }
-        #total-usd { font-size: 36px; font-weight: bold; text-align: center; color: #2563eb; margin: 20px 0; }
+        #total-card { text-align: center; background: #eff6ff; padding: 30px; border-radius: 16px; margin-bottom: 30px; }
+        #total-label { font-size: 18px; color: #64748b; }
+        #total-usd { font-size: 48px; font-weight: bold; color: #2563eb; margin: 10px 0; }
         #assets { list-style: none; padding: 0; margin: 0; }
-        #assets li { display: flex; align-items: center; justify-content: space-between; padding: 18px; background: #eff6ff; border-radius: 14px; margin-bottom: 12px; font-size: 18px; }
-        .asset-left { display: flex; align-items: center; gap: 15px; }
-        .asset-left strong { font-size: 22px; }
-        form { display: grid; gap: 14px; margin-top: 20px; }
+        #assets li { display: flex; align-items: center; gap: 15px; padding: 18px; background: #eff6ff; border-radius: 14px; margin-bottom: 12px; font-size: 18px; }
+        .asset-symbol { font-size: 22px; font-weight: bold; }
+        form { display: grid; gap: 14px; }
         label { font-weight: bold; color: #3b82f6; font-size: 15px; }
         input, select { padding: 12px; background: #f8fbff; border: 1px solid #bfdbfe; border-radius: 10px; font-size: 16px; }
         button { padding: 12px 20px; background: #10b981; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
         button:hover { background: #059669; }
-        .secret { padding: 10px 20px; background: #2563eb; color: white; font-size: 14px; font-weight: bold; border: none; border-radius: 30px; cursor: pointer; margin: 20px auto; display: block; }
-        #secret-section { padding: 20px; background: #eff6ff; border-radius: 14px; display: none; margin-top: 20px; }
-        #current-price, #available-usdt, #liq-est, #transfer-est { font-size: 17px; font-weight: bold; color: #2563eb; margin: 10px 0; }
+        #current-price, #available-usdt, #liq-est, #transfer-est, #from-balance { font-size: 17px; font-weight: bold; color: #2563eb; margin: 10px 0; }
         #lev-value { font-size: 18px; font-weight: bold; color: #2563eb; }
-        h2 { color: #2563eb; font-size: 22px; margin: 0 0 20px 0; text-align: center; }
-        #manage-trades li { background: #eff6ff; padding: 18px; border-radius: 14px; margin-bottom: 12px; word-break: break-all; }
+        h2 { color: #2563eb; font-size: 24px; text-align: center; margin-bottom: 20px; }
+        #manage-trades li { background: #eff6ff; padding: 20px; border-radius: 14px; margin-bottom: 12px; }
+        footer { padding: 20px; text-align: center; }
+        .secret { padding: 10px 30px; background: #2563eb; color: white; font-size: 16px; font-weight: bold; border: none; border-radius: 30px; cursor: pointer; }
+        #secret-section { padding: 20px; background: #eff6ff; border-radius: 14px; margin-top: 20px; display: none; }
         @media (max-width: 600px) {
-            nav { padding: 10px; }
-            nav button { padding: 10px; font-size: 13px; }
-            .tab { margin: 10px; padding: 15px; }
-            #total-usd { font-size: 30px; }
-            #assets li { padding: 15px; font-size: 16px; }
-            .asset-left strong { font-size: 20px; }
+            nav button { font-size: 13px; padding: 10px; }
+            main { padding: 10px; }
+            #total-usd { font-size: 36px; }
+            h2 { font-size: 20px; }
         }
     </style>
 </head>
@@ -45,9 +46,50 @@
         <button onclick="showTab('transfer')">Swap</button>
     </nav>
 
-    <div id="wallet" class="tab">
-        <div id="total-usd">Loading...</div>
-        <ul id="assets"></ul>
+    <main>
+        <div id="wallet" class="tab">
+            <div id="total-card">
+                <div id="total-label">Portfolio Value</div>
+                <div id="total-usd">Loading...</div>
+            </div>
+            <ul id="assets"></ul>
+        </div>
+
+        <div id="trade" class="tab">
+            <h2>Open Long Trade</h2>
+            <label>Pair</label>
+            <input id="trade-crypto" list="cryptos" placeholder="BTC">
+            <div id="current-price"></div>
+            <label>USDT Amount</label>
+            <input id="usdt-amount" type="number" step="any" min="0">
+            <div id="available-usdt"></div>
+            <label>Leverage</label>
+            <input id="leverage" type="range" min="1" max="100" value="1">
+            <span id="lev-value">1x</span>
+            <button type="button" id="trade-btn">Open Trade</button>
+            <div id="liq-est"></div>
+        </div>
+
+        <div id="manage" class="tab">
+            <h2>Open Trades</h2>
+            <ul id="manage-trades"></ul>
+        </div>
+
+        <div id="transfer" class="tab">
+            <h2>Swap Assets</h2>
+            <label>From</label>
+            <select id="from-crypto"></select>
+            <div id="from-balance"></div>
+            <label>To</label>
+            <select id="to-crypto"></select>
+            <label>Amount</label>
+            <input id="transfer-amount" type="number" step="any" min="0">
+            <div id="transfer-est"></div>
+            <button type="button" id="swap-btn">Swap (0.5% fee)</button>
+        </div>
+    </main>
+
+    <footer>
         <button id="secret-btn" class="secret">About Me</button>
         <div id="secret-section">
             <h2>Add Asset</h2>
@@ -57,39 +99,7 @@
             <input id="amount" type="number" step="any" min="0">
             <button type="button" id="add-btn">Add</button>
         </div>
-    </div>
-
-    <div id="trade" class="tab">
-        <h2>Open Long Trade</h2>
-        <label>Pair</label>
-        <input id="trade-crypto" list="cryptos" placeholder="BTC">
-        <div id="current-price"></div>
-        <label>USDT Amount</label>
-        <input id="usdt-amount" type="number" step="any" min="0">
-        <div id="available-usdt"></div>
-        <label>Leverage</label>
-        <input id="leverage" type="range" min="1" max="100" value="1">
-        <span id="lev-value">1x</span>
-        <button type="button" id="trade-btn">Open</button>
-        <div id="liq-est"></div>
-    </div>
-
-    <div id="manage" class="tab">
-        <h2>Open Trades</h2>
-        <ul id="manage-trades"></ul>
-    </div>
-
-    <div id="transfer" class="tab">
-        <h2>Swap Assets</h2>
-        <label>From</label>
-        <select id="from-crypto"></select>
-        <label>To</label>
-        <select id="to-crypto"></select>
-        <label>Amount</label>
-        <input id="transfer-amount" type="number" step="any" min="0">
-        <div id="transfer-est"></div>
-        <button type="button" id="swap-btn">Swap (0.5% fee)</button>
-    </div>
+    </footer>
 
     <datalist id="cryptos">
         <option value="BTC"><option value="ETH"><option value="SOL"><option value="USDT">
@@ -132,7 +142,7 @@
             for (const c in assets) {
                 if (assets[c] > 0) total += assets[c] * (prices[c] || 0);
             }
-            document.getElementById('total-usd').innerText = 'Total: $' + total.toFixed(2);
+            document.getElementById('total-usd').innerText = '$' + total.toFixed(2);
         }
 
         function updateAssets() {
@@ -142,10 +152,8 @@
                 if (assets[c] <= 0) return;
                 const id = symbolToId[c] || c.toLowerCase();
                 const li = document.createElement('li');
-                li.innerHTML = '<div class="asset-left">' +
-                               '<img src="https://cryptologos.cc/logos/' + id + '-' + c.toLowerCase() + '-logo.png?v=029" width="45" onerror="this.src=\'https://via.placeholder.com/45\'">' +
-                               '<div><strong>' + c + '</strong><br>' + assets[c].toFixed(8) + '</div>' +
-                               '</div>';
+                li.innerHTML = '<img src="https://cryptologos.cc/logos/' + id + '-' + c.toLowerCase() + '-logo.png?v=029" width="45" onerror="this.src=\'https://via.placeholder.com/45\'">' +
+                               '<div><div class="asset-symbol">' + c + '</div>' + assets[c].toFixed(8) + '</div>';
                 list.appendChild(li);
             });
         }
@@ -250,13 +258,16 @@
         };
 
         function updateSwap() {
-            const from = document.getElementById('from-crypto');
-            const to = document.getElementById('to-crypto');
-            from.innerHTML = to.innerHTML = '';
+            const fromSelect = document.getElementById('from-crypto');
+            const toSelect = document.getElementById('to-crypto');
+            fromSelect.innerHTML = '';
+            toSelect.innerHTML = '';
             Object.keys(prices).sort().forEach(c => {
-                const o1 = document.createElement('option'); o1.value = o1.textContent = c; from.appendChild(o1);
-                const o2 = o1.cloneNode(true); to.appendChild(o2);
+                const o1 = document.createElement('option'); o1.value = o1.textContent = c; fromSelect.appendChild(o1);
+                const o2 = o1.cloneNode(true); toSelect.appendChild(o2);
             });
+            const from = fromSelect.value;
+            document.getElementById('from-balance').innerText = from ? 'Balance: ' + (assets[from] || 0).toFixed(8) + ' ' + from + ' ($' + ((assets[from] || 0) * prices[from]).toFixed(2) + ')' : '';
             estimateSwap();
         }
 
@@ -270,11 +281,12 @@
             } else {
                 document.getElementById('transfer-est').innerText = '';
             }
+            document.getElementById('from-balance').innerText = from ? 'Balance: ' + (assets[from] || 0).toFixed(8) + ' ' + from + ' ($' + ((assets[from] || 0) * prices[from]).toFixed(2) + ')' : '';
         }
 
-        document.getElementById('transfer-amount').oninput = estimateSwap;
-        document.getElementById('from-crypto').onchange = estimateSwap;
+        document.getElementById('from-crypto').onchange = () => { updateSwap(); estimateSwap(); };
         document.getElementById('to-crypto').onchange = estimateSwap;
+        document.getElementById('transfer-amount').oninput = estimateSwap;
 
         document.getElementById('swap-btn').onclick = async () => {
             const from = document.getElementById('from-crypto').value;
@@ -298,7 +310,7 @@
                 const all = [...new Set([...Object.keys(assets), ...trades.map(t => t.sym)])];
                 await fetchPrices(all);
                 refresh();
-            }, 8000); // Fast update every 8s
+            }, 8000);
         })();
     </script>
 </body>
