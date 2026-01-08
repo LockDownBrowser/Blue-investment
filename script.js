@@ -17,9 +17,11 @@ async function fetchPrices(symbols) {
         const data = await res.json();
         needed.forEach(s => {
             const id = symbolToId[s] || s.toLowerCase();
-            if (data[id]?.usd) prices[s] = data[id].usd;
+            if (data[id] && data[id].usd) prices[s] = data[id].usd;
         });
-    } catch (err) { console.error(err); }
+    } catch (err) {
+        console.error('Price fetch failed:', err);
+    }
 }
 
 function save() {
@@ -32,7 +34,7 @@ function updateTotal() {
     for (const c in assets) {
         if (assets[c] > 0) total += assets[c] * (prices[c] || 0);
     }
-    document.getElementById('total-usd').textContent = `Total: \[ {total.toFixed(2)} USD`;
+    document.getElementById('total-usd').innerText = 'Total: $' + total.toFixed(2) + ' USD';
 }
 
 function updateAssets() {
@@ -41,14 +43,11 @@ function updateAssets() {
     Object.keys(assets).sort().forEach(c => {
         if (assets[c] <= 0) return;
         const id = symbolToId[c] || c.toLowerCase();
-        const value = assets[c] * (prices[c] || 0);
+        const value = (assets[c] * (prices[c] || 0)).toFixed(2);
         const li = document.createElement('li');
-        li.innerHTML = `
-            <img src="https://cryptologos.cc/logos/\( {id}- \){c.toLowerCase()}-logo.png?v=029" width="40" onerror="this.src='https://via.placeholder.com/40'">
-            <div>
-                <strong>${c}</strong>: ${assets[c].toFixed(6)}<br>
-                <span style="color:#007bff;"> \]{value.toFixed(2)}</span>
-            </div>`;
+        li.innerHTML = '<img src="https://cryptologos.cc/logos/' + id + '-' + c.toLowerCase() + '-logo.png?v=029" width="40" onerror="this.src=\'https://via.placeholder.com/40\'">' +
+                       '<div><strong>' + c + '</strong>: ' + assets[c].toFixed(6) + '<br>' +
+                       '<span style="color:#60a5fa;">$' + value + '</span></div>';
         list.appendChild(li);
     });
 }
@@ -65,7 +64,9 @@ async function addCrypto() {
     }
 }
 
-document.getElementById('secret-btn').onclick = () => document.getElementById('secret-section').style.display = 'block';
+document.getElementById('secret-btn').onclick = () => {
+    document.getElementById('secret-section').style.display = 'block';
+};
 
 function showTab(id) {
     document.querySelectorAll('.tab').forEach(t => t.style.display = 'none');
@@ -76,24 +77,25 @@ function showTab(id) {
 function refresh() {
     updateTotal();
     updateAssets();
-    if (document.getElementById('trade').style.display === 'block') updateTrade();
-    if (document.getElementById('manage').style.display === 'block') updateManage();
-    if (document.getElementById('transfer').style.display === 'block') updateSwap();
+    const active = document.querySelector('.tab[style*="block"]');
+    if (active.id === 'trade') updateTrade();
+    if (active.id === 'manage') updateManage();
+    if (active.id === 'transfer') updateSwap();
 }
 
 function updateTrade() {
-    document.getElementById('available-usdt').textContent = `Available: ${(assets.USDT || 0).toFixed(2)} USDT`;
+    document.getElementById('available-usdt').innerText = 'Available: ' + (assets.USDT || 0).toFixed(2) + ' USDT';
     const input = document.getElementById('trade-crypto');
     const sym = input.value.toUpperCase().trim();
-    document.getElementById('current-price').textContent = prices[sym] ? `Price: \[ {prices[sym].toFixed(2)}` : '';
+    document.getElementById('current-price').innerText = prices[sym] ? 'Price: $' + prices[sym].toFixed(2) : '';
     input.oninput = async () => {
         const s = input.value.toUpperCase().trim();
         if (s && !prices[s]) await fetchPrices([s]);
-        document.getElementById('current-price').textContent = prices[s] ? `Price: \]{prices[s].toFixed(2)}` : '';
+        document.getElementById('current-price').innerText = prices[s] ? 'Price: $' + prices[s].toFixed(2) : '';
     };
     const lev = document.getElementById('leverage');
-    document.getElementById('lev-value').textContent = `${lev.value}x`;
-    lev.oninput = () => document.getElementById('lev-value').textContent = `${lev.value}x`;
+    document.getElementById('lev-value').innerText = lev.value + 'x';
+    lev.oninput = () => document.getElementById('lev-value').innerText = lev.value + 'x';
 }
 
 async function startTrade() {
@@ -108,7 +110,7 @@ async function startTrade() {
     const pos = (usdt * lev) / price;
     trades.push({ sym, pos, entry: price, lev });
     save();
-    document.getElementById('liq-est').textContent = `Liq Price: \[ {(price * (1 - 1/lev)).toFixed(2)}`;
+    document.getElementById('liq-est').innerText = 'Liq Price: $' + (price * (1 - 1/lev)).toFixed(2);
     showTab('manage');
 }
 
@@ -121,13 +123,12 @@ async function updateManage() {
         const pnl = (curr - t.entry) * t.pos;
         const roi = (pnl / (t.pos * t.entry / t.lev)) * 100;
         const li = document.createElement('li');
-        li.innerHTML = `
-            <strong>\( {t.sym}/USDT × \){t.lev}</strong><br>
-            Pos: ${t.pos.toFixed(6)}<br>
-            Entry \]{t.entry.toFixed(2)} → Current \[ {curr.toFixed(2)}<br>
-            PnL: <span style="color:${pnl>=0?'green':'red'}"> \]{pnl.toFixed(2)}</span> 
-            ROI: <span style="color:\( {roi>=0?'green':'red'}"> \){roi.toFixed(2)}%</span><br>
-            <button onclick="closeTrade(${i})">Close</button>`;
+        li.innerHTML = '<strong>' + t.sym + '/USDT ×' + t.lev + '</strong><br>' +
+                       'Pos: ' + t.pos.toFixed(6) + '<br>' +
+                       'Entry $' + t.entry.toFixed(2) + ' → Current $' + curr.toFixed(2) + '<br>' +
+                       'PnL: <span style="color:' + (pnl >= 0 ? 'lime' : 'red') + '">$' + pnl.toFixed(2) + '</span> ' +
+                       'ROI: <span style="color:' + (roi >= 0 ? 'lime' : 'red') + '">' + roi.toFixed(2) + '%</span><br>' +
+                       '<button onclick="closeTrade(' + i + ')">Close</button>';
         list.appendChild(li);
     });
 }
@@ -164,9 +165,9 @@ function estimateSwap() {
     if (from && to && amt > 0 && prices[from] && prices[to]) {
         const value = amt * prices[from];
         const received = value * 0.995 / prices[to];
-        document.getElementById('transfer-est').textContent = `≈ ${received.toFixed(6)} ${to} (0.5% fee)`;
+        document.getElementById('transfer-est').innerText = '≈ ' + received.toFixed(6) + ' ' + to + ' (0.5% fee)';
     } else {
-        document.getElementById('transfer-est').textContent = '';
+        document.getElementById('transfer-est').innerText = '';
     }
 }
 
