@@ -13,21 +13,21 @@
         #wallet { display: block; }
         #total-usd { font-size: 42px; font-weight: bold; text-align: center; color: #2563eb; margin-bottom: 40px; }
         #assets { list-style: none; padding: 0; margin: 0; }
-        #assets li { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 24px; background: #eff6ff; border-radius: 16px; margin-bottom: 16px; font-size: 20px; }
+        #assets li { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 24px; background: #eff6ff; border-radius: 16px; margin-bottom: 16px; font-size: 20px; word-break: break-all; }
         .asset-info { display: flex; align-items: center; gap: 20px; }
-        .asset-value { font-size: 24px; font-weight: bold; color: #2563eb; }
+        .asset-value { font-size: 24px; font-weight: bold; color: #2563eb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
         form { display: grid; gap: 16px; max-width: 500px; }
         label { font-weight: bold; color: #3b82f6; }
         input, select { padding: 14px; background: #f8fbff; border: 1px solid #bfdbfe; border-radius: 12px; color: #1e293b; font-size: 16px; }
         button { padding: 14px 28px; background: #10b981; color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; }
         button:hover { background: #059669; }
-        .secret { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); padding: 16px 40px; background: #2563eb; color: white; font-size: 18px; font-weight: bold; border: none; border-radius: 50px; cursor: pointer; box-shadow: 0 8px 25px rgba(37,99,235,0.3); z-index: 100; }
+        .secret { padding: 16px 40px; background: #2563eb; color: white; font-size: 18px; font-weight: bold; border: none; border-radius: 50px; cursor: pointer; box-shadow: 0 8px 25px rgba(37,99,235,0.3); margin: 30px auto; display: block; }
         #secret-section { margin-top: 40px; padding: 30px; background: #eff6ff; border-radius: 16px; display: none; }
         #current-price, #available-usdt, #liq-est, #transfer-est { font-size: 18px; font-weight: bold; color: #2563eb; margin: 15px 0; }
         #lev-value { font-size: 20px; font-weight: bold; color: #2563eb; }
         h2 { color: #2563eb; margin-top: 0; }
         #manage-trades { list-style: none; padding: 0; }
-        #manage-trades li { background: #eff6ff; padding: 24px; border-radius: 16px; margin-bottom: 16px; }
+        #manage-trades li { background: #eff6ff; padding: 24px; border-radius: 16px; margin-bottom: 16px; word-break: break-all; }
         #last-update { text-align: center; color: #64748b; font-size: 14px; margin-top: 10px; }
     </style>
 </head>
@@ -177,7 +177,8 @@
         }
 
         document.getElementById('secret-btn').onclick = () => {
-            document.getElementById('secret-section').style.display = 'block';
+            const section = document.getElementById('secret-section');
+            section.style.display = section.style.display === 'block' ? 'none' : 'block';
         };
 
         document.getElementById('add-btn').onclick = async () => {
@@ -312,7 +313,7 @@
                 const all = [...new Set([...Object.keys(assets), ...trades.map(t => t.sym)])];
                 await fetchPrices(all);
                 refresh();
-            }, 10000); // Update every 10 seconds for live feel
+            }, 10000); // Real-time update every 10s
         })();
     </script>
 </body>
