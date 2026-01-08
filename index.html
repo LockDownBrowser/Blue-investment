@@ -3,310 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Amagami - Crypto Copy Trading</title>
-    <meta name="description" content="Professional crypto copy trading with proven algorithm. High accuracy, low risk.">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #007bff;
-            --accent: #e3f2fd;
-            --success: #28a745;
-            --text: #212529;
-            --light: #f8fbff;
-            --highlight-bg: #e3f2fd;
-        }
-        body {
-            font-family: 'Roboto', Arial, sans-serif;
-            background: var(--light);
-            color: var(--text);
-            margin: 0;
-            padding: 0;
-            line-height: 1.8;
-        }
-        .scroll-encourage {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80%;
-            max-width: 300px;
-            height: 6px;
-            background: rgba(0,0,0,0.1);
-            border-radius: 3px;
-            overflow: hidden;
-            z-index: 1000;
-        }
-        .scroll-progress {
-            height: 100%;
-            width: 0%;
-            background: var(--primary);
-            transition: width 0.3s;
-        }
-        header {
-            text-align: center;
-            padding: 80px 20px 60px;
-            background: #ffffff;
-        }
-        .logo {
-            font-size: 2.8em;
-            font-weight: bold;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-        }
-        .logo i {
-            font-size: 1.2em;
-        }
-        .intro {
-            max-width: 800px;
-            margin: 40px auto;
-            padding: 0 20px;
-            text-align: center;
-            font-size: 1.4em;
-            color: #555;
-        }
-        .trustpilot-box {
-            max-width: 380px;
-            margin: 40px auto;
-            padding: 30px;
-            background: #ffffff;
-            border-radius: 16px;
-            text-align: center;
-            box-shadow: 0 4px 20px rgba(0,123,255,0.1);
-            border: 1px solid var(--accent);
-        }
-        .trustpilot-box .stars {
-            color: #00b67a;
-            font-size: 2.2em;
-            margin-bottom: 10px;
-        }
-        .trustpilot-box .rating {
-            font-size: 2em;
-            font-weight: bold;
-        }
-        .trustpilot-box .reviews {
-            color: #666;
-        }
-        .trustpilot-box .label {
-            font-weight: bold;
-            color: #00b67a;
-        }
-        .token-section {
-            max-width: 900px;
-            margin: 60px auto;
-            padding: 40px 30px;
-            background: #ffffff;
-            border-radius: 24px;
-            text-align: center;
-            box-shadow: 0 8px 30px rgba(0,123,255,0.15);
-        }
-        .token-section h2 {
-            color: var(--primary);
-            font-size: 2.2em;
-            margin-bottom: 20px;
-        }
-        .token-price {
-            font-size: 2.8em;
-            font-weight: bold;
-            color: var(--success);
-            margin: 20px 0;
-        }
-        .view-dex {
-            display: inline-block;
-            padding: 12px 28px;
-            background: #343a40;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 12px;
-            font-size: 1.1em;
-            transition: background 0.3s;
-        }
-        .view-dex:hover {
-            background: #212529;
-        }
-        .roi-box {
-            max-width: 900px;
-            margin: 60px auto;
-            padding: 50px;
-            background: var(--highlight-bg);
-            border-radius: 24px;
-            text-align: center;
-            box-shadow: 0 8px 30px rgba(0,123,255,0.15);
-        }
-        .roi-box .highlight {
-            font-size: 3.5em;
-            font-weight: bold;
-            color: var(--primary);
-        }
-        .features {
-            max-width: 900px;
-            margin: 60px auto;
-            padding: 50px 30px;
-            background: #ffffff;
-            border-radius: 24px;
-            text-align: center;
-            box-shadow: 0 8px 30px rgba(0,123,255,0.15);
-        }
-        .features h2 {
-            color: var(--primary);
-            font-size: 2.4em;
-            margin-bottom: 40px;
-        }
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-        .feature-box {
-            background: var(--accent);
-            padding: 25px;
-            border-radius: 16px;
-            text-align: left;
-            display: flex;
-            align-items: flex-start;
-            gap: 20px;
-            box-shadow: 0 4px 15px rgba(0,123,255,0.1);
-        }
-        .feature-box i {
-            color: var(--success);
-            font-size: 1.8em;
-            min-width: 40px;
-        }
-        .feature-box span {
-            font-size: 1.2em;
-        }
-        .pnl-section {
-            max-width: 900px;
-            margin: 60px auto;
-            padding: 40px;
-            background: #ffffff;
-            border-radius: 24px;
-            text-align: center;
-            box-shadow: 0 8px 30px rgba(0,123,255,0.15);
-        }
-        .pnl-section h2 {
-            color: var(--primary);
-            font-size: 2.2em;
-            margin-bottom: 20px;
-        }
-        .pnl-value {
-            font-size: 3em;
-            color: var(--success);
-            font-weight: bold;
-        }
-        .cta {
-            text-align: center;
-            padding: 80px 20px;
-        }
-        .btn {
-            display: inline-block;
-            padding: 20px 50px;
-            background: var(--primary);
-            color: #fff;
-            text-decoration: none;
-            border-radius: 12px;
-            font-weight: bold;
-            font-size: 1.6em;
-            transition: all 0.3s;
-        }
-        .btn:hover {
-            background: #0056b3;
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,123,255,0.3);
-        }
-        @media (max-width: 768px) {
-            .logo { font-size: 2.2em; flex-direction: column; }
-            .intro { font-size: 1.2em; }
-            .token-price { font-size: 2.2em; }
-            .roi-box .highlight { font-size: 2.6em; }
-            .features-grid { grid-template-columns: 1fr; }
-            .feature-box span { font-size: 1.1em; }
-            .pnl-value { font-size: 2.4em; }
-            .btn { font-size: 1.3em; padding: 18px 40px; display: block; width: 80%; margin: 20px auto; }
-        }
-    </style>
+    <title>Blue Wallet</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="scroll-encourage">
-        <div class="scroll-progress" id="progress"></div>
-    </div>
-    <header>
-        <div class="logo"><i class="fas fa-chart-line"></i> Amagami</div>
-    </header>
-
-    <div class="intro">
-        <p>Professional crypto copy trading platform launched December 3, 2023. Completely free to join— we only take 5% of profits.</p>
-    </div>
-
-    <div class="trustpilot-box">
-        <div class="stars">
-            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+    <header><h1>Blue Wallet</h1></header>
+    <nav>
+        <button onclick="showTab('wallet')">Wallet</button>
+        <button onclick="showTab('trade')">Trade</button>
+        <button onclick="showTab('manage')">Manage Trades</button>
+        <button onclick="showTab('transfer')">Transfer</button>
+    </nav>
+    <div id="wallet" class="tab">
+        <div id="total-usd"></div>
+        <ul id="assets"></ul>
+        <button id="secret-btn" class="secret">🔒</button>
+        <div id="secret-section" style="display:none;">
+            <h2>Secret Add</h2>
+            <input id="crypto-type" placeholder="Crypto (e.g., BTC)">
+            <input id="amount" placeholder="Amount" type="number">
+            <button onclick="addCrypto()">Add</button>
         </div>
-        <div class="rating">4.8 / 5</div>
-        <div class="reviews">533 ratings</div>
-        <div class="label">Trustpilot</div>
     </div>
-
-    <section class="token-section">
-        <h2>Our Token $WEN</h2>
-        <div class="token-price">$0.000003508</div>
-        <a href="https://dexscreener.com/solana/GZ9RTBGzoquLjFWQc3TXxX1oE5x8bs2ZJV6W7ET9pump" target="_blank" class="view-dex">View on DexScreener →</a>
-    </section>
-
-    <div class="roi-box">
-        <div class="highlight">30% Average Monthly ROI</div>
+    <div id="trade" class="tab" style="display:none;">
+        <h2>Trade with USDT</h2>
+        <input id="trade-crypto" placeholder="Crypto (e.g., BTC)">
+        <input id="usdt-amount" placeholder="USDT Amount" type="number">
+        <input id="leverage" placeholder="Leverage" type="number" value="1">
+        <button onclick="startTrade()">Trade</button>
+        <div id="liq-est"></div>
     </div>
-
-    <section class="features">
-        <h2>Key Features</h2>
-        <div class="features-grid">
-            <div class="feature-box"><i class="fas fa-brain"></i><span>Real algorithmic trading (not AI)</span></div>
-            <div class="feature-box"><i class="fas fa-info-circle"></i><span>99.7% accuracy via legally sourced advance whale trading insights</span></div>
-            <div class="feature-box"><i class="fas fa-coins"></i><span>Focus on safe coins: SOL, ETH, BTC, ATOM, AVAX</span></div>
-            <div class="feature-box"><i class="fas fa-shield-alt"></i><span>Conservative 2-5x max leverage</span></div>
-            <div class="feature-box"><i class="fas fa-chart-line"></i><span>Proven since December 3, 2023</span></div>
-            <div class="feature-box"><i class="fas fa-arrow-down"></i><span>Minimal 9.1% max drawdown</span></div>
-            <div class="feature-box"><i class="fas fa-gift"></i><span>Free to join—no upfront costs</span></div>
-            <div class="feature-box"><i class="fas fa-percentage"></i><span>Only 5% profit share</span></div>
-        </div>
-    </section>
-
-    <section class="pnl-section">
-        <h2>Current Monthly PNL</h2>
-        <div class="pnl-value">+<span id="pnl">Calculating...</span> USDT</div>
-    </section>
-
-    <div class="cta">
-        <a href="connect.html" class="btn">Connect Wallet & Start Copy Trading (Takes 5 Minutes)</a>
+    <div id="manage" class="tab" style="display:none;">
+        <h2>Manage Trades</h2>
+        <ul id="manage-trades"></ul>
     </div>
-
-    <script>
-        // Scroll progress bar
-        window.addEventListener('scroll', () => {
-            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
-            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-            const scrolled = (winScroll / height) * 100;
-            document.getElementById('progress').style.width = scrolled + '%';
-        });
-
-        // Monthly PNL simulation (as of Dec 20, 2025)
-        const today = new Date(2025, 11, 20);
-        const dayDiff = today.getDate() - 1;
-        const dailyBase = 109000 / 31;
-        let pnl = 0;
-        let seed = 42;
-        for (let d = 0; d <= dayDiff; d++) {
-            seed = (seed * 1664525 + 1013904223) % 4294967296;
-            let r = seed / 4294967296;
-            let change = (r < 0.1) ? -0.01 : 0.02 + 0.03 * r;
-            pnl += dailyBase * (1 + change);
-        }
-        document.getElementById('pnl').innerText = Math.round(pnl).toLocaleString();
-    </script>
+    <div id="transfer" class="tab" style="display:none;">
+        <h2>Transfer Currencies</h2>
+        <select id="from-crypto"></select>
+        <select id="to-crypto"></select>
+        <input id="transfer-amount" placeholder="Amount" type="number">
+        <div id="transfer-est"></div>
+        <button onclick="transferCrypto()">Transfer (0.5% fee)</button>
+    </div>
+    <script src="script.js"></script>
 </body>
 </html>
