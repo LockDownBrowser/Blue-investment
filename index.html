@@ -6,43 +6,48 @@
     <title>Blue Wallet</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f0f8ff; color: #1e293b; margin: 0; min-height: 100vh; }
-        nav { display: flex; justify-content: center; gap: 20px; padding: 20px; background: #ffffff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); flex-wrap: wrap; }
-        nav button { padding: 12px 28px; background: #3b82f6; color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 16px; }
-        nav button:hover { background: #2563eb; }
-        .tab { max-width: 900px; margin: 20px auto; padding: 30px; background: #ffffff; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); display: none; }
+        nav { display: flex; justify-content: space-around; padding: 15px; background: #ffffff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 10; }
+        nav button { padding: 10px 15px; background: #3b82f6; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 14px; flex: 1; margin: 0 5px; }
+        nav button:hover, nav button.active { background: #2563eb; }
+        .tab { max-width: 900px; margin: 20px auto; padding: 20px; background: #ffffff; border-radius: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.08); display: none; }
         #wallet { display: block; }
-        #total-usd { font-size: 42px; font-weight: bold; text-align: center; color: #2563eb; margin-bottom: 40px; }
+        #total-usd { font-size: 36px; font-weight: bold; text-align: center; color: #2563eb; margin: 20px 0; }
         #assets { list-style: none; padding: 0; margin: 0; }
-        #assets li { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 24px; background: #eff6ff; border-radius: 16px; margin-bottom: 16px; font-size: 20px; word-break: break-all; }
-        .asset-info { display: flex; align-items: center; gap: 20px; }
-        .asset-value { font-size: 24px; font-weight: bold; color: #2563eb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
-        form { display: grid; gap: 16px; max-width: 500px; }
-        label { font-weight: bold; color: #3b82f6; }
-        input, select { padding: 14px; background: #f8fbff; border: 1px solid #bfdbfe; border-radius: 12px; color: #1e293b; font-size: 16px; }
-        button { padding: 14px 28px; background: #10b981; color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; }
+        #assets li { display: flex; align-items: center; justify-content: space-between; padding: 18px; background: #eff6ff; border-radius: 14px; margin-bottom: 12px; font-size: 18px; }
+        .asset-left { display: flex; align-items: center; gap: 15px; }
+        .asset-left strong { font-size: 22px; }
+        form { display: grid; gap: 14px; margin-top: 20px; }
+        label { font-weight: bold; color: #3b82f6; font-size: 15px; }
+        input, select { padding: 12px; background: #f8fbff; border: 1px solid #bfdbfe; border-radius: 10px; font-size: 16px; }
+        button { padding: 12px 20px; background: #10b981; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
         button:hover { background: #059669; }
-        .secret { padding: 16px 40px; background: #2563eb; color: white; font-size: 18px; font-weight: bold; border: none; border-radius: 50px; cursor: pointer; box-shadow: 0 8px 25px rgba(37,99,235,0.3); margin: 30px auto; display: block; }
-        #secret-section { margin-top: 40px; padding: 30px; background: #eff6ff; border-radius: 16px; display: none; }
-        #current-price, #available-usdt, #liq-est, #transfer-est { font-size: 18px; font-weight: bold; color: #2563eb; margin: 15px 0; }
-        #lev-value { font-size: 20px; font-weight: bold; color: #2563eb; }
-        h2 { color: #2563eb; margin-top: 0; }
-        #manage-trades { list-style: none; padding: 0; }
-        #manage-trades li { background: #eff6ff; padding: 24px; border-radius: 16px; margin-bottom: 16px; word-break: break-all; }
-        #last-update { text-align: center; color: #64748b; font-size: 14px; margin-top: 10px; }
+        .secret { padding: 10px 20px; background: #2563eb; color: white; font-size: 14px; font-weight: bold; border: none; border-radius: 30px; cursor: pointer; margin: 20px auto; display: block; }
+        #secret-section { padding: 20px; background: #eff6ff; border-radius: 14px; display: none; margin-top: 20px; }
+        #current-price, #available-usdt, #liq-est, #transfer-est { font-size: 17px; font-weight: bold; color: #2563eb; margin: 10px 0; }
+        #lev-value { font-size: 18px; font-weight: bold; color: #2563eb; }
+        h2 { color: #2563eb; font-size: 22px; margin: 0 0 20px 0; text-align: center; }
+        #manage-trades li { background: #eff6ff; padding: 18px; border-radius: 14px; margin-bottom: 12px; word-break: break-all; }
+        @media (max-width: 600px) {
+            nav { padding: 10px; }
+            nav button { padding: 10px; font-size: 13px; }
+            .tab { margin: 10px; padding: 15px; }
+            #total-usd { font-size: 30px; }
+            #assets li { padding: 15px; font-size: 16px; }
+            .asset-left strong { font-size: 20px; }
+        }
     </style>
 </head>
 <body>
     <nav>
-        <button onclick="showTab('wallet')">Wallet</button>
+        <button onclick="showTab('wallet')" class="active">Wallet</button>
         <button onclick="showTab('trade')">Trade</button>
         <button onclick="showTab('manage')">Manage</button>
         <button onclick="showTab('transfer')">Swap</button>
     </nav>
 
     <div id="wallet" class="tab">
-        <div id="total-usd">Loading prices...</div>
+        <div id="total-usd">Loading...</div>
         <ul id="assets"></ul>
-        <div id="last-update"></div>
         <button id="secret-btn" class="secret">About Me</button>
         <div id="secret-section">
             <h2>Add Asset</h2>
@@ -72,7 +77,6 @@
     <div id="manage" class="tab">
         <h2>Open Trades</h2>
         <ul id="manage-trades"></ul>
-        <div id="last-update-manage"></div>
     </div>
 
     <div id="transfer" class="tab">
@@ -88,16 +92,9 @@
     </div>
 
     <datalist id="cryptos">
-        <option value="BTC">
-        <option value="ETH">
-        <option value="SOL">
-        <option value="USDT">
-        <option value="ADA">
-        <option value="XRP">
-        <option value="BNB">
-        <option value="DOGE">
-        <option value="DOT">
-        <option value="LINK">
+        <option value="BTC"><option value="ETH"><option value="SOL"><option value="USDT">
+        <option value="ADA"><option value="XRP"><option value="BNB"><option value="DOGE">
+        <option value="DOT"><option value="LINK">
     </datalist>
 
     <script>
@@ -120,11 +117,9 @@
                 const data = await res.json();
                 needed.forEach(s => {
                     const id = symbolToId[s] || s.toLowerCase();
-                    if (data[id] && data[id].usd) prices[s] = data[id].usd;
+                    if (data[id]?.usd) prices[s] = data[id].usd;
                 });
-            } catch (err) {
-                console.error(err);
-            }
+            } catch (err) {}
         }
 
         function save() {
@@ -137,7 +132,7 @@
             for (const c in assets) {
                 if (assets[c] > 0) total += assets[c] * (prices[c] || 0);
             }
-            document.getElementById('total-usd').innerText = 'Total: $' + total.toFixed(2) + ' USD';
+            document.getElementById('total-usd').innerText = 'Total: $' + total.toFixed(2);
         }
 
         function updateAssets() {
@@ -146,13 +141,11 @@
             Object.keys(assets).sort().forEach(c => {
                 if (assets[c] <= 0) return;
                 const id = symbolToId[c] || c.toLowerCase();
-                const value = (assets[c] * (prices[c] || 0)).toFixed(2);
                 const li = document.createElement('li');
-                li.innerHTML = '<div class="asset-info">' +
-                               '<img src="https://cryptologos.cc/logos/' + id + '-' + c.toLowerCase() + '-logo.png?v=029" width="50" onerror="this.src=\'https://via.placeholder.com/50\'">' +
-                               '<div><strong style="font-size:24px;">' + c + '</strong><br>' + assets[c].toFixed(6) + '</div>' +
-                               '</div>' +
-                               '<div class="asset-value">$' + value + '</div>';
+                li.innerHTML = '<div class="asset-left">' +
+                               '<img src="https://cryptologos.cc/logos/' + id + '-' + c.toLowerCase() + '-logo.png?v=029" width="45" onerror="this.src=\'https://via.placeholder.com/45\'">' +
+                               '<div><strong>' + c + '</strong><br>' + assets[c].toFixed(8) + '</div>' +
+                               '</div>';
                 list.appendChild(li);
             });
         }
@@ -160,25 +153,23 @@
         function refresh() {
             updateTotal();
             updateAssets();
-            const activeTab = document.querySelector('.tab[style*="block"]');
-            if (!activeTab) return;
-            if (activeTab.id === 'trade') updateTrade();
-            if (activeTab.id === 'manage') updateManage();
-            if (activeTab.id === 'transfer') updateSwap();
-            const now = new Date().toLocaleTimeString();
-            if (activeTab.id === 'wallet') document.getElementById('last-update').innerText = 'Last updated: ' + now;
-            if (activeTab.id === 'manage') document.getElementById('last-update-manage').innerText = 'Last updated: ' + now;
+            const active = document.querySelector('.tab[style*="block"]');
+            if (active.id === 'trade') updateTrade();
+            if (active.id === 'manage') updateManage();
+            if (active.id === 'transfer') updateSwap();
         }
 
         function showTab(id) {
             document.querySelectorAll('.tab').forEach(t => t.style.display = 'none');
             document.getElementById(id).style.display = 'block';
+            document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+            document.querySelector(`nav button[onclick="showTab('${id}')"]`).classList.add('active');
             refresh();
         }
 
         document.getElementById('secret-btn').onclick = () => {
-            const section = document.getElementById('secret-section');
-            section.style.display = section.style.display === 'block' ? 'none' : 'block';
+            const sec = document.getElementById('secret-section');
+            sec.style.display = sec.style.display === 'block' ? 'none' : 'block';
         };
 
         document.getElementById('add-btn').onclick = async () => {
@@ -222,7 +213,7 @@
             const pos = (usdt * lev) / price;
             trades.push({ sym, pos, entry: price, lev });
             save();
-            document.getElementById('liq-est').innerText = 'Liq Price: $' + (price * (1 - 1/lev)).toFixed(2);
+            document.getElementById('liq-est').innerText = 'Liq: $' + (price * (1 - 1/lev)).toFixed(2);
             showTab('manage');
         };
 
@@ -238,8 +229,8 @@
                 const li = document.createElement('li');
                 li.innerHTML = '<strong>' + t.sym + '/USDT ×' + t.lev + '</strong><br>' +
                                'Pos: ' + t.pos.toFixed(6) + '<br>' +
-                               'Entry $' + t.entry.toFixed(2) + ' → Current $' + curr.toFixed(2) + '<br>' +
-                               'Liq Price: $' + liq + '<br>' +
+                               'Entry $' + t.entry.toFixed(2) + ' → $' + curr.toFixed(2) + '<br>' +
+                               'Liq: $' + liq + '<br>' +
                                'PnL: <span style="color:' + (pnl >= 0 ? '#10b981' : '#ef4444') + '">$' + pnl.toFixed(2) + '</span> ' +
                                'ROI: <span style="color:' + (roi >= 0 ? '#10b981' : '#ef4444') + '">' + roi.toFixed(2) + '%</span><br>' +
                                '<button onclick="closeTrade(' + i + ')">Close</button>';
@@ -261,14 +252,10 @@
         function updateSwap() {
             const from = document.getElementById('from-crypto');
             const to = document.getElementById('to-crypto');
-            from.innerHTML = '';
-            to.innerHTML = '';
+            from.innerHTML = to.innerHTML = '';
             Object.keys(prices).sort().forEach(c => {
-                const opt1 = document.createElement('option');
-                opt1.value = opt1.textContent = c;
-                from.appendChild(opt1);
-                const opt2 = opt1.cloneNode(true);
-                to.appendChild(opt2);
+                const o1 = document.createElement('option'); o1.value = o1.textContent = c; from.appendChild(o1);
+                const o2 = o1.cloneNode(true); to.appendChild(o2);
             });
             estimateSwap();
         }
@@ -278,9 +265,8 @@
             const to = document.getElementById('to-crypto').value;
             const amt = parseFloat(document.getElementById('transfer-amount').value) || 0;
             if (from && to && amt > 0 && prices[from] && prices[to]) {
-                const value = amt * prices[from];
-                const received = value * 0.995 / prices[to];
-                document.getElementById('transfer-est').innerText = '≈ ' + received.toFixed(6) + ' ' + to + ' (0.5% fee)';
+                const received = (amt * prices[from] * 0.995) / prices[to];
+                document.getElementById('transfer-est').innerText = '≈ ' + received.toFixed(8) + ' ' + to;
             } else {
                 document.getElementById('transfer-est').innerText = '';
             }
@@ -296,8 +282,7 @@
             const amt = parseFloat(document.getElementById('transfer-amount').value);
             if (from === to || (assets[from] || 0) < amt) return;
             await fetchPrices([from, to]);
-            const value = amt * prices[from];
-            const received = value * 0.995 / prices[to];
+            const received = (amt * prices[from] * 0.995) / prices[to];
             assets[from] -= amt;
             if (assets[from] <= 0) delete assets[from];
             assets[to] = (assets[to] || 0) + received;
@@ -313,7 +298,7 @@
                 const all = [...new Set([...Object.keys(assets), ...trades.map(t => t.sym)])];
                 await fetchPrices(all);
                 refresh();
-            }, 10000); // Real-time update every 10s
+            }, 8000); // Fast update every 8s
         })();
     </script>
 </body>
