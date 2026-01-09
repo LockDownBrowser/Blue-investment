@@ -17,8 +17,7 @@
         #wallet { display: block; }
         #total-card { text-align: center; background: #ffffff; color: #2563eb; padding: 40px; border-radius: 16px; margin-bottom: 30px; box-shadow: 0 8px 25px rgba(37,99,235,0.2); position: relative; overflow: hidden; border: 1px solid #bfdbfe; }
         #total-label { font-size: 22px; margin-bottom: 10px; color: #3b82f6; }
-        #total-amount { font-size: 64px; font-weight: 900; margin: 10px 0; letter-spacing: 1px; animation: fadeIn 1s ease-in; }
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        #total-amount { font-size: 64px; font-weight: 900; margin: 10px 0; letter-spacing: 1px; }
         #currency-select { background: #f1f5f9; border: 1px solid #bfdbfe; color: #2563eb; padding: 8px 12px; border-radius: 8px; font-size: 16px; margin-bottom: 15px; }
         #assets { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
         #assets li { display: flex; align-items: center; gap: 15px; padding: 18px; background: #f1f5f9; border-radius: 14px; font-size: 18px; transition: transform 0.2s, box-shadow 0.2s; }
@@ -204,8 +203,10 @@
             const key = `\( {sym}_ \){days}`;
             if (historical[key]) return;
             const id = symbolToId[sym] || sym.toLowerCase();
+            const to = Math.floor(Date.now() / 1000);
+            const from = to - Math.floor(days * 86400);
             try {
-                const res = await fetch(`https://api.coingecko.com/api/v3/coins/\( {id}/market_chart?vs_currency=usd&days= \){days}`);
+                const res = await fetch(`https://api.coingecko.com/api/v3/coins/\( {id}/market_chart/range?vs_currency=usd&from= \){from}&to=${to}`);
                 const data = await res.json();
                 historical[key] = data.prices.map(p => ({time: p[0], price: p[1]}));
             } catch (err) {}
@@ -225,25 +226,11 @@
             return total;
         }
 
-        function animateTotal(target) {
-            const elem = document.getElementById('total-amount');
-            let current = 0;
-            const step = target / 50;
-            const timer = setInterval(() => {
-                current += step;
-                if (current >= target) {
-                    current = target;
-                    clearInterval(timer);
-                }
-                elem.innerText = currencySymbols[displayCurrency] + current.toFixed(2);
-            }, 20);
-        }
-
         function updateTotal() {
             const totalUSD = getTotalUSD();
             const rate = fiatRates[displayCurrency.toLowerCase()] || 1;
             const total = totalUSD * rate;
-            animateTotal(total);
+            document.getElementById('total-amount').innerText = currencySymbols[displayCurrency] + total.toFixed(2);
         }
 
         function updateAssets() {
@@ -316,7 +303,7 @@
                 await fetchHistorical(sym, days);
                 document.getElementById('current-price').innerText = prices[sym] ? 'Price: $' + prices[sym].toFixed(2) : '';
                 const key = `\( {sym}_ \){days}`;
-                if (historical[key]) {
+                if (historical[key] && historical[key].length > 0) {
                     const ctx = document.getElementById('price-chart').getContext('2d');
                     if (window.tradeChart) window.tradeChart.destroy();
                     const data = historical[key];
@@ -337,6 +324,8 @@
                             plugins: { legend: { display: false }, tooltip: { enabled: true } }
                         }
                     });
+                } else {
+                    document.getElementById('price-chart').getContext('2d').clearRect(0, 0, document.getElementById('price-chart').width, document.getElementById('price-chart').height);
                 }
             }
             document.getElementById('lev-value').innerText = document.getElementById('leverage').value + 'x';
@@ -384,7 +373,7 @@
                                '<button onclick="closeTrade(' + i + ')">Close</button>';
                 list.appendChild(li);
                 const key = `\( {t.sym}_ \){days}`;
-                if (historical[key]) {
+                if (historical[key] && historical[key].length > 0) {
                     const data = historical[key];
                     const labels = data.map(p => new Date(p.time).toLocaleDateString());
                     const ctx = document.getElementById('trade-chart-' + i).getContext('2d');
@@ -434,6 +423,8 @@
                             elements: { line: { borderWidth: 2 } }
                         }
                     });
+                } else {
+                    document.getElementById('trade-chart-' + i).getContext('2d').clearRect(0, 0, document.getElementById('trade-chart-' + i).width, document.getElementById('trade-chart-' + i).height);
                 }
             }
         }
