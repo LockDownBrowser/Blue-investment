@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blue Wallet</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f8fafc; color: #1e293b; margin: 0; min-height: 100vh; display: flex; flex-direction: column; }
         #toggle-btn { position: fixed; top: 16px; left: 16px; width: 48px; height: 48px; background: #3b82f6; color: white; border: none; border-radius: 14px; font-size: 28px; cursor: pointer; z-index: 30; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(0,0,0,0.15); transition: background 0.2s; }
@@ -15,42 +14,46 @@
         #top-bar button { min-width: 130px; padding: 14px 24px; background: #3b82f6; color: white; border: none; border-radius: 14px; font-weight: bold; cursor: pointer; font-size: 15px; transition: all 0.2s; }
         #top-bar button:hover, #top-bar button.active { background: #2563eb; transform: translateY(-3px); box-shadow: 0 6px 12px rgba(37,99,235,0.3); }
         main { flex: 1; padding: 20px; padding-top: 80px; }
-        .tab { max-width: 1000px; margin: 0 auto; background: #ffffff; border-radius: 24px; box-shadow: 0 12px 32px rgba(0,0,0,0.1); padding: 36px; display: none; overflow: hidden; }
+        .tab { max-width: 1000px; margin: 0 auto; background: #ffffff; border-radius: 24px; box-shadow: 0 12px 32px rgba(0,0,0,0.1); padding: 36px; display: none; }
         #wallet { display: block; }
         #total-card { text-align: center; background: linear-gradient(135deg, #eef2ff, #e0e7ff); border-radius: 24px; padding: 48px; margin-bottom: 36px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
         #total-label { font-size: 20px; color: #64748b; }
         #total-amount { font-size: 56px; font-weight: 800; color: #2563eb; margin: 16px 0; }
         #currency-select { padding: 12px 18px; background: #ffffff; border: 1px solid #bfdbfe; border-radius: 14px; font-size: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         #assets { list-style: none; padding: 0; margin: 0; display: grid; gap: 16px; }
-        #assets li { display: flex; align-items: center; gap: 20px; padding: 24px; background: #f0f9ff; border-radius: 20px; transition: all 0.3s; }
+        #assets li { display: flex; align-items: center; gap: 24px; padding: 28px; background: #f0f9ff; border-radius: 20px; transition: all 0.3s; }
         #assets li:hover { transform: translateY(-6px); box-shadow: 0 8px 20px rgba(0,0,0,0.12); }
+        .asset-logo { width: 64px; height: 64px; border-radius: 50%; object-fit: contain; background: white; padding: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
         .asset-info { flex: 1; }
         .asset-symbol { font-size: 28px; font-weight: bold; color: #2563eb; }
-        .asset-amount { font-size: 20px; color: #1e293b; }
-        .asset-logo { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; }
-        .form-grid { display: grid; gap: 20px; }
+        .asset-details { font-size: 18px; color: #475569; margin-top: 4px; }
+        .form-grid { display: grid; gap: 24px; }
         label { font-weight: 600; color: #3b82f6; font-size: 17px; }
         input, select { padding: 16px; background: #f8fbff; border: 1px solid #bfdbfe; border-radius: 14px; font-size: 17px; transition: all 0.2s; }
         input:focus, select:focus { border-color: #2563eb; box-shadow: 0 0 0 4px rgba(37,99,235,0.25); outline: none; }
-        button.action { padding: 16px 28px; background: #10b981; color: white; border: none; border-radius: 14px; font-weight: bold; font-size: 17px; cursor: pointer; transition: all 0.2s; box-shadow: 0 6px 14px rgba(16,185,129,0.3); }
+        button.action { padding: 16px 32px; background: #10b981; color: white; border: none; border-radius: 14px; font-weight: bold; font-size: 18px; cursor: pointer; transition: all 0.2s; box-shadow: 0 6px 14px rgba(16,185,129,0.3); width: 100%; }
         button.action:hover { background: #059669; transform: translateY(-4px); }
-        .info-box { background: #eff6ff; padding: 16px; border-radius: 14px; font-weight: 600; color: #2563eb; font-size: 17px; }
-        #lev-value { font-size: 22px; font-weight: bold; color: #2563eb; margin-left: 12px; }
-        h2 { color: #2563eb; font-size: 28px; text-align: center; margin-bottom: 28px; font-weight: 700; }
-        #manage-trades li { background: #f0f9ff; padding: 28px; border-radius: 20px; margin-bottom: 20px; transition: all 0.3s; }
-        #manage-trades li:hover { transform: translateY(-6px); box-shadow: 0 10px 24px rgba(0,0,0,0.12); }
-        canvas { border-radius: 14px; background: #ffffff; padding: 12px; box-shadow: 0 4px 14px rgba(0,0,0,0.06); margin: 20px 0; }
+        .info-box { background: #eff6ff; padding: 18px; border-radius: 14px; font-weight: 600; color: #2563eb; font-size: 18px; text-align: center; }
+        #lev-range { display: flex; align-items: center; gap: 12px; }
+        #lev-value { font-size: 24px; font-weight: bold; color: #2563eb; min-width: 60px; text-align: right; }
+        h2 { color: #2563eb; font-size: 28px; text-align: center; margin-bottom: 32px; font-weight: 700; }
+        #manage-trades li { background: #f0f9ff; padding: 32px; border-radius: 20px; margin-bottom: 24px; transition: all 0.3s; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        #manage-trades li:hover { transform: translateY(-6px); box-shadow: 0 12px 28px rgba(0,0,0,0.15); }
+        .trade-header { font-size: 24px; font-weight: bold; color: #2563eb; margin-bottom: 16px; }
+        .trade-detail { font-size: 18px; margin: 8px 0; }
+        .pnl-positive { color: #10b981; }
+        .pnl-negative { color: #ef4444; }
         footer { padding: 28px; text-align: center; }
         .secret { padding: 14px 36px; background: #2563eb; color: white; font-size: 17px; font-weight: bold; border: none; border-radius: 30px; cursor: pointer; box-shadow: 0 6px 14px rgba(37,99,235,0.3); }
         #secret-section { padding: 28px; background: #eff6ff; border-radius: 20px; margin-top: 24px; display: none; }
         @media (max-width: 768px) {
-            main { padding-top: 90px; padding-left: 12px; padding-right: 12px; }
+            main { padding-top: 90px; padding: 16px; }
             #total-amount { font-size: 48px; }
             h2 { font-size: 24px; }
             .tab { padding: 24px; }
+            .asset-logo { width: 56px; height: 56px; }
         }
         @media (max-width: 480px) {
-            #top-bar { gap: 10px; padding: 14px; }
             #top-bar button { min-width: 100px; font-size: 14px; padding: 12px 18px; }
             #total-amount { font-size: 40px; }
         }
@@ -93,7 +96,6 @@
                     <input id="trade-crypto" list="cryptos" placeholder="e.g. BTC">
                 </div>
                 <div id="current-price" class="info-box"></div>
-                <canvas id="price-chart"></canvas>
                 <div>
                     <label>USDT Amount</label>
                     <input id="usdt-amount" type="number" step="any" min="0" placeholder="0.00">
@@ -101,7 +103,7 @@
                 </div>
                 <div>
                     <label>Leverage</label>
-                    <div style="display:flex;align-items:center;">
+                    <div id="lev-range">
                         <input id="leverage" type="range" min="1" max="100" value="1" style="flex:1;">
                         <span id="lev-value">1x</span>
                     </div>
@@ -166,7 +168,6 @@
         let trades = JSON.parse(localStorage.getItem('trades')) || [];
         let history = JSON.parse(localStorage.getItem('history')) || [];
         let prices = { USDT: 1 };
-        let historical = {};
         let fiatRates = { usd: 1 };
         let displayCurrency = 'USD';
 
@@ -200,16 +201,6 @@
             } catch (err) {}
         }
 
-        async function fetchHistorical(sym) {
-            if (historical[sym]) return;
-            const id = symbolToId[sym] || sym.toLowerCase();
-            try {
-                const res = await fetch(`https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=usd&days=30`);
-                const data = await res.json();
-                historical[sym] = data.prices.map(p => ({time: p[0], price: p[1]}));
-            } catch (err) {}
-        }
-
         function save() {
             localStorage.setItem('assets', JSON.stringify(assets));
             localStorage.setItem('trades', JSON.stringify(trades));
@@ -237,13 +228,13 @@
             Object.keys(assets).sort().forEach(c => {
                 if (assets[c] <= 0) return;
                 const id = symbolToId[c] || c.toLowerCase();
-                const valueUSD = (assets[c] * (prices[c] || 0)).toFixed(2);
+                const valueUSD = prices[c] ? (assets[c] * prices[c]).toFixed(2) : '0.00';
                 const li = document.createElement('li');
                 li.innerHTML = `
                     <img src="https://cryptologos.cc/logos/\( {id}- \){c.toLowerCase()}-logo.png?v=029" class="asset-logo" onerror="this.style.display='none'">
                     <div class="asset-info">
                         <div class="asset-symbol">${c}</div>
-                        <div class="asset-amount">${assets[c].toFixed(8)} ≈ \[ {valueUSD}</div>
+                        <div class="asset-details">${assets[c].toFixed(8)} ≈ \[ {valueUSD}</div>
                     </div>`;
                 list.appendChild(li);
             });
@@ -302,20 +293,7 @@
             const sym = document.getElementById('trade-crypto').value.toUpperCase().trim();
             if (sym) {
                 await fetchPrices([sym]);
-                await fetchHistorical(sym);
-                document.getElementById('current-price').innerText = prices[sym] ? 'Current Price: $' + prices[sym].toFixed(2) : '';
-                if (historical[sym]) {
-                    const ctx = document.getElementById('price-chart').getContext('2d');
-                    if (window.tradeChart) window.tradeChart.destroy();
-                    window.tradeChart = new Chart(ctx, {
-                        type: 'line',
-                        data: {
-                            labels: historical[sym].map(p => new Date(p.time).toLocaleDateString()),
-                            datasets: [{ label: `${sym} Price (30d)`, data: historical[sym].map(p => p.price), borderColor: '#2563eb', tension: 0.2, fill: false }]
-                        },
-                        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: false } } }
-                    });
-                }
+                document.getElementById('current-price').innerText = prices[sym] ? 'Current Price: $' + prices[sym].toFixed(2) : 'Price not available';
             }
             document.getElementById('lev-value').innerText = document.getElementById('leverage').value + 'x';
         }
@@ -343,39 +321,24 @@
             await fetchPrices(trades.map(t => t.sym));
             const list = document.getElementById('manage-trades');
             list.innerHTML = '';
-            for (let i = 0; i < trades.length; i++) {
-                const t = trades[i];
-                await fetchHistorical(t.sym);
+            trades.forEach((t, i) => {
                 const curr = prices[t.sym] || t.entry;
                 const pnl = (curr - t.entry) * t.pos;
                 const roi = (pnl / (t.pos * t.entry / t.lev)) * 100;
                 const liq = (t.entry * (1 - 1/t.lev)).toFixed(2);
+                const pnlClass = pnl >= 0 ? 'pnl-positive' : 'pnl-negative';
+                const roiClass = roi >= 0 ? 'pnl-positive' : 'pnl-negative';
                 const li = document.createElement('li');
-                li.innerHTML = `<strong>\( {t.sym}/USDT × \){t.lev}</strong><br>` +
-                               `Size: ${t.pos.toFixed(6)}<br>` +
-                               `Entry: \]{t.entry.toFixed(2)} → Current: \[ {curr.toFixed(2)}<br>` +
-                               `Liq: \]{liq}<br>` +
-                               `PnL: <span style="color:${pnl >= 0 ? '#10b981' : '#ef4444'}">\[ {pnl.toFixed(2)}</span> ` +
-                               `ROI: <span style="color:\( {roi >= 0 ? '#10b981' : '#ef4444'}"> \){roi.toFixed(2)}%</span><br>` +
-                               `<canvas id="trade-chart-${i}" style="height:200px;"></canvas><br>` +
-                               `<button class="action" onclick="closeTrade(${i})">Close Trade</button>`;
+                li.innerHTML = `
+                    <div class="trade-header">\( {t.sym}/USDT × \){t.lev}</div>
+                    <div class="trade-detail">Size: ${t.pos.toFixed(6)}</div>
+                    <div class="trade-detail">Entry: \]{t.entry.toFixed(2)} → Current: \[ {curr.toFixed(2)}</div>
+                    <div class="trade-detail">Liq Price: \]{liq}</div>
+                    <div class="trade-detail">PnL: <span class="${pnlClass}">\[ {pnl.toFixed(2)}</span></div>
+                    <div class="trade-detail">ROI: <span class="\( {roiClass}"> \){roi.toFixed(2)}%</span></div>
+                    <button class="action" onclick="closeTrade(${i})" style="margin-top:20px;">Close Trade</button>`;
                 list.appendChild(li);
-                if (historical[t.sym]) {
-                    const ctx = document.getElementById(`trade-chart-${i}`).getContext('2d');
-                    const data = [...historical[t.sym], {time: Date.now(), price: curr}];
-                    new Chart(ctx, {
-                        type: 'line',
-                        data: {
-                            labels: data.map(p => new Date(p.time).toLocaleDateString()),
-                            datasets: [
-                                { label: 'Price', data: data.map(p => p.price), borderColor: '#2563eb', fill: false },
-                                { label: 'Entry', data: data.map(() => t.entry), borderColor: '#ef4444', borderDash: [6,6], fill: false }
-                            ]
-                        },
-                        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: false } } }
-                    });
-                }
-            }
+            });
         }
 
         window.closeTrade = async (i) => {
@@ -395,13 +358,16 @@
             const list = document.getElementById('history-list');
             list.innerHTML = '';
             history.slice().reverse().forEach(h => {
+                const pnlClass = h.pnl >= 0 ? 'pnl-positive' : 'pnl-negative';
+                const roiClass = h.roi >= 0 ? 'pnl-positive' : 'pnl-negative';
                 const li = document.createElement('li');
-                li.innerHTML = `<strong>\( {h.sym}/USDT × \){h.lev}</strong><br>` +
-                               `Size: ${h.pos.toFixed(6)}<br>` +
-                               `Entry \]{h.entry.toFixed(2)} → Exit \[ {h.exit.toFixed(2)}<br>` +
-                               `PnL: <span style="color:${h.pnl >= 0 ? '#10b981' : '#ef4444'}"> \]{h.pnl.toFixed(2)}</span><br>` +
-                               `ROI: <span style="color:\( {h.roi >= 0 ? '#10b981' : '#ef4444'}"> \){h.roi.toFixed(2)}%</span><br>` +
-                               `Closed: ${new Date(h.closeDate).toLocaleString()}`;
+                li.innerHTML = `
+                    <div class="trade-header">\( {h.sym}/USDT × \){h.lev}</div>
+                    <div class="trade-detail">Size: ${h.pos.toFixed(6)}</div>
+                    <div class="trade-detail">Entry \]{h.entry.toFixed(2)} → Exit \[ {h.exit.toFixed(2)}</div>
+                    <div class="trade-detail">PnL: <span class="${pnlClass}"> \]{h.pnl.toFixed(2)}</span></div>
+                    <div class="trade-detail">ROI: <span class="\( {roiClass}"> \){h.roi.toFixed(2)}%</span></div>
+                    <div class="trade-detail">Closed: ${new Date(h.closeDate).toLocaleString()}</div>`;
                 list.appendChild(li);
             });
         }
@@ -429,7 +395,7 @@
                 document.getElementById('transfer-est').innerText = '';
             }
             if (from) {
-                document.getElementById('from-balance').innerText = `Balance: ${(assets[from] || 0).toFixed(8)} ${from} ($${(assets[from] || 0) * prices[from].toFixed(2)})`;
+                document.getElementById('from-balance').innerText = `Balance: ${(assets[from] || 0).toFixed(8)} ${from} ($${(assets[from] || 0) * (prices[from] || 0).toFixed(2)})`;
             }
         }
 
