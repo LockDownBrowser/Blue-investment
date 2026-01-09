@@ -8,26 +8,22 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(to bottom, #f0f4f8, #e2e8f0); color: #1e293b; margin: 0; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
-        header { background: #ffffff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 10; transition: transform 0.3s ease; position: relative; }
+        header { background: #ffffff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 10; }
         #top-bar { display: flex; justify-content: space-around; padding: 15px; flex-wrap: wrap; gap: 10px; }
         #top-bar button { padding: 12px 20px; background: #3b82f6; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 14px; transition: background 0.2s; }
         #top-bar button:hover, #top-bar button.active { background: #2563eb; }
-        #toggle-bar { position: absolute; top: 10px; left: 20px; background: #3b82f6; color: white; border: none; border-radius: 10px; cursor: pointer; width: 40px; height: 40px; display: flex; flex-direction: column; justify-content: space-around; align-items: center; padding: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 11; }
-        .line { width: 24px; height: 3px; background: white; border-radius: 2px; }
-        header.hidden { transform: translateY(-100%); }
-        header.hidden #toggle-bar { position: fixed; top: 10px; }
-        main { flex: 1; padding: 20px; transition: margin-top 0.3s ease; }
-        header.hidden + main { margin-top: 0; }
+        main { flex: 1; padding: 20px; }
         .tab { max-width: 900px; margin: 0 auto; background: #ffffff; border-radius: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.08); padding: 25px; display: none; }
         #wallet { display: block; }
-        #total-card { text-align: center; background: linear-gradient(135deg, #60a5fa, #3b82f6); color: white; padding: 30px; border-radius: 16px; margin-bottom: 30px; box-shadow: 0 8px 25px rgba(59,130,246,0.4); position: relative; overflow: hidden; }
+        #total-card { text-align: center; background: linear-gradient(135deg, #60a5fa, #3b82f6); color: white; padding: 40px; border-radius: 16px; margin-bottom: 30px; box-shadow: 0 8px 25px rgba(59,130,246,0.4); position: relative; overflow: hidden; }
         #total-card::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.3), transparent); animation: glow 8s infinite; }
         @keyframes glow { 0% { transform: translate(0,0); } 50% { transform: translate(15%,15%); } 100% { transform: translate(0,0); } }
-        #total-label { font-size: 20px; opacity: 0.9; }
-        #total-amount { font-size: 56px; font-weight: bold; margin: 10px 0; text-shadow: 0 4px 8px rgba(0,0,0,0.3); word-break: break-all; letter-spacing: 1px; }
-        #currency-select { background: rgba(255,255,255,0.2); border: none; color: white; padding: 8px 12px; border-radius: 8px; font-size: 16px; }
-        #assets { list-style: none; padding: 0; margin: 0; }
-        #assets li { display: flex; align-items: center; gap: 15px; padding: 18px; background: #f1f5f9; border-radius: 14px; margin-bottom: 12px; font-size: 18px; transition: transform 0.2s, box-shadow 0.2s; }
+        #total-label { font-size: 22px; opacity: 0.9; margin-bottom: 10px; }
+        #total-amount { font-size: 60px; font-weight: bold; margin: 10px 0; text-shadow: 0 4px 8px rgba(0,0,0,0.3); word-break: break-all; letter-spacing: 2px; animation: fadeIn 1s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        #currency-select { background: rgba(255,255,255,0.2); border: none; color: white; padding: 8px 12px; border-radius: 8px; font-size: 16px; margin-bottom: 15px; }
+        #assets { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+        #assets li { display: flex; align-items: center; gap: 15px; padding: 18px; background: #f1f5f9; border-radius: 14px; font-size: 18px; transition: transform 0.2s, box-shadow 0.2s; }
         #assets li:hover { transform: translateY(-3px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .asset-symbol { font-size: 22px; font-weight: bold; }
         form { display: grid; gap: 14px; }
@@ -39,10 +35,14 @@
         #current-price, #available-usdt, #liq-est, #transfer-est, #from-balance { font-size: 17px; font-weight: bold; color: #2563eb; margin: 10px 0; padding: 10px; background: #f1f5f9; border-radius: 8px; }
         #lev-value { font-size: 18px; font-weight: bold; color: #2563eb; }
         h2 { color: #2563eb; font-size: 24px; text-align: center; margin-bottom: 20px; }
-        #manage-trades li { background: #f1f5f9; padding: 20px; border-radius: 14px; margin-bottom: 12px; transition: transform 0.2s, box-shadow 0.2s; }
+        #manage-trades { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+        #manage-trades li { background: #f1f5f9; padding: 20px; border-radius: 14px; transition: transform 0.2s, box-shadow 0.2s; }
         #manage-trades li:hover { transform: translateY(-3px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         canvas { max-height: 150px; margin: 15px 0; }
         #manage-trades canvas { max-height: 80px; }
+        #history-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+        #history-list li { background: #f1f5f9; padding: 20px; border-radius: 14px; transition: transform 0.2s, box-shadow 0.2s; }
+        #history-list li:hover { transform: translateY(-3px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         footer { padding: 20px; text-align: center; }
         .secret { padding: 10px 30px; background: #2563eb; color: white; font-size: 16px; font-weight: bold; border: none; border-radius: 30px; cursor: pointer; }
         #secret-section { padding: 20px; background: #f1f5f9; border-radius: 14px; margin-top: 20px; display: none; }
@@ -65,11 +65,6 @@
             <button onclick="showTab('transfer')">Swap</button>
             <button onclick="showTab('history')">History</button>
         </div>
-        <button id="toggle-bar" onclick="toggleHeader()">
-            <div class="line"></div>
-            <div class="line"></div>
-            <div class="line"></div>
-        </button>
     </header>
 
     <main>
@@ -91,18 +86,20 @@
 
         <div id="trade" class="tab">
             <h2>Open Long Trade</h2>
-            <label>Pair</label>
-            <input id="trade-crypto" list="cryptos" placeholder="BTC">
-            <div id="current-price"></div>
-            <canvas id="price-chart"></canvas>
-            <label>USDT Amount</label>
-            <input id="usdt-amount" type="number" step="any" min="0">
-            <div id="available-usdt"></div>
-            <label>Leverage</label>
-            <input id="leverage" type="range" min="1" max="100" value="1">
-            <span id="lev-value">1x</span>
-            <button type="button" id="trade-btn">Open Trade</button>
-            <div id="liq-est"></div>
+            <form>
+                <label>Pair</label>
+                <input id="trade-crypto" list="cryptos" placeholder="BTC">
+                <div id="current-price"></div>
+                <canvas id="price-chart"></canvas>
+                <label>USDT Amount</label>
+                <input id="usdt-amount" type="number" step="any" min="0">
+                <div id="available-usdt"></div>
+                <label>Leverage</label>
+                <input id="leverage" type="range" min="1" max="100" value="1">
+                <span id="lev-value">1x</span>
+                <button type="button" id="trade-btn">Open Trade</button>
+                <div id="liq-est"></div>
+            </form>
         </div>
 
         <div id="manage" class="tab">
@@ -112,15 +109,17 @@
 
         <div id="transfer" class="tab">
             <h2>Swap Assets</h2>
-            <label>From</label>
-            <select id="from-crypto"></select>
-            <div id="from-balance"></div>
-            <label>To</label>
-            <select id="to-crypto"></select>
-            <label>Amount</label>
-            <input id="transfer-amount" type="number" step="any" min="0">
-            <div id="transfer-est"></div>
-            <button type="button" id="swap-btn">Swap (0.5% fee)</button>
+            <form>
+                <label>From</label>
+                <select id="from-crypto"></select>
+                <div id="from-balance"></div>
+                <label>To</label>
+                <select id="to-crypto"></select>
+                <label>Amount</label>
+                <input id="transfer-amount" type="number" step="any" min="0">
+                <div id="transfer-est"></div>
+                <button type="button" id="swap-btn">Swap (0.5% fee)</button>
+            </form>
         </div>
 
         <div id="history" class="tab">
@@ -248,17 +247,6 @@
             refresh();
         }
 
-        function toggleHeader() {
-            const header = document.getElementById('header');
-            header.classList.toggle('hidden');
-            const main = document.querySelector('main');
-            if (header.classList.contains('hidden')) {
-                main.style.marginTop = '0';
-            } else {
-                main.style.marginTop = '0';
-            }
-        }
-
         document.getElementById('secret-btn').onclick = () => {
             const sec = document.getElementById('secret-section');
             sec.style.display = sec.style.display === 'block' ? 'none' : 'block';
@@ -349,7 +337,7 @@
                 const li = document.createElement('li');
                 li.innerHTML = '<strong>' + t.sym + '/USDT ×' + t.lev + '</strong><br>' +
                                'Pos: ' + t.pos.toFixed(6) + '<br>' +
-                               'Entry $' + t.entry.toFixed(2) + ' → $' + curr.toFixed(2) + '<br>' +
+                               'Entry $' + t.entry.toFixed(2) + ' → Current $' + curr.toFixed(2) + '<br>' +
                                'Liq: $' + liq + '<br>' +
                                'PnL: <span style="color:' + (pnl >= 0 ? '#10b981' : '#ef4444') + '">$' + pnl.toFixed(2) + '</span> ' +
                                'ROI: <span style="color:' + (roi >= 0 ? '#10b981' : '#ef4444') + '">' + roi.toFixed(2) + '%</span><br>' +
