@@ -43,8 +43,6 @@
         footer { padding: 20px; text-align: center; }
         .secret { padding: 10px 30px; background: #2563eb; color: white; font-size: 16px; font-weight: bold; border: none; border-radius: 30px; cursor: pointer; }
         #secret-section { padding: 20px; background: #f1f5f9; border-radius: 14px; margin-top: 20px; display: none; }
-        #time-frame { margin-bottom: 15px; text-align: center; }
-        #time-frame select { padding: 8px; border-radius: 8px; }
         @media (max-width: 600px) {
             #top-bar button { width: auto; }
             #total-amount { font-size: 36px; }
@@ -85,13 +83,6 @@
 
         <div id="trade" class="tab">
             <h2>Open Long Trade</h2>
-            <div id="time-frame">
-                <select id="trade-time-frame" onchange="updateTrade()">
-                    <option value="1">1 day</option>
-                    <option value="7" selected>7 days</option>
-                    <option value="30">30 days</option>
-                </select>
-            </div>
             <form>
                 <label>Pair</label>
                 <input id="trade-crypto" list="cryptos" placeholder="BTC">
@@ -110,13 +101,6 @@
 
         <div id="manage" class="tab">
             <h2>Open Trades</h2>
-            <div id="time-frame">
-                <select id="manage-time-frame" onchange="updateManage()">
-                    <option value="1">1 day</option>
-                    <option value="7" selected>7 days</option>
-                    <option value="30">30 days</option>
-                </select>
-            </div>
             <ul id="manage-trades"></ul>
         </div>
 
@@ -295,7 +279,7 @@
         async function updateTrade() {
             document.getElementById('available-usdt').innerText = 'Available: ' + (assets.USDT || 0).toFixed(2) + ' USDT';
             const sym = document.getElementById('trade-crypto').value.toUpperCase().trim();
-            const days = document.getElementById('trade-time-frame').value;
+            const days = '0.0104';
             if (sym) {
                 await fetchPrices([sym]);
                 await fetchHistorical(sym, days);
@@ -352,7 +336,7 @@
             await fetchPrices(trades.map(t => t.sym));
             const list = document.getElementById('manage-trades');
             list.innerHTML = '';
-            const days = document.getElementById('manage-time-frame').value;
+            const days = '0.0104';
             for (let i = 0; i < trades.length; i++) {
                 const t = trades[i];
                 await fetchHistorical(t.sym, days);
