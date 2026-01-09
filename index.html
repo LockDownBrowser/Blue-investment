@@ -24,7 +24,10 @@
         #assets { list-style: none; padding: 0; margin: 0; display: grid; gap: 16px; }
         #assets li { display: flex; align-items: center; gap: 20px; padding: 24px; background: #f0f9ff; border-radius: 20px; transition: all 0.3s; }
         #assets li:hover { transform: translateY(-6px); box-shadow: 0 8px 20px rgba(0,0,0,0.12); }
+        .asset-info { flex: 1; }
         .asset-symbol { font-size: 28px; font-weight: bold; color: #2563eb; }
+        .asset-amount { font-size: 20px; color: #1e293b; }
+        .asset-logo { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; }
         .form-grid { display: grid; gap: 20px; }
         label { font-weight: 600; color: #3b82f6; font-size: 17px; }
         input, select { padding: 16px; background: #f8fbff; border: 1px solid #bfdbfe; border-radius: 14px; font-size: 17px; transition: all 0.2s; }
@@ -234,9 +237,14 @@
             Object.keys(assets).sort().forEach(c => {
                 if (assets[c] <= 0) return;
                 const id = symbolToId[c] || c.toLowerCase();
+                const valueUSD = (assets[c] * (prices[c] || 0)).toFixed(2);
                 const li = document.createElement('li');
-                li.innerHTML = `<img src="https://cryptologos.cc/logos/\( {id}- \){c.toLowerCase()}-logo.png?v=029" width="60" onerror="this.src='https://via.placeholder.com/60'">` +
-                               `<div><div class="asset-symbol">\( {c}</div> \){assets[c].toFixed(8)}</div>`;
+                li.innerHTML = `
+                    <img src="https://cryptologos.cc/logos/\( {id}- \){c.toLowerCase()}-logo.png?v=029" class="asset-logo" onerror="this.style.display='none'">
+                    <div class="asset-info">
+                        <div class="asset-symbol">${c}</div>
+                        <div class="asset-amount">${assets[c].toFixed(8)} ≈ \[ {valueUSD}</div>
+                    </div>`;
                 list.appendChild(li);
             });
         }
@@ -345,9 +353,9 @@
                 const li = document.createElement('li');
                 li.innerHTML = `<strong>\( {t.sym}/USDT × \){t.lev}</strong><br>` +
                                `Size: ${t.pos.toFixed(6)}<br>` +
-                               `Entry: \[ {t.entry.toFixed(2)} → Current: \]{curr.toFixed(2)}<br>` +
-                               `Liq: \[ {liq}<br>` +
-                               `PnL: <span style="color:${pnl >= 0 ? '#10b981' : '#ef4444'}"> \]{pnl.toFixed(2)}</span> ` +
+                               `Entry: \]{t.entry.toFixed(2)} → Current: \[ {curr.toFixed(2)}<br>` +
+                               `Liq: \]{liq}<br>` +
+                               `PnL: <span style="color:${pnl >= 0 ? '#10b981' : '#ef4444'}">\[ {pnl.toFixed(2)}</span> ` +
                                `ROI: <span style="color:\( {roi >= 0 ? '#10b981' : '#ef4444'}"> \){roi.toFixed(2)}%</span><br>` +
                                `<canvas id="trade-chart-${i}" style="height:200px;"></canvas><br>` +
                                `<button class="action" onclick="closeTrade(${i})">Close Trade</button>`;
@@ -390,8 +398,8 @@
                 const li = document.createElement('li');
                 li.innerHTML = `<strong>\( {h.sym}/USDT × \){h.lev}</strong><br>` +
                                `Size: ${h.pos.toFixed(6)}<br>` +
-                               `Entry \[ {h.entry.toFixed(2)} → Exit \]{h.exit.toFixed(2)}<br>` +
-                               `PnL: <span style="color:${h.pnl >= 0 ? '#10b981' : '#ef4444'}">\[ {h.pnl.toFixed(2)}</span><br>` +
+                               `Entry \]{h.entry.toFixed(2)} → Exit \[ {h.exit.toFixed(2)}<br>` +
+                               `PnL: <span style="color:${h.pnl >= 0 ? '#10b981' : '#ef4444'}"> \]{h.pnl.toFixed(2)}</span><br>` +
                                `ROI: <span style="color:\( {h.roi >= 0 ? '#10b981' : '#ef4444'}"> \){h.roi.toFixed(2)}%</span><br>` +
                                `Closed: ${new Date(h.closeDate).toLocaleString()}`;
                 list.appendChild(li);
@@ -421,7 +429,7 @@
                 document.getElementById('transfer-est').innerText = '';
             }
             if (from) {
-                document.getElementById('from-balance').innerText = `Balance: ${(assets[from] || 0).toFixed(8)} ${from} ( \]{(assets[from] || 0) * prices[from].toFixed(2)})`;
+                document.getElementById('from-balance').innerText = `Balance: ${(assets[from] || 0).toFixed(8)} ${from} ($${(assets[from] || 0) * prices[from].toFixed(2)})`;
             }
         }
 
