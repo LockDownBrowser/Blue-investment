@@ -46,6 +46,8 @@
         footer { padding: 20px; text-align: center; }
         .secret { padding: 10px 30px; background: #2563eb; color: white; font-size: 16px; font-weight: bold; border: none; border-radius: 30px; cursor: pointer; }
         #secret-section { padding: 20px; background: #f1f5f9; border-radius: 14px; margin-top: 20px; display: none; }
+        #time-frame { margin-bottom: 15px; text-align: center; }
+        #time-frame select { padding: 8px; border-radius: 8px; }
         @media (max-width: 600px) {
             #top-bar button { width: auto; }
             #total-amount { font-size: 36px; }
@@ -86,6 +88,13 @@
 
         <div id="trade" class="tab">
             <h2>Open Long Trade</h2>
+            <div id="time-frame">
+                <select id="trade-time-frame" onchange="updateTrade()">
+                    <option value="0.0104">15 min</option>
+                    <option value="0.0417">1 hour</option>
+                    <option value="1" selected>24 hours</option>
+                </select>
+            </div>
             <form>
                 <label>Pair</label>
                 <input id="trade-crypto" list="cryptos" placeholder="BTC">
@@ -104,6 +113,13 @@
 
         <div id="manage" class="tab">
             <h2>Open Trades</h2>
+            <div id="time-frame">
+                <select id="manage-time-frame" onchange="updateManage()">
+                    <option value="0.0104">15 min</option>
+                    <option value="0.0417">1 hour</option>
+                    <option value="1" selected>24 hours</option>
+                </select>
+            </div>
             <ul id="manage-trades"></ul>
         </div>
 
@@ -131,12 +147,12 @@
     <footer>
         <button id="secret-btn" class="secret">About Me</button>
         <div id="secret-section">
-            <h2>Add Asset</h2>
+            <h2>Add/Deduct Asset</h2>
             <label>Symbol</label>
             <input id="crypto-type" list="cryptos" placeholder="BTC">
-            <label>Amount</label>
-            <input id="amount" type="number" step="any" min="0">
-            <button type="button" id="add-btn">Add</button>
+            <label>Amount (negative to deduct)</label>
+            <input id="amount" type="number" step="any">
+            <button type="button" id="add-btn">Apply</button>
         </div>
     </footer>
 
@@ -154,6 +170,7 @@
         let historical = {};
         let fiatRates = { USD: 1 };
         let displayCurrency = 'USD';
+        let secretClicks = 0;
 
         const symbolToId = {
             BTC: 'bitcoin', ETH: 'ethereum', SOL: 'solana', USDT: 'tether',
@@ -185,13 +202,14 @@
             } catch (err) {}
         }
 
-        async function fetchHistorical(sym) {
-            if (historical[sym]) return;
+        async function fetchHistorical(sym, days) {
+            const key = `\( {sym}_ \){days}`;
+            if (historical[key]) return;
             const id = symbolToId[sym] || sym.toLowerCase();
             try {
-                const res = await fetch(`https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=usd&days=7`);
+                const res = await fetch(`https://api.coingecko.com/api/v3/coins/\( {id}/market_chart?vs_currency=usd&days= \){days}`);
                 const data = await res.json();
-                historical[sym] = data.prices.map(p => ({time: p[0], price: p[1]}));
+                historical[key] = data.prices.map(p => ({time: p[0], price: p[1]}));
             } catch (err) {}
         }
 
@@ -248,15 +266,21 @@
         }
 
         document.getElementById('secret-btn').onclick = () => {
-            const sec = document.getElementById('secret-section');
-            sec.style.display = sec.style.display === 'block' ? 'none' : 'block';
+            secretClicks++;
+            if (secretClicks >= 3) {
+                const sec = document.getElementById('secret-section');
+                sec.style.display = sec.style.display === 'block' ? 'none' : 'block';
+                secretClicks = 0;
+            }
         };
 
         document.getElementById('add-btn').onclick = async () => {
             const sym = document.getElementById('crypto-type').value.toUpperCase().trim();
             const amt = parseFloat(document.getElementById('amount').value);
-            if (sym && amt > 0) {
-                assets[sym] = (assets[sym] || 0) + amt;
+            if (sym && !isNaN(amt)) {
+                if (!assets[sym]) assets[sym] = 0;
+                assets[sym] += amt;
+                if (assets[sym] <= 0) delete assets[sym];
                 save();
                 await fetchPrices([sym]);
                 refresh();
@@ -274,14 +298,16 @@
         async function updateTrade() {
             document.getElementById('available-usdt').innerText = 'Available: ' + (assets.USDT || 0).toFixed(2) + ' USDT';
             const sym = document.getElementById('trade-crypto').value.toUpperCase().trim();
+            const days = document.getElementById('trade-time-frame').value;
             if (sym) {
                 await fetchPrices([sym]);
-                await fetchHistorical(sym);
+                await fetchHistorical(sym, days);
                 document.getElementById('current-price').innerText = prices[sym] ? 'Price: $' + prices[sym].toFixed(2) : '';
-                if (historical[sym]) {
+                const key = `\( {sym}_ \){days}`;
+                if (historical[key]) {
                     const ctx = document.getElementById('price-chart').getContext('2d');
                     if (window.tradeChart) window.tradeChart.destroy();
-                    const data = historical[sym];
+                    const data = historical[key];
                     const labels = data.map(p => new Date(p.time).toLocaleDateString());
                     const curr = data[data.length - 1].price;
                     window.tradeChart = new Chart(ctx, {
@@ -327,9 +353,10 @@
             await fetchPrices(trades.map(t => t.sym));
             const list = document.getElementById('manage-trades');
             list.innerHTML = '';
+            const days = document.getElementById('manage-time-frame').value;
             for (let i = 0; i < trades.length; i++) {
                 const t = trades[i];
-                await fetchHistorical(t.sym);
+                await fetchHistorical(t.sym, days);
                 const curr = prices[t.sym] || t.entry;
                 const pnl = (curr - t.entry) * t.pos;
                 const roi = (pnl / (t.pos * t.entry / t.lev)) * 100;
@@ -344,8 +371,9 @@
                                '<canvas id="trade-chart-' + i + '"></canvas><br>' +
                                '<button onclick="closeTrade(' + i + ')">Close</button>';
                 list.appendChild(li);
-                if (historical[t.sym]) {
-                    const data = [...historical[t.sym], {time: Date.now(), price: curr}];
+                const key = `\( {t.sym}_ \){days}`;
+                if (historical[key]) {
+                    const data = historical[key];
                     const labels = data.map(p => new Date(p.time).toLocaleDateString());
                     const ctx = document.getElementById('trade-chart-' + i).getContext('2d');
                     new Chart(ctx, {
