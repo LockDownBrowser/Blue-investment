@@ -12,7 +12,7 @@
         #top-bar { display: flex; justify-content: space-around; padding: 15px; flex-wrap: wrap; gap: 10px; }
         #top-bar button { padding: 12px 20px; background: #3b82f6; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 14px; transition: background 0.2s; }
         #top-bar button:hover, #top-bar button.active { background: #2563eb; }
-        #toggle-bar { position: absolute; top: 10px; right: 20px; background: #3b82f6; color: white; border: none; border-radius: 10px; cursor: pointer; width: 40px; height: 40px; display: flex; flex-direction: column; justify-content: space-around; align-items: center; padding: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 11; }
+        #toggle-bar { position: absolute; top: 10px; left: 20px; background: #3b82f6; color: white; border: none; border-radius: 10px; cursor: pointer; width: 40px; height: 40px; display: flex; flex-direction: column; justify-content: space-around; align-items: center; padding: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 11; }
         .line { width: 24px; height: 3px; background: white; border-radius: 2px; }
         header.hidden { transform: translateY(-100%); }
         header.hidden #toggle-bar { position: fixed; top: 10px; }
@@ -20,11 +20,11 @@
         header.hidden + main { margin-top: 0; }
         .tab { max-width: 900px; margin: 0 auto; background: #ffffff; border-radius: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.08); padding: 25px; display: none; }
         #wallet { display: block; }
-        #total-card { text-align: center; background: linear-gradient(135deg, #6b7280, #4b5563); color: white; padding: 30px; border-radius: 16px; margin-bottom: 30px; box-shadow: 0 8px 25px rgba(75,85,99,0.4); position: relative; overflow: hidden; }
+        #total-card { text-align: center; background: linear-gradient(135deg, #60a5fa, #3b82f6); color: white; padding: 30px; border-radius: 16px; margin-bottom: 30px; box-shadow: 0 8px 25px rgba(59,130,246,0.4); position: relative; overflow: hidden; }
         #total-card::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.3), transparent); animation: glow 8s infinite; }
         @keyframes glow { 0% { transform: translate(0,0); } 50% { transform: translate(15%,15%); } 100% { transform: translate(0,0); } }
         #total-label { font-size: 20px; opacity: 0.9; }
-        #total-amount { font-size: 48px; font-weight: bold; margin: 10px 0; text-shadow: 0 4px 8px rgba(0,0,0,0.3); word-break: break-all; }
+        #total-amount { font-size: 56px; font-weight: bold; margin: 10px 0; text-shadow: 0 4px 8px rgba(0,0,0,0.3); word-break: break-all; letter-spacing: 1px; }
         #currency-select { background: rgba(255,255,255,0.2); border: none; color: white; padding: 8px 12px; border-radius: 8px; font-size: 16px; }
         #assets { list-style: none; padding: 0; margin: 0; }
         #assets li { display: flex; align-items: center; gap: 15px; padding: 18px; background: #f1f5f9; border-radius: 14px; margin-bottom: 12px; font-size: 18px; transition: transform 0.2s, box-shadow 0.2s; }
@@ -213,7 +213,7 @@
         function updateTotal() {
             const totalUSD = getTotalUSD();
             const rate = fiatRates[displayCurrency.toLowerCase()] || 1;
-            const total = totalUSD / rate;
+            const total = totalUSD * rate;
             document.getElementById('total-amount').innerText = currencySymbols[displayCurrency] + total.toFixed(2);
         }
 
@@ -293,17 +293,20 @@
                 if (historical[sym]) {
                     const ctx = document.getElementById('price-chart').getContext('2d');
                     if (window.tradeChart) window.tradeChart.destroy();
+                    const data = historical[sym];
+                    const labels = data.map(p => new Date(p.time).toLocaleDateString());
+                    const curr = data[data.length - 1].price;
                     window.tradeChart = new Chart(ctx, {
                         type: 'line',
                         data: {
-                            labels: historical[sym].map(p => new Date(p.time).toLocaleDateString()),
-                            datasets: [{ label: `${sym} Price (7d)`, data: historical[sym].map(p => p.price), borderColor: '#2563eb', tension: 0.1, fill: false, pointRadius: 0 }]
+                            labels: labels,
+                            datasets: [{ data: data.map(p => p.price), borderColor: '#2563eb', tension: 0.1, fill: false, pointRadius: 0 }]
                         },
                         options: { 
                             responsive: true, 
                             scales: { 
-                                x: { ticks: { maxTicksLimit: 5 } }, 
-                                y: { beginAtZero: false, ticks: { maxTicksLimit: 5 } } 
+                                x: { grid: { display: false }, ticks: { display: false } }, 
+                                y: { grid: { display: false }, ticks: { display: false } } 
                             },
                             plugins: { legend: { display: false }, tooltip: { enabled: true } }
                         }
@@ -368,7 +371,10 @@
                         },
                         options: { 
                             responsive: true, 
-                            scales: { x: { display: false }, y: { display: false } },
+                            scales: { 
+                                x: { grid: { display: false }, ticks: { display: false } }, 
+                                y: { grid: { display: false }, ticks: { display: false } } 
+                            },
                             plugins: { 
                                 legend: { display: false }, 
                                 tooltip: { enabled: false },
@@ -377,7 +383,7 @@
                                         entryLabel: {
                                             type: 'label',
                                             yValue: t.entry,
-                                            xValue: 0,
+                                            xValue: labels[0],
                                             content: `Entry: \[ {t.entry.toFixed(2)}`,
                                             color: '#ef4444',
                                             font: { size: 10 },
@@ -387,7 +393,7 @@
                                         currentLabel: {
                                             type: 'label',
                                             yValue: curr,
-                                            xValue: labels.length - 1,
+                                            xValue: labels[labels.length - 1],
                                             content: ` \]{curr.toFixed(2)}`,
                                             color: '#2563eb',
                                             font: { size: 10 },
