@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blue Wallet</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(to bottom, #ffffff, #f0f4f8); color: #1e293b; margin: 0; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
         header { background: #ffffff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 10; }
@@ -35,8 +33,6 @@
         #manage-trades { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
         #manage-trades li { background: #f1f5f9; padding: 20px; border-radius: 14px; transition: transform 0.2s, box-shadow 0.2s; }
         #manage-trades li:hover { transform: translateY(-3px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        canvas { max-height: 150px; margin: 15px 0; }
-        #manage-trades canvas { max-height: 80px; }
         #history-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
         #history-list li { background: #f1f5f9; padding: 20px; border-radius: 14px; transition: transform 0.2s, box-shadow 0.2s; }
         #history-list li:hover { transform: translateY(-3px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
@@ -47,8 +43,6 @@
             #top-bar button { width: auto; }
             #total-amount { font-size: 36px; }
             h2 { font-size: 20px; }
-            canvas { max-height: 100px; }
-            #manage-trades canvas { max-height: 60px; }
             #total-card { padding: 20px; }
         }
     </style>
@@ -87,7 +81,6 @@
                 <label>Pair</label>
                 <input id="trade-crypto" list="cryptos" placeholder="BTC">
                 <div id="current-price"></div>
-                <canvas id="price-chart"></canvas>
                 <label>USDT Amount</label>
                 <input id="usdt-amount" type="number" step="any" min="0">
                 <div id="available-usdt"></div>
@@ -148,7 +141,6 @@
         let trades = JSON.parse(localStorage.getItem('trades')) || [];
         let history = JSON.parse(localStorage.getItem('history')) || [];
         let prices = { USDT: 1 };
-        let historical = {};
         let fiatRates = { USD: 1 };
         let displayCurrency = 'USD';
         let secretClicks = 0;
@@ -180,17 +172,6 @@
                 const res = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json');
                 const data = await res.json();
                 fiatRates = data.usd;
-            } catch (err) {}
-        }
-
-        async function fetchHistorical(sym, days) {
-            const key = `\( {sym}_ \){days}`;
-            if (historical[key]) return;
-            const id = symbolToId[sym] || sym.toLowerCase();
-            try {
-                const res = await fetch(`https://api.coingecko.com/api/v3/coins/\( {id}/market_chart?vs_currency=usd&days= \){days}`);
-                const data = await res.json();
-                historical[key] = data.prices.map(p => ({time: p[0], price: p[1]}));
             } catch (err) {}
         }
 
@@ -279,36 +260,9 @@
         async function updateTrade() {
             document.getElementById('available-usdt').innerText = 'Available: ' + (assets.USDT || 0).toFixed(2) + ' USDT';
             const sym = document.getElementById('trade-crypto').value.toUpperCase().trim();
-            const days = '0.0104';
             if (sym) {
                 await fetchPrices([sym]);
-                await fetchHistorical(sym, days);
                 document.getElementById('current-price').innerText = prices[sym] ? 'Price: $' + prices[sym].toFixed(2) : '';
-                const key = `\( {sym}_ \){days}`;
-                if (historical[key] && historical[key].length > 0) {
-                    const ctx = document.getElementById('price-chart').getContext('2d');
-                    if (window.tradeChart) window.tradeChart.destroy();
-                    const data = historical[key];
-                    const labels = data.map(p => new Date(p.time).toLocaleDateString());
-                    const curr = data[data.length - 1].price;
-                    window.tradeChart = new Chart(ctx, {
-                        type: 'line',
-                        data: {
-                            labels: labels,
-                            datasets: [{ data: data.map(p => p.price), borderColor: '#2563eb', tension: 0.1, fill: false, pointRadius: 0 }]
-                        },
-                        options: { 
-                            responsive: true, 
-                            scales: { 
-                                x: { grid: { display: false }, ticks: { display: false } }, 
-                                y: { grid: { display: false }, ticks: { display: false } } 
-                            },
-                            plugins: { legend: { display: false }, tooltip: { enabled: true } }
-                        }
-                    });
-                } else {
-                    document.getElementById('price-chart').getContext('2d').clearRect(0, 0, document.getElementById('price-chart').width, document.getElementById('price-chart').height);
-                }
             }
             document.getElementById('lev-value').innerText = document.getElementById('leverage').value + 'x';
         }
@@ -336,10 +290,8 @@
             await fetchPrices(trades.map(t => t.sym));
             const list = document.getElementById('manage-trades');
             list.innerHTML = '';
-            const days = '0.0104';
             for (let i = 0; i < trades.length; i++) {
                 const t = trades[i];
-                await fetchHistorical(t.sym, days);
                 const curr = prices[t.sym] || t.entry;
                 const pnl = (curr - t.entry) * t.pos;
                 const roi = (pnl / (t.pos * t.entry / t.lev)) * 100;
@@ -351,63 +303,8 @@
                                'Liq: $' + liq + '<br>' +
                                'PnL: <span style="color:' + (pnl >= 0 ? '#10b981' : '#ef4444') + '">$' + pnl.toFixed(2) + '</span> ' +
                                'ROI: <span style="color:' + (roi >= 0 ? '#10b981' : '#ef4444') + '">' + roi.toFixed(2) + '%</span><br>' +
-                               '<canvas id="trade-chart-' + i + '"></canvas><br>' +
                                '<button onclick="closeTrade(' + i + ')">Close</button>';
                 list.appendChild(li);
-                const key = `\( {t.sym}_ \){days}`;
-                if (historical[key] && historical[key].length > 0) {
-                    const data = historical[key];
-                    const labels = data.map(p => new Date(p.time).toLocaleDateString());
-                    const ctx = document.getElementById('trade-chart-' + i).getContext('2d');
-                    new Chart(ctx, {
-                        type: 'line',
-                        data: {
-                            labels: labels,
-                            datasets: [
-                                { data: data.map(p => p.price), borderColor: '#2563eb', tension: 0.1, fill: false, pointRadius: 0, borderWidth: 2 },
-                                { data: data.map(() => t.entry), borderColor: '#ef4444', borderDash: [5,5], fill: false, pointRadius: 0, borderWidth: 1 }
-                            ]
-                        },
-                        options: { 
-                            responsive: true, 
-                            scales: { 
-                                x: { grid: { display: false }, ticks: { display: false } }, 
-                                y: { grid: { display: false }, ticks: { display: false } } 
-                            },
-                            plugins: { 
-                                legend: { display: false }, 
-                                tooltip: { enabled: false },
-                                annotation: {
-                                    annotations: {
-                                        entryLabel: {
-                                            type: 'label',
-                                            yValue: t.entry,
-                                            xValue: labels[0],
-                                            content: `Entry: \[ {t.entry.toFixed(2)}`,
-                                            color: '#ef4444',
-                                            font: { size: 10 },
-                                            position: 'start',
-                                            backgroundColor: 'rgba(255,255,255,0.7)'
-                                        },
-                                        currentLabel: {
-                                            type: 'label',
-                                            yValue: curr,
-                                            xValue: labels[labels.length - 1],
-                                            content: ` \]{curr.toFixed(2)}`,
-                                            color: '#2563eb',
-                                            font: { size: 10 },
-                                            position: 'end',
-                                            backgroundColor: 'rgba(255,255,255,0.7)'
-                                        }
-                                    }
-                                }
-                            },
-                            elements: { line: { borderWidth: 2 } }
-                        }
-                    });
-                } else {
-                    document.getElementById('trade-chart-' + i).getContext('2d').clearRect(0, 0, document.getElementById('trade-chart-' + i).width, document.getElementById('trade-chart-' + i).height);
-                }
             }
         }
 
