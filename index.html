@@ -5,305 +5,128 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blue Wallet</title>
     <style>
-        :root {
-            --primary: #3b82f6;
-            --primary-dark: #2563eb;
-            --success: #10b981;
-            --bg-gradient: linear-gradient(to bottom, #f0f8ff, #dbeafe);
-        }
-        body { 
-            font-family: 'Segoe UI', sans-serif; 
-            background: var(--bg-gradient); 
-            color: #1e293b; 
-            margin: 0; 
-            min-height: 100vh; 
-            display: flex; 
-            flex-direction: column; 
-        }
-        header { 
-            background: #ffffff; 
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
-            position: sticky; 
-            top: 0; 
-            z-index: 10; 
-            padding: 12px 16px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between;
-        }
-        #menu-btn {
-            width: 44px;
-            height: 44px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 24px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 10px rgba(59,130,246,0.3);
-        }
-        #top-nav {
-            display: flex;
-            gap: 10px;
-            overflow-x: auto;
-            padding: 8px 0;
-            white-space: nowrap;
-            -webkit-overflow-scrolling: touch;
-        }
-        #top-nav button {
-            padding: 10px 20px;
-            background: #eff6ff;
-            color: var(--primary-dark);
-            border: none;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 15px;
-            min-width: fit-content;
-            transition: all 0.2s;
-        }
-        #top-nav button.active, #top-nav button:hover {
-            background: var(--primary);
-            color: white;
-        }
-        #overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.5);
-            display: none;
-            z-index: 15;
-        }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(to bottom, #f0f8ff, #dbeafe); color: #1e293b; margin: 0; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+        header { display: flex; align-items: center; justify-content: space-between; padding: 15px; background: #ffffff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 10; }
+        #menu-btn { position: fixed; top: 10px; left: 10px; background: #3b82f6; color: white; border: none; font-size: 24px; cursor: pointer; width: 50px; height: 50px; border-radius: 8px; display: flex; align-items: center; justify-content: center; z-index: 30; transition: background 0.2s; }
+        #menu-btn:hover { background: #2563eb; }
+        #topbar { position: fixed; top: -60px; left: 0; width: 100%; height: 60px; background: #ffffff; box-shadow: 0 2px 10px rgba(0,0,0,0.1); transition: top 0.3s ease; z-index: 20; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 0 20px; }
+        #topbar.active { top: 0; }
+        #topbar button { padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 14px; transition: background 0.2s; white-space: nowrap; }
+        #topbar button:hover, #topbar button.active { background: #2563eb; }
+        @media (max-width: 768px) { #topbar { flex-wrap: wrap; height: auto; padding: 10px; gap: 5px; } #topbar button { flex: 1; min-width: 80px; font-size: 12px; } }
+        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 15; }
         #overlay.active { display: block; }
-        main { 
-            flex: 1; 
-            padding: 20px;
-            max-width: 960px;
-            margin: 0 auto;
-            width: 100%;
-            box-sizing: border-box;
-        }
-        .tab { 
-            display: none; 
-            background: #ffffff; 
-            border-radius: 16px; 
-            box-shadow: 0 8px 25px rgba(0,0,0,0.08); 
-            padding: 24px; 
-        }
+        main { flex: 1; padding: 20px; transition: margin-top 0.3s; }
+        .tab { max-width: 900px; margin: 0 auto; background: #ffffff; border-radius: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.08); padding: 25px; display: none; }
         #wallet { display: block; }
-        #total-card { 
-            text-align: center; 
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark)); 
-            color: white; 
-            padding: 40px 24px; 
-            border-radius: 16px; 
-            margin-bottom: 30px; 
-            box-shadow: 0 8px 25px rgba(37,99,235,0.3); 
-            position: relative; 
-            overflow: hidden; 
-        }
-        #total-card::before {
-            content: '';
-            position: absolute;
-            inset: -50%;
-            background: radial-gradient(circle, rgba(255,255,255,0.15), transparent);
-            animation: glow 8s infinite linear;
-        }
-        @keyframes glow {
-            0% { transform: translate(0,0) rotate(0deg); }
-            100% { transform: translate(10%,10%) rotate(360deg); }
-        }
-        #total-label { font-size: 17px; opacity: 0.9; }
-        #total-amount {
-            font-size: 44px;
-            font-weight: bold;
-            margin: 12px 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        #currency-select {
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: white;
-            font-size: 28px;
-            font-weight: bold;
-            padding: 4px 8px;
-            border-radius: 8px;
-        }
-        #currency-select option { color: #1e293b; }
-        #assets { 
-            list-style: none; 
-            padding: 0; 
-            margin: 0; 
-        }
-        #assets li { 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-            gap: 15px; 
-            padding: 18px; 
-            background: #eff6ff; 
-            border-radius: 14px; 
-            margin-bottom: 12px; 
-            transition: all 0.2s; 
-        }
-        #assets li:hover { 
-            transform: translateY(-4px); 
-            box-shadow: 0 8px 20px rgba(0,0,0,0.1); 
-        }
-        .asset-info { display: flex; align-items: center; gap: 15px; flex: 1; }
+        #total-card { text-align: center; background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; padding: 40px; border-radius: 16px; margin-bottom: 30px; box-shadow: 0 4px 15px rgba(37,99,235,0.3); position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; }
+        #total-card::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.2), transparent); animation: glow 5s infinite; }
+        @keyframes glow { 0% { transform: translate(0,0); } 50% { transform: translate(10%,10%); } 100% { transform: translate(0,0); } }
+        #total-label { font-size: 18px; opacity: 0.9; }
+        #total-usd { font-size: 48px; font-weight: bold; margin: 10px 0; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        #currency-select { padding: 8px; background: rgba(255,255,255,0.2); border: none; color: white; font-size: 16px; border-radius: 5px; margin-top: 10px; }
+        #assets { list-style: none; padding: 0; margin: 0; }
+        #assets li { display: flex; align-items: center; gap: 15px; padding: 18px; background: #eff6ff; border-radius: 14px; margin-bottom: 12px; font-size: 18px; transition: transform 0.2s, box-shadow 0.2s; }
+        #assets li:hover { transform: translateY(-3px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .asset-symbol { font-size: 22px; font-weight: bold; }
-        .asset-value { text-align: right; }
-        h2 { 
-            color: var(--primary-dark); 
-            font-size: 24px; 
-            text-align: center; 
-            margin: 0 0 24px; 
-        }
-        form { 
-            display: grid; 
-            gap: 16px; 
-        }
-        label { 
-            font-weight: 600; 
-            color: var(--primary); 
-        }
-        input, select { 
-            padding: 14px; 
-            background: #f8fbff; 
-            border: 1px solid #bfdbfe; 
-            border-radius: 12px; 
-            font-size: 16px; 
-        }
-        input:focus, select:focus { 
-            border-color: var(--primary-dark); 
-            outline: none; 
-        }
-        button[type="submit"] { 
-            padding: 14px; 
-            background: var(--success); 
-            color: white; 
-            border: none; 
-            border-radius: 12px; 
-            font-weight: bold; 
-            cursor: pointer; 
-            transition: all 0.2s; 
-        }
-        button[type="submit"]:hover { 
-            background: #059669; 
-            transform: translateY(-2px); 
-        }
-        .info-box {
-            font-size: 17px;
-            font-weight: 600;
-            color: var(--primary-dark);
-            background: #eff6ff;
-            padding: 12px;
-            border-radius: 10px;
-            margin: 12px 0;
-        }
-        footer { 
-            padding: 20px; 
-            text-align: center; 
-            font-size: 14px; 
-            color: #64748b; 
-        }
-        @media (max-width: 640px) {
-            #total-amount { font-size: 36px; flex-direction: column; gap: 4px; }
-            #currency-select { font-size: 24px; }
-            #assets li { flex-direction: column; align-items: flex-start; }
-            .asset-value { align-self: flex-end; }
-        }
+        form { display: grid; gap: 14px; }
+        label { font-weight: bold; color: #3b82f6; font-size: 15px; }
+        input, select { padding: 12px; background: #f8fbff; border: 1px solid #bfdbfe; border-radius: 10px; font-size: 16px; transition: border 0.2s; }
+        input:focus, select:focus { border-color: #2563eb; outline: none; }
+        button { padding: 12px 20px; background: #10b981; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: background 0.2s, transform 0.1s; }
+        button:hover { background: #059669; transform: translateY(-2px); }
+        button:active { transform: translateY(0); }
+        #current-price, #available-usdt, #liq-est, #transfer-est, #from-balance { font-size: 17px; font-weight: bold; color: #2563eb; margin: 10px 0; padding: 10px; background: #eff6ff; border-radius: 8px; }
+        #lev-value { font-size: 18px; font-weight: bold; color: #2563eb; }
+        h2 { color: #2563eb; font-size: 24px; text-align: center; margin-bottom: 20px; text-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        #manage-trades li { background: #eff6ff; padding: 20px; border-radius: 14px; margin-bottom: 12px; transition: transform 0.2s, box-shadow 0.2s; }
+        #manage-trades li:hover { transform: translateY(-3px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        footer { padding: 20px; text-align: center; }
+        .secret { padding: 10px 30px; background: #2563eb; color: white; font-size: 16px; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; transition: background 0.2s; }
+        .secret:hover { background: #1d4ed8; }
     </style>
 </head>
 <body>
-    <header>
-        <button id="menu-btn">☰</button>
-        <div id="top-nav">
-            <button class="active" data-tab="wallet">Wallet</button>
-            <button data-tab="trade">Trade</button>
-            <button data-tab="manage">Manage Trades</button>
-            <button data-tab="settings">Settings</button>
-        </div>
-    </header>
-
+    <button id="menu-btn">☰</button>
+    <nav id="topbar">
+        <button class="tab-btn active" data-tab="wallet">Wallet</button>
+        <button class="tab-btn" data-tab="trade">Trade</button>
+        <button class="tab-btn" data-tab="transfer">Transfer</button>
+        <button class="tab-btn" data-tab="manage-trades">Manage Trades</button>
+    </nav>
     <div id="overlay"></div>
-
     <main>
         <section id="wallet" class="tab">
             <div id="total-card">
                 <div id="total-label">Total Balance</div>
-                <div id="total-amount">
-                    <select id="currency-select">
-                        <option value="USD">$</option>
-                        <option value="EUR">€</option>
-                        <option value="GBP">£</option>
-                        <option value="BTC">₿</option>
-                    </select>
-                    <span id="total-usd">12,450.32</span>
-                </div>
+                <div id="total-usd">$10,000.00</div>
+                <select id="currency-select">
+                    <option>USD</option>
+                    <option>EUR</option>
+                    <option>BTC</option>
+                </select>
             </div>
-
-            <h2>Assets</h2>
             <ul id="assets">
-                <li>
-                    <div class="asset-info">
-                        <div class="asset-symbol">BTC</div>
-                        <div>Bitcoin</div>
-                    </div>
-                    <div class="asset-value">
-                        <div>0.2145 BTC</div>
-                        <div>$8,920.50</div>
-                    </div>
-                </li>
-                <li>
-                    <div class="asset-info">
-                        <div class="asset-symbol">ETH</div>
-                        <div>Ethereum</div>
-                    </div>
-                    <div class="asset-value">
-                        <div>2.85 ETH</div>
-                        <div>$3,529.82</div>
-                    </div>
-                </li>
+                <li><span class="asset-symbol">BTC</span> 0.5 ($25,000)</li>
+                <li><span class="asset-symbol">ETH</span> 10 ($20,000)</li>
             </ul>
         </section>
-
-        <!-- Other tabs (trade, manage, settings) can be added similarly -->
+        <section id="trade" class="tab">
+            <h2>Trade</h2>
+            <form>
+                <label>Asset</label>
+                <select><option>BTC</option><option>ETH</option></select>
+                <label>Amount</label>
+                <input type="number">
+                <button>Trade</button>
+            </form>
+            <div id="current-price">Current Price: $50,000</div>
+        </section>
+        <section id="transfer" class="tab">
+            <h2>Transfer</h2>
+            <form>
+                <label>To Address</label>
+                <input type="text">
+                <label>Amount</label>
+                <input type="number">
+                <button>Transfer</button>
+            </form>
+            <div id="transfer-est">Est. Fee: $5</div>
+        </section>
+        <section id="manage-trades" class="tab">
+            <h2>Manage Trades</h2>
+            <ul id="manage-trades">
+                <li>Trade #1: BTC Buy - $10,000</li>
+                <li>Trade #2: ETH Sell - $5,000</li>
+            </ul>
+        </section>
     </main>
-
     <footer>© 2026 Blue Wallet</footer>
-
     <script>
         const menuBtn = document.getElementById('menu-btn');
+        const topbar = document.getElementById('topbar');
         const overlay = document.getElementById('overlay');
-        const topNav = document.getElementById('top-nav');
+        const tabs = document.querySelectorAll('.tab');
+        const tabBtns = document.querySelectorAll('.tab-btn');
 
         menuBtn.addEventListener('click', () => {
+            topbar.classList.toggle('active');
             overlay.classList.toggle('active');
-            topNav.classList.toggle('active');
         });
 
         overlay.addEventListener('click', () => {
+            topbar.classList.remove('active');
             overlay.classList.remove('active');
-            topNav.classList.remove('active');
         });
 
-        document.querySelectorAll('#top-nav button').forEach(btn => {
+        tabBtns.forEach(btn => {
             btn.addEventListener('click', () => {
-                document.querySelectorAll('.tab').forEach(tab => tab.style.display = 'none');
-                document.querySelectorAll('#top-nav button').forEach(b => b.classList.remove('active'));
+                tabBtns.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
-                const tabId = btn.getAttribute('data-tab');
-                document.getElementById(tabId).style.display = 'block';
-
-                // Close menu on mobile after selection
-                if (window.innerWidth <= 768) {
-                    overlay.classList.remove('active');
-                }
+                tabs.forEach(tab => tab.style.display = 'none');
+                document.getElementById(btn.dataset.tab).style.display = 'block';
+                topbar.classList.remove('active');
+                overlay.classList.remove('active');
             });
         });
     </script>
