@@ -6,55 +6,62 @@
     <title>Blue Wallet</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f8fafc; color: #1e293b; margin: 0; min-height: 100vh; display: flex; flex-direction: column; }
-        header { background: #ffffff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 10; }
-        #top-bar { display: flex; align-items: center; padding: 15px; }
-        #menu-btn { background: none; border: none; font-size: 24px; cursor: pointer; padding: 10px; position: fixed; top: 10px; left: 10px; z-index: 30; background: #ffffff; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        #nav-buttons { display: flex; flex-direction: column; gap: 10px; position: fixed; top: 60px; left: 10px; background: #ffffff; padding: 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: opacity 0.3s ease, transform 0.3s ease; opacity: 0; transform: translateY(-20px); pointer-events: none; z-index: 25; }
-        #nav-buttons.open { opacity: 1; transform: translateY(0); pointer-events: auto; }
-        #nav-buttons button { padding: 12px 20px; background: #3b82f6; color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 14px; transition: background 0.2s; text-align: left; }
-        #nav-buttons button:hover, #nav-buttons button.active { background: #2563eb; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f8fafc; color: #1e293b; margin: 0; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+        #toggle-btn { position: fixed; top: 10px; left: 10px; width: 40px; height: 40px; background: #3b82f6; color: white; border: none; border-radius: 8px; font-size: 24px; cursor: pointer; z-index: 30; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+        #toggle-btn:hover { background: #2563eb; }
+        header { background: #ffffff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 10; transition: transform 0.3s ease; transform: translateY(-100%); }
+        header.visible { transform: translateY(0); }
+        #top-bar { display: flex; justify-content: center; padding: 15px; flex-wrap: wrap; gap: 10px; }
+        #top-bar button { padding: 12px 20px; background: #3b82f6; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 14px; transition: background 0.2s; flex: 1 1 auto; max-width: 150px; }
+        #top-bar button:hover, #top-bar button.active { background: #2563eb; }
         main { flex: 1; padding: 20px; }
         .tab { max-width: 900px; margin: 0 auto; background: #ffffff; border-radius: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.08); padding: 25px; display: none; }
         #wallet { display: block; }
-        #total-card { text-align: center; background: #ffffff; padding: 40px; border-radius: 16px; margin-bottom: 30px; box-shadow: 0 8px 25px rgba(0,0,0,0.08); }
+        #total-card { text-align: center; background: #ffffff; padding: 40px; border-radius: 16px; margin-bottom: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         #total-label { font-size: 18px; color: #64748b; }
-        #total-amount { font-size: 48px; font-weight: bold; color: #2563eb; margin: 15px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        #currency-select { padding: 8px 12px; border: 1px solid #bfdbfe; border-radius: 10px; background: #f8fbff; font-size: 16px; max-width: 100%; }
+        #total-amount { font-size: 48px; font-weight: bold; color: #2563eb; margin: 10px 0; }
+        #currency-select { padding: 10px; background: #f8fbff; border: 1px solid #bfdbfe; border-radius: 10px; font-size: 16px; margin-top: 10px; }
         #assets { list-style: none; padding: 0; margin: 0; }
-        #assets li { display: flex; align-items: center; gap: 15px; padding: 18px; background: #eff6ff; border-radius: 14px; margin-bottom: 12px; font-size: 18px; transition: transform 0.2s; }
-        #assets li:hover { transform: translateY(-3px); }
+        #assets li { display: flex; align-items: center; gap: 15px; padding: 18px; background: #eff6ff; border-radius: 14px; margin-bottom: 12px; font-size: 18px; transition: transform 0.2s, box-shadow 0.2s; }
+        #assets li:hover { transform: translateY(-3px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .asset-symbol { font-size: 22px; font-weight: bold; }
         form { display: grid; gap: 14px; }
         label { font-weight: bold; color: #3b82f6; font-size: 15px; }
-        input, select { padding: 12px; background: #f8fbff; border: 1px solid #bfdbfe; border-radius: 10px; font-size: 16px; max-width: 100%; }
+        input, select { padding: 12px; background: #f8fbff; border: 1px solid #bfdbfe; border-radius: 10px; font-size: 16px; transition: border 0.2s; }
         input:focus, select:focus { border-color: #2563eb; outline: none; }
-        button { padding: 12px 20px; background: #10b981; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
-        button:hover { background: #059669; }
+        button { padding: 12px 20px; background: #10b981; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: background 0.2s, transform 0.1s; }
+        button:hover { background: #059669; transform: translateY(-2px); }
+        button:active { transform: translateY(0); }
         #current-price, #available-usdt, #liq-est, #transfer-est, #from-balance { font-size: 17px; font-weight: bold; color: #2563eb; margin: 10px 0; padding: 10px; background: #eff6ff; border-radius: 8px; }
         #lev-value { font-size: 18px; font-weight: bold; color: #2563eb; }
-        h2 { color: #2563eb; font-size: 24px; text-align: center; margin-bottom: 20px; }
-        #manage-trades li { background: #eff6ff; padding: 20px; border-radius: 14px; margin-bottom: 12px; transition: transform 0.2s; }
-        #manage-trades li:hover { transform: translateY(-3px); }
+        h2 { color: #2563eb; font-size: 24px; text-align: center; margin-bottom: 20px; text-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        #manage-trades li { background: #eff6ff; padding: 20px; border-radius: 14px; margin-bottom: 12px; transition: transform 0.2s, box-shadow 0.2s; }
+        #manage-trades li:hover { transform: translateY(-3px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         canvas { max-height: 150px; margin: 15px 0; width: 100%; }
         footer { padding: 20px; text-align: center; }
-        .secret { padding: 10px 30px; background: #2563eb; color: white; font-size: 16px; font-weight: bold; border: none; border-radius: 30px; cursor: pointer; }
+        .secret { padding: 10px 30px; background: #2563eb; color: white; font-size: 16px; font-weight: bold; border: none; border-radius: 30px; cursor: pointer; transition: background 0.2s; }
+        .secret:hover { background: #1d4ed8; }
         #secret-section { padding: 20px; background: #eff6ff; border-radius: 14px; margin-top: 20px; display: none; }
         @media (max-width: 600px) {
-            #total-amount { font-size: 36px; }
-            #total-card { padding: 20px; }
+            #top-bar { flex-direction: column; gap: 5px; }
+            #top-bar button { max-width: none; font-size: 13px; padding: 10px; }
             main { padding: 10px; }
-            .tab { padding: 15px; }
+            #total-amount { font-size: 36px; }
             h2 { font-size: 20px; }
             canvas { max-height: 100px; }
-            #nav-buttons { width: calc(100% - 20px); left: 10px; top: 50px; }
         }
     </style>
 </head>
 <body>
-    <button id="menu-btn">☰</button>
-    <header>
-        <div id="top-bar"></div>
+    <button id="toggle-btn">☰</button>
+    <header id="header">
+        <div id="top-bar">
+            <button onclick="showTab('wallet')" class="active">Wallet</button>
+            <button onclick="showTab('trade')">Trade</button>
+            <button onclick="showTab('manage')">Manage</button>
+            <button onclick="showTab('transfer')">Swap</button>
+            <button onclick="showTab('history')">History</button>
+        </div>
     </header>
 
     <main>
@@ -228,17 +235,15 @@
         function showTab(id) {
             document.querySelectorAll('.tab').forEach(t => t.style.display = 'none');
             document.getElementById(id).style.display = 'block';
-            document.querySelectorAll('#nav-buttons button').forEach(b => b.classList.remove('active'));
-            document.querySelector(`#nav-buttons button[onclick="showTab('${id}')"]`).classList.add('active');
-            document.getElementById('nav-buttons').classList.remove('open');
-            document.getElementById('menu-btn').innerText = '☰';
+            document.querySelectorAll('#top-bar button').forEach(b => b.classList.remove('active'));
+            document.querySelector(`#top-bar button[onclick="showTab('${id}')"]`).classList.add('active');
             refresh();
         }
 
-        document.getElementById('menu-btn').onclick = () => {
-            const nav = document.getElementById('nav-buttons');
-            nav.classList.toggle('open');
-            document.getElementById('menu-btn').innerText = nav.classList.contains('open') ? '✖' : '☰';
+        document.getElementById('toggle-btn').onclick = () => {
+            const header = document.getElementById('header');
+            header.classList.toggle('visible');
+            document.getElementById('toggle-btn').innerText = header.classList.contains('visible') ? '✖' : '☰';
         };
 
         document.getElementById('currency-select').onchange = (e) => {
