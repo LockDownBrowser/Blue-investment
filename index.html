@@ -4,47 +4,68 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blue Wallet</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f0f8ff; color: #1e293b; margin: 0; min-height: 100vh; display: flex; flex-direction: column; }
-        nav { display: flex; justify-content: space-around; padding: 15px; background: #ffffff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 10; }
-        nav button { padding: 10px 15px; background: #3b82f6; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 14px; flex: 1; margin: 0 5px; }
-        nav button:hover, nav button.active { background: #2563eb; }
-        main { flex: 1; padding: 20px; }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(to bottom, #f0f8ff, #dbeafe); color: #1e293b; margin: 0; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+        header { display: flex; align-items: center; justify-content: space-between; padding: 15px; background: #ffffff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 10; }
+        #menu-btn { background: none; border: none; font-size: 24px; cursor: pointer; }
+        #sidebar { position: fixed; top: 0; left: -250px; width: 250px; height: 100%; background: #ffffff; box-shadow: 2px 0 10px rgba(0,0,0,0.1); transition: left 0.3s ease; z-index: 20; padding: 20px; }
+        #sidebar.active { left: 0; }
+        #sidebar button { display: block; width: 100%; padding: 15px; margin: 10px 0; background: #3b82f6; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 14px; transition: background 0.2s; }
+        #sidebar button:hover, #sidebar button.active { background: #2563eb; }
+        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 15; }
+        #overlay.active { display: block; }
+        main { flex: 1; padding: 20px; transition: margin-left 0.3s; }
         .tab { max-width: 900px; margin: 0 auto; background: #ffffff; border-radius: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.08); padding: 25px; display: none; }
         #wallet { display: block; }
-        #total-card { text-align: center; background: #eff6ff; padding: 30px; border-radius: 16px; margin-bottom: 30px; }
-        #total-label { font-size: 18px; color: #64748b; }
-        #total-usd { font-size: 48px; font-weight: bold; color: #2563eb; margin: 10px 0; }
+        #total-card { text-align: center; background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; padding: 40px; border-radius: 16px; margin-bottom: 30px; box-shadow: 0 4px 15px rgba(37,99,235,0.3); position: relative; overflow: hidden; }
+        #total-card::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.2), transparent); animation: glow 5s infinite; }
+        @keyframes glow { 0% { transform: translate(0,0); } 50% { transform: translate(10%,10%); } 100% { transform: translate(0,0); } }
+        #total-label { font-size: 18px; opacity: 0.9; }
+        #total-usd { font-size: 48px; font-weight: bold; margin: 10px 0; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         #assets { list-style: none; padding: 0; margin: 0; }
-        #assets li { display: flex; align-items: center; gap: 15px; padding: 18px; background: #eff6ff; border-radius: 14px; margin-bottom: 12px; font-size: 18px; }
+        #assets li { display: flex; align-items: center; gap: 15px; padding: 18px; background: #eff6ff; border-radius: 14px; margin-bottom: 12px; font-size: 18px; transition: transform 0.2s, box-shadow 0.2s; }
+        #assets li:hover { transform: translateY(-3px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .asset-symbol { font-size: 22px; font-weight: bold; }
         form { display: grid; gap: 14px; }
         label { font-weight: bold; color: #3b82f6; font-size: 15px; }
-        input, select { padding: 12px; background: #f8fbff; border: 1px solid #bfdbfe; border-radius: 10px; font-size: 16px; }
-        button { padding: 12px 20px; background: #10b981; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
-        button:hover { background: #059669; }
-        #current-price, #available-usdt, #liq-est, #transfer-est, #from-balance { font-size: 17px; font-weight: bold; color: #2563eb; margin: 10px 0; }
+        input, select { padding: 12px; background: #f8fbff; border: 1px solid #bfdbfe; border-radius: 10px; font-size: 16px; transition: border 0.2s; }
+        input:focus, select:focus { border-color: #2563eb; outline: none; }
+        button { padding: 12px 20px; background: #10b981; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: background 0.2s, transform 0.1s; }
+        button:hover { background: #059669; transform: translateY(-2px); }
+        button:active { transform: translateY(0); }
+        #current-price, #available-usdt, #liq-est, #transfer-est, #from-balance { font-size: 17px; font-weight: bold; color: #2563eb; margin: 10px 0; padding: 10px; background: #eff6ff; border-radius: 8px; }
         #lev-value { font-size: 18px; font-weight: bold; color: #2563eb; }
-        h2 { color: #2563eb; font-size: 24px; text-align: center; margin-bottom: 20px; }
-        #manage-trades li { background: #eff6ff; padding: 20px; border-radius: 14px; margin-bottom: 12px; }
+        h2 { color: #2563eb; font-size: 24px; text-align: center; margin-bottom: 20px; text-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        #manage-trades li, #history-list li { background: #eff6ff; padding: 20px; border-radius: 14px; margin-bottom: 12px; transition: transform 0.2s, box-shadow 0.2s; }
+        #manage-trades li:hover, #history-list li:hover { transform: translateY(-3px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        canvas { max-height: 150px; margin-top: 10px; }
         footer { padding: 20px; text-align: center; }
-        .secret { padding: 10px 30px; background: #2563eb; color: white; font-size: 16px; font-weight: bold; border: none; border-radius: 30px; cursor: pointer; }
+        .secret { padding: 10px 30px; background: #2563eb; color: white; font-size: 16px; font-weight: bold; border: none; border-radius: 30px; cursor: pointer; transition: background 0.2s; }
+        .secret:hover { background: #1d4ed8; }
         #secret-section { padding: 20px; background: #eff6ff; border-radius: 14px; margin-top: 20px; display: none; }
         @media (max-width: 600px) {
-            nav button { font-size: 13px; padding: 10px; }
+            #sidebar { width: 200px; left: -200px; }
+            #menu-btn { font-size: 20px; }
             main { padding: 10px; }
             #total-usd { font-size: 36px; }
             h2 { font-size: 20px; }
+            canvas { max-height: 100px; }
         }
     </style>
 </head>
 <body>
-    <nav>
+    <header>
+        <button id="menu-btn">☰</button>
+    </header>
+    <div id="sidebar">
         <button onclick="showTab('wallet')" class="active">Wallet</button>
         <button onclick="showTab('trade')">Trade</button>
         <button onclick="showTab('manage')">Manage</button>
         <button onclick="showTab('transfer')">Swap</button>
-    </nav>
+        <button onclick="showTab('history')">History</button>
+    </div>
+    <div id="overlay" onclick="toggleSidebar()"></div>
 
     <main>
         <div id="wallet" class="tab">
@@ -60,6 +81,7 @@
             <label>Pair</label>
             <input id="trade-crypto" list="cryptos" placeholder="BTC">
             <div id="current-price"></div>
+            <canvas id="price-chart" height="200"></canvas>
             <label>USDT Amount</label>
             <input id="usdt-amount" type="number" step="any" min="0">
             <div id="available-usdt"></div>
@@ -87,6 +109,11 @@
             <div id="transfer-est"></div>
             <button type="button" id="swap-btn">Swap (0.5% fee)</button>
         </div>
+
+        <div id="history" class="tab">
+            <h2>Trading History</h2>
+            <ul id="history-list"></ul>
+        </div>
     </main>
 
     <footer>
@@ -110,7 +137,9 @@
     <script>
         let assets = JSON.parse(localStorage.getItem('assets')) || { USDT: 10000 };
         let trades = JSON.parse(localStorage.getItem('trades')) || [];
+        let history = JSON.parse(localStorage.getItem('history')) || [];
         let prices = { USDT: 1 };
+        let historical = {};
 
         const symbolToId = {
             BTC: 'bitcoin', ETH: 'ethereum', SOL: 'solana', USDT: 'tether',
@@ -132,9 +161,20 @@
             } catch (err) {}
         }
 
+        async function fetchHistorical(sym) {
+            if (historical[sym]) return;
+            const id = symbolToId[sym] || sym.toLowerCase();
+            try {
+                const res = await fetch(`https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=usd&days=30`);
+                const data = await res.json();
+                historical[sym] = data.prices;
+            } catch (err) {}
+        }
+
         function save() {
             localStorage.setItem('assets', JSON.stringify(assets));
             localStorage.setItem('trades', JSON.stringify(trades));
+            localStorage.setItem('history', JSON.stringify(history));
         }
 
         function updateTotal() {
@@ -161,20 +201,35 @@
         function refresh() {
             updateTotal();
             updateAssets();
-            const active = document.querySelector('.tab[style*="block"]');
-            if (active.id === 'trade') updateTrade();
-            if (active.id === 'manage') updateManage();
-            if (active.id === 'transfer') updateSwap();
+            const active = document.querySelector('.tab[style*="block"]')?.id;
+            if (active === 'trade') updateTrade();
+            if (active === 'manage') updateManage();
+            if (active === 'transfer') updateSwap();
+            if (active === 'history') updateHistory();
         }
 
         function showTab(id) {
             document.querySelectorAll('.tab').forEach(t => t.style.display = 'none');
             document.getElementById(id).style.display = 'block';
-            document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-            document.querySelector(`nav button[onclick="showTab('${id}')"]`).classList.add('active');
+            document.querySelectorAll('#sidebar button').forEach(b => b.classList.remove('active'));
+            document.querySelector(`#sidebar button[onclick="showTab('${id}')"]`).classList.add('active');
+            toggleSidebar(false);
             refresh();
         }
 
+        function toggleSidebar(show = true) {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            if (show) {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active', sidebar.classList.contains('active'));
+            } else {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            }
+        }
+
+        document.getElementById('menu-btn').onclick = () => toggleSidebar();
         document.getElementById('secret-btn').onclick = () => {
             const sec = document.getElementById('secret-section');
             sec.style.display = sec.style.display === 'block' ? 'none' : 'block';
@@ -194,10 +249,26 @@
             }
         };
 
-        function updateTrade() {
+        async function updateTrade() {
             document.getElementById('available-usdt').innerText = 'Available: ' + (assets.USDT || 0).toFixed(2) + ' USDT';
             const sym = document.getElementById('trade-crypto').value.toUpperCase().trim();
-            document.getElementById('current-price').innerText = prices[sym] ? 'Price: $' + prices[sym].toFixed(2) : '';
+            if (sym) {
+                await fetchPrices([sym]);
+                await fetchHistorical(sym);
+                document.getElementById('current-price').innerText = prices[sym] ? 'Price: $' + prices[sym].toFixed(2) : '';
+                if (historical[sym]) {
+                    const ctx = document.getElementById('price-chart').getContext('2d');
+                    if (window.tradeChart) window.tradeChart.destroy();
+                    window.tradeChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: historical[sym].map(p => new Date(p[0]).toLocaleDateString()),
+                            datasets: [{ label: `${sym} Price (30 days)`, data: historical[sym].map(p => p[1]), borderColor: '#2563eb', fill: false }]
+                        },
+                        options: { scales: { y: { beginAtZero: false } }, plugins: { legend: { display: true } } }
+                    });
+                }
+            }
             document.getElementById('lev-value').innerText = document.getElementById('leverage').value + 'x';
         }
 
@@ -241,8 +312,21 @@
                                'Liq: $' + liq + '<br>' +
                                'PnL: <span style="color:' + (pnl >= 0 ? '#10b981' : '#ef4444') + '">$' + pnl.toFixed(2) + '</span> ' +
                                'ROI: <span style="color:' + (roi >= 0 ? '#10b981' : '#ef4444') + '">' + roi.toFixed(2) + '%</span><br>' +
+                               '<canvas id="chart-' + i + '" height="100"></canvas><br>' +
                                '<button onclick="closeTrade(' + i + ')">Close</button>';
                 list.appendChild(li);
+                const ctx = document.getElementById('chart-' + i).getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Entry', 'Current'],
+                        datasets: [{
+                            data: [t.entry, curr],
+                            backgroundColor: ['#94a3b8', pnl >= 0 ? '#10b981' : '#ef4444']
+                        }]
+                    },
+                    options: { scales: { y: { beginAtZero: false } }, plugins: { legend: { display: false } } }
+                });
             });
         }
 
@@ -251,11 +335,28 @@
             await fetchPrices([t.sym]);
             const curr = prices[t.sym] || t.entry;
             const pnl = (curr - t.entry) * t.pos;
+            const roi = (pnl / (t.pos * t.entry / t.lev)) * 100;
             assets.USDT = (assets.USDT || 0) + (t.pos * t.entry / t.lev) + pnl;
+            history.push({ sym: t.sym, lev: t.lev, pos: t.pos, entry: t.entry, exit: curr, pnl, roi, closeDate: new Date().toISOString() });
             trades.splice(i, 1);
             save();
             refresh();
         };
+
+        function updateHistory() {
+            const list = document.getElementById('history-list');
+            list.innerHTML = '';
+            history.forEach(h => {
+                const li = document.createElement('li');
+                li.innerHTML = `<strong>\( {h.sym}/USDT × \){h.lev}</strong><br>
+                                Pos: ${h.pos.toFixed(6)}<br>
+                                Entry \[ {h.entry.toFixed(2)} → Exit \]{h.exit.toFixed(2)}<br>
+                                PnL: <span style="color:${h.pnl >= 0 ? '#10b981' : '#ef4444'}">$${h.pnl.toFixed(2)}</span><br>
+                                ROI: <span style="color:\( {h.roi >= 0 ? '#10b981' : '#ef4444'}"> \){h.roi.toFixed(2)}%</span><br>
+                                Closed: ${new Date(h.closeDate).toLocaleString()}`;
+                list.appendChild(li);
+            });
+        }
 
         function updateSwap() {
             const fromSelect = document.getElementById('from-crypto');
