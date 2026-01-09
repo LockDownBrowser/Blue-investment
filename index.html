@@ -7,24 +7,21 @@
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(to bottom, #f0f8ff, #dbeafe); color: #1e293b; margin: 0; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
         header { display: flex; align-items: center; justify-content: space-between; padding: 15px; background: #ffffff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 10; }
-        #menu-btn { position: fixed; top: 10px; left: 10px; background: #3b82f6; color: white; border: none; font-size: 24px; cursor: pointer; width: 50px; height: 50px; border-radius: 8px; display: flex; align-items: center; justify-content: center; z-index: 30; transition: background 0.2s; }
-        #menu-btn:hover { background: #2563eb; }
-        #topbar { position: fixed; top: -60px; left: 0; width: 100%; height: 60px; background: #ffffff; box-shadow: 0 2px 10px rgba(0,0,0,0.1); transition: top 0.3s ease; z-index: 20; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 0 20px; }
-        #topbar.active { top: 0; }
-        #topbar button { padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 14px; transition: background 0.2s; white-space: nowrap; }
-        #topbar button:hover, #topbar button.active { background: #2563eb; }
-        @media (max-width: 768px) { #topbar { flex-wrap: wrap; height: auto; padding: 10px; gap: 5px; } #topbar button { flex: 1; min-width: 80px; font-size: 12px; } }
+        #menu-btn { background: none; border: none; font-size: 24px; cursor: pointer; }
+        #sidebar { position: fixed; top: 0; left: -250px; width: 250px; height: 100%; background: #ffffff; box-shadow: 2px 0 10px rgba(0,0,0,0.1); transition: left 0.3s ease; z-index: 20; padding: 20px; }
+        #sidebar.active { left: 0; }
+        #sidebar button { display: block; width: 100%; padding: 15px; margin: 10px 0; background: #3b82f6; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 14px; transition: background 0.2s; }
+        #sidebar button:hover, #sidebar button.active { background: #2563eb; }
         #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 15; }
         #overlay.active { display: block; }
-        main { flex: 1; padding: 20px; transition: margin-top 0.3s; }
+        main { flex: 1; padding: 20px; transition: margin-left 0.3s; }
         .tab { max-width: 900px; margin: 0 auto; background: #ffffff; border-radius: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.08); padding: 25px; display: none; }
         #wallet { display: block; }
-        #total-card { text-align: center; background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; padding: 40px; border-radius: 16px; margin-bottom: 30px; box-shadow: 0 4px 15px rgba(37,99,235,0.3); position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; }
+        #total-card { text-align: center; background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; padding: 40px; border-radius: 16px; margin-bottom: 30px; box-shadow: 0 4px 15px rgba(37,99,235,0.3); position: relative; overflow: hidden; }
         #total-card::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.2), transparent); animation: glow 5s infinite; }
         @keyframes glow { 0% { transform: translate(0,0); } 50% { transform: translate(10%,10%); } 100% { transform: translate(0,0); } }
         #total-label { font-size: 18px; opacity: 0.9; }
         #total-usd { font-size: 48px; font-weight: bold; margin: 10px 0; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-        #currency-select { padding: 8px; background: rgba(255,255,255,0.2); border: none; color: white; font-size: 16px; border-radius: 5px; margin-top: 10px; }
         #assets { list-style: none; padding: 0; margin: 0; }
         #assets li { display: flex; align-items: center; gap: 15px; padding: 18px; background: #eff6ff; border-radius: 14px; margin-bottom: 12px; font-size: 18px; transition: transform 0.2s, box-shadow 0.2s; }
         #assets li:hover { transform: translateY(-3px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
@@ -42,93 +39,4 @@
         #manage-trades li { background: #eff6ff; padding: 20px; border-radius: 14px; margin-bottom: 12px; transition: transform 0.2s, box-shadow 0.2s; }
         #manage-trades li:hover { transform: translateY(-3px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         footer { padding: 20px; text-align: center; }
-        .secret { padding: 10px 30px; background: #2563eb; color: white; font-size: 16px; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; transition: background 0.2s; }
-        .secret:hover { background: #1d4ed8; }
-    </style>
-</head>
-<body>
-    <button id="menu-btn">☰</button>
-    <nav id="topbar">
-        <button class="tab-btn active" data-tab="wallet">Wallet</button>
-        <button class="tab-btn" data-tab="trade">Trade</button>
-        <button class="tab-btn" data-tab="transfer">Transfer</button>
-        <button class="tab-btn" data-tab="manage-trades">Manage Trades</button>
-    </nav>
-    <div id="overlay"></div>
-    <main>
-        <section id="wallet" class="tab">
-            <div id="total-card">
-                <div id="total-label">Total Balance</div>
-                <div id="total-usd">$10,000.00</div>
-                <select id="currency-select">
-                    <option>USD</option>
-                    <option>EUR</option>
-                    <option>BTC</option>
-                </select>
-            </div>
-            <ul id="assets">
-                <li><span class="asset-symbol">BTC</span> 0.5 ($25,000)</li>
-                <li><span class="asset-symbol">ETH</span> 10 ($20,000)</li>
-            </ul>
-        </section>
-        <section id="trade" class="tab">
-            <h2>Trade</h2>
-            <form>
-                <label>Asset</label>
-                <select><option>BTC</option><option>ETH</option></select>
-                <label>Amount</label>
-                <input type="number">
-                <button>Trade</button>
-            </form>
-            <div id="current-price">Current Price: $50,000</div>
-        </section>
-        <section id="transfer" class="tab">
-            <h2>Transfer</h2>
-            <form>
-                <label>To Address</label>
-                <input type="text">
-                <label>Amount</label>
-                <input type="number">
-                <button>Transfer</button>
-            </form>
-            <div id="transfer-est">Est. Fee: $5</div>
-        </section>
-        <section id="manage-trades" class="tab">
-            <h2>Manage Trades</h2>
-            <ul id="manage-trades">
-                <li>Trade #1: BTC Buy - $10,000</li>
-                <li>Trade #2: ETH Sell - $5,000</li>
-            </ul>
-        </section>
-    </main>
-    <footer>© 2026 Blue Wallet</footer>
-    <script>
-        const menuBtn = document.getElementById('menu-btn');
-        const topbar = document.getElementById('topbar');
-        const overlay = document.getElementById('overlay');
-        const tabs = document.querySelectorAll('.tab');
-        const tabBtns = document.querySelectorAll('.tab-btn');
-
-        menuBtn.addEventListener('click', () => {
-            topbar.classList.toggle('active');
-            overlay.classList.toggle('active');
-        });
-
-        overlay.addEventListener('click', () => {
-            topbar.classList.remove('active');
-            overlay.classList.remove('active');
-        });
-
-        tabBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                tabBtns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                tabs.forEach(tab => tab.style.display = 'none');
-                document.getElementById(btn.dataset.tab).style.display = 'block';
-                topbar.classList.remove('active');
-                overlay.classList.remove('active');
-            });
-        });
-    </script>
-</body>
-</html>
+        .secret { padding: 10px 30px; background: #2563eb; color: white; font-size: 16px; font-weight: bold; border:
