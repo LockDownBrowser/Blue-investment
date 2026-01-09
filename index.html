@@ -6,43 +6,41 @@
     <title>Blue Wallet</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(to bottom, #f0f8ff, #dbeafe); color: #1e293b; margin: 0; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
-        header { background: #ffffff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 10; transition: transform 0.3s ease; }
-        #top-bar { display: flex; justify-content: center; align-items: center; padding: 15px; flex-wrap: wrap; gap: 10px; }
-        #top-bar button { padding: 12px 20px; background: #3b82f6; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 14px; transition: background 0.2s; }
-        #top-bar button:hover, #top-bar button.active { background: #2563eb; }
-        #toggle-bar { background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-size: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        header.hidden { transform: translateY(-100%); }
-        header.hidden #toggle-bar { position: fixed; top: 10px; left: 50%; transform: translateX(-50%); z-index: 11; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f8fafc; color: #1e293b; margin: 0; min-height: 100vh; display: flex; flex-direction: column; }
+        header { background: #ffffff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 10; }
+        #top-bar { display: flex; align-items: center; justify-content: space-between; padding: 15px; }
+        #menu-btn { background: none; border: none; font-size: 24px; cursor: pointer; padding: 10px; }
+        #nav-buttons { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; transition: max-height 0.4s ease, opacity 0.3s ease; overflow: hidden; max-height: 0; opacity: 0; }
+        #nav-buttons.open { max-height: 200px; opacity: 1; }
+        #nav-buttons button { padding: 12px 20px; background: #3b82f6; color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 14px; transition: background 0.2s, transform 0.1s; }
+        #nav-buttons button:hover, #nav-buttons button.active { background: #2563eb; transform: translateY(-2px); }
         main { flex: 1; padding: 20px; }
         .tab { max-width: 900px; margin: 0 auto; background: #ffffff; border-radius: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.08); padding: 25px; display: none; }
         #wallet { display: block; }
         #total-card { text-align: center; background: #ffffff; padding: 40px; border-radius: 16px; margin-bottom: 30px; box-shadow: 0 8px 25px rgba(0,0,0,0.08); }
         #total-label { font-size: 18px; color: #64748b; }
         #total-amount { font-size: 48px; font-weight: bold; color: #2563eb; margin: 15px 0; }
-        #currency-toggle { font-size: 18px; color: #2563eb; cursor: pointer; margin-top: 10px; }
+        #currency-select { padding: 8px 12px; border: 1px solid #bfdbfe; border-radius: 10px; background: #f8fbff; font-size: 16px; }
         #assets { list-style: none; padding: 0; margin: 0; }
-        #assets li { display: flex; align-items: center; gap: 15px; padding: 18px; background: #eff6ff; border-radius: 14px; margin-bottom: 12px; font-size: 18px; transition: transform 0.2s, box-shadow 0.2s; }
-        #assets li:hover { transform: translateY(-3px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        #assets li { display: flex; align-items: center; gap: 15px; padding: 18px; background: #eff6ff; border-radius: 14px; margin-bottom: 12px; font-size: 18px; transition: transform 0.2s; }
+        #assets li:hover { transform: translateY(-3px); }
         .asset-symbol { font-size: 22px; font-weight: bold; }
         form { display: grid; gap: 14px; }
         label { font-weight: bold; color: #3b82f6; font-size: 15px; }
-        input, select { padding: 12px; background: #f8fbff; border: 1px solid #bfdbfe; border-radius: 10px; font-size: 16px; transition: border 0.2s; }
+        input, select { padding: 12px; background: #f8fbff; border: 1px solid #bfdbfe; border-radius: 10px; font-size: 16px; }
         input:focus, select:focus { border-color: #2563eb; outline: none; }
-        button { padding: 12px 20px; background: #10b981; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: background 0.2s, transform 0.1s; }
-        button:hover { background: #059669; transform: translateY(-2px); }
+        button { padding: 12px 20px; background: #10b981; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+        button:hover { background: #059669; }
         #current-price, #available-usdt, #liq-est, #transfer-est, #from-balance { font-size: 17px; font-weight: bold; color: #2563eb; margin: 10px 0; padding: 10px; background: #eff6ff; border-radius: 8px; }
         #lev-value { font-size: 18px; font-weight: bold; color: #2563eb; }
         h2 { color: #2563eb; font-size: 24px; text-align: center; margin-bottom: 20px; }
-        #manage-trades li { background: #eff6ff; padding: 20px; border-radius: 14px; margin-bottom: 12px; transition: transform 0.2s, box-shadow 0.2s; }
-        #manage-trades li:hover { transform: translateY(-3px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        #manage-trades li { background: #eff6ff; padding: 20px; border-radius: 14px; margin-bottom: 12px; transition: transform 0.2s; }
+        #manage-trades li:hover { transform: translateY(-3px); }
         canvas { max-height: 150px; margin: 15px 0; }
         footer { padding: 20px; text-align: center; }
         .secret { padding: 10px 30px; background: #2563eb; color: white; font-size: 16px; font-weight: bold; border: none; border-radius: 30px; cursor: pointer; }
         #secret-section { padding: 20px; background: #eff6ff; border-radius: 14px; margin-top: 20px; display: none; }
         @media (max-width: 600px) {
-            #top-bar { flex-direction: column; }
-            #top-bar button { width: 80%; }
             #total-amount { font-size: 36px; }
             h2 { font-size: 20px; }
             canvas { max-height: 100px; }
@@ -50,14 +48,16 @@
     </style>
 </head>
 <body>
-    <header id="header">
+    <header>
         <div id="top-bar">
-            <button onclick="showTab('wallet')" class="active">Wallet</button>
-            <button onclick="showTab('trade')">Trade</button>
-            <button onclick="showTab('manage')">Manage</button>
-            <button onclick="showTab('transfer')">Swap</button>
-            <button onclick="showTab('history')">History</button>
-            <button id="toggle-bar" onclick="toggleHeader()">▼</button>
+            <button id="menu-btn">☰</button>
+            <div id="nav-buttons">
+                <button onclick="showTab('wallet')" class="active">Wallet</button>
+                <button onclick="showTab('trade')">Trade</button>
+                <button onclick="showTab('manage')">Manage</button>
+                <button onclick="showTab('transfer')">Swap</button>
+                <button onclick="showTab('history')">History</button>
+            </div>
         </div>
     </header>
 
@@ -66,7 +66,14 @@
             <div id="total-card">
                 <div id="total-label">Portfolio Value</div>
                 <div id="total-amount">Loading...</div>
-                <div id="currency-toggle">(Click amount to change currency)</div>
+                <select id="currency-select">
+                    <option value="USD">$ USD</option>
+                    <option value="EUR">€ EUR</option>
+                    <option value="GBP">£ GBP</option>
+                    <option value="AED">د.إ AED</option>
+                    <option value="JPY">¥ JPY</option>
+                    <option value="CNY">¥ CNY</option>
+                </select>
             </div>
             <ul id="assets"></ul>
         </div>
@@ -135,10 +142,9 @@
         let history = JSON.parse(localStorage.getItem('history')) || [];
         let prices = { USDT: 1 };
         let historical = {};
-        let fiatRates = { USD: 1 };
+        let fiatRates = { usd: 1 };
         let displayCurrency = 'USD';
 
-        const currencies = ['USD', 'EUR', 'GBP', 'AED', 'JPY', 'CNY'];
         const currencySymbols = { USD: '$', EUR: '€', GBP: '£', AED: 'د.إ', JPY: '¥', CNY: '¥' };
 
         const symbolToId = {
@@ -197,7 +203,7 @@
             const totalUSD = getTotalUSD();
             const rate = fiatRates[displayCurrency.toLowerCase()] || 1;
             const total = totalUSD * rate;
-            document.getElementById('total-amount').innerText = currencySymbols[displayCurrency] + total.toFixed(2) + ' ' + displayCurrency;
+            document.getElementById('total-amount').innerText = currencySymbols[displayCurrency] + total.toFixed(2);
         }
 
         function updateAssets() {
@@ -226,21 +232,21 @@
         function showTab(id) {
             document.querySelectorAll('.tab').forEach(t => t.style.display = 'none');
             document.getElementById(id).style.display = 'block';
-            document.querySelectorAll('#top-bar button').forEach(b => b.classList.remove('active'));
-            document.querySelector(`#top-bar button[onclick="showTab('${id}')"]`).classList.add('active');
+            document.querySelectorAll('#nav-buttons button').forEach(b => b.classList.remove('active'));
+            document.querySelector(`#nav-buttons button[onclick="showTab('${id}')"]`).classList.add('active');
+            document.getElementById('nav-buttons').classList.remove('open');
+            document.getElementById('menu-btn').innerText = '☰';
             refresh();
         }
 
-        function toggleHeader() {
-            const header = document.getElementById('header');
-            const toggleBtn = document.getElementById('toggle-bar');
-            header.classList.toggle('hidden');
-            toggleBtn.innerText = header.classList.contains('hidden') ? '▲' : '▼';
-        }
+        document.getElementById('menu-btn').onclick = () => {
+            const nav = document.getElementById('nav-buttons');
+            nav.classList.toggle('open');
+            document.getElementById('menu-btn').innerText = nav.classList.contains('open') ? '✖' : '☰';
+        };
 
-        document.getElementById('total-amount').onclick = () => {
-            const idx = currencies.indexOf(displayCurrency);
-            displayCurrency = currencies[(idx + 1) % currencies.length];
+        document.getElementById('currency-select').onchange = (e) => {
+            displayCurrency = e.target.value.split(' ')[1];
             updateTotal();
         };
 
