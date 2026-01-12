@@ -211,15 +211,15 @@ function loadSubcats(cat) {
   showSection('subcat');
 }
 
-function getStars(rating) {
-  let stars = '<div class="stars">';
+function getStars(rating, reviews) {
+  let stars = `<div class="stars" data-rating="\( {rating}" data-reviews=" \){reviews}">`;
   for (let i = 5; i >= 1; i--) {
     if (rating >= i) {
       stars += '<span class="full">★</span>';
     } else if (rating >= i - 0.5) {
       stars += '<span class="half">★</span>';
     } else {
-      stars += '<span>☆</span>';
+      stars += '<span>★</span>';
     }
   }
   return stars + '</div>';
@@ -239,7 +239,7 @@ function loadProducts(sub) {
     let html = '';
     if (prod.title) html += `<div class="product-field"><strong>Title:</strong> <span class="prod-title-span">${prod.title}</span></div>`;
     if (prod.desc) html += `<div class="product-field"><strong>Description:</strong> <span class="prod-desc-span">${prod.desc}</span></div>`;
-    if (prod.rating || prod.reviews) html += `<div class="product-field"><strong>Rating:</strong> \( {getStars(prod.rating || 0)} ( \){prod.reviews || 0} reviews)</div>`;
+    if (prod.rating !== undefined || prod.reviews !== undefined) html += `<div class="product-field"><strong>Rating:</strong> \( {getStars(prod.rating || 0, prod.reviews || 0)} ( \){prod.reviews || 0} reviews)</div>`;
     if (prod.discord) html += `<div class="product-field"><strong>Discord User:</strong> <span class="prod-discord-span">${prod.discord}</span></div>`;
     if (prod.payment) html += `<div class="product-field"><strong>Payment Method:</strong> <span class="prod-payment-span">${prod.payment}</span></div>`;
     box.innerHTML = html;
@@ -372,21 +372,18 @@ function editProduct(box, i) {
       inputs.push(input);
     }
   });
-  const ratingField = box.querySelector('.product-field strong').parentNode;
-  if (ratingField.textContent.includes('Rating:')) {
-    const ratingInput = document.createElement('input');
-    ratingInput.type = 'number';
-    ratingInput.min = 0;
-    ratingInput.max = 5;
-    ratingInput.step = 0.5;
-    ratingInput.value = parseFloat(box.querySelector('.stars').dataset.rating || 0);
-    const reviewsInput = document.createElement('input');
-    reviewsInput.type = 'number';
-    reviewsInput.min = 0;
-    reviewsInput.value = parseInt(box.querySelector('.stars').dataset.reviews || 0);
+  const ratingField = Array.from(box.querySelectorAll('.product-field')).find(field => field.textContent.includes('Rating:'));
+  let ratingValue = 0;
+  let reviewsValue = 0;
+  if (ratingField) {
+    const stars = ratingField.querySelector('.stars');
+    if (stars) {
+      ratingValue = parseFloat(stars.dataset.rating || 0);
+      reviewsValue = parseInt(stars.dataset.reviews || 0);
+    }
     ratingField.innerHTML = '<strong>Rating:</strong> <input type="number" class="edit-rating" min="0" max="5" step="0.5"> <strong>Reviews:</strong> <input type="number" class="edit-reviews" min="0">';
-    ratingField.querySelector('.edit-rating').value = ratingInput.value;
-    ratingField.querySelector('.edit-reviews').value = reviewsInput.value;
+    ratingField.querySelector('.edit-rating').value = ratingValue;
+    ratingField.querySelector('.edit-reviews').value = reviewsValue;
   }
   const imageInput = document.createElement('input');
   imageInput.value = box.querySelector('.product-img')?.src || '';
@@ -394,14 +391,14 @@ function editProduct(box, i) {
   imageField.className = 'product-field';
   imageField.innerHTML = '<strong>Image URL:</strong>';
   imageField.appendChild(imageInput);
-  box.appendChild(imageField);
+  box.insertBefore(imageField, box.querySelector('.product-actions'));
   const videoInput = document.createElement('input');
   videoInput.value = box.querySelector('.product-video')?.src.replace('embed/', 'watch?v=') || '';
   const videoField = document.createElement('div');
   videoField.className = 'product-field';
   videoField.innerHTML = '<strong>Video URL:</strong>';
   videoField.appendChild(videoInput);
-  box.appendChild(videoField);
+  box.insertBefore(videoField, box.querySelector('.product-actions'));
   const actions = box.querySelector('.product-actions');
   actions.innerHTML = '';
   const save = document.createElement('button');
