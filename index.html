@@ -242,6 +242,7 @@ function loadProducts(sub) {
     if (prod.rating !== undefined || prod.reviews !== undefined) html += `<div class="product-field"><strong>Rating:</strong> \( {getStars(prod.rating || 0, prod.reviews || 0)} ( \){prod.reviews || 0} reviews)</div>`;
     if (prod.discord) html += `<div class="product-field"><strong>Discord User:</strong> <span class="prod-discord-span">${prod.discord}</span></div>`;
     if (prod.payment) html += `<div class="product-field"><strong>Payment Method:</strong> <span class="prod-payment-span">${prod.payment}</span></div>`;
+    if (prod.tag) html += `<div class="product-field"><strong>Tag:</strong> ${prod.tag.toUpperCase()}</div>`;
     box.innerHTML = html;
     if (prod.image) {
       const img = document.createElement('img');
