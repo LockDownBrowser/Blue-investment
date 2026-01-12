@@ -1,14 +1,23 @@
 // script.js
 
-const categories = {
+let categories = localStorage.getItem('categories') ? JSON.parse(localStorage.getItem('categories')) : {
   tests: ['lsat', 'sat', 'act', 'psat', 'dsat'],
   comps: ['deca', 'hosa', 'tsa', 'fbla', 'bpa'],
   proctor: ['lockdown-browser', 'honorlock', 'proctorio', 'proctoru', 'examity']
 };
-const allSubcats = Object.values(categories).flat();
+let allSubcats = Object.values(categories).flat();
 let isAdmin = false;
 let currentCat = '';
 let currentSubcat = '';
+
+function updateAllSubcats() {
+  allSubcats = Object.values(categories).flat();
+}
+
+function saveCategories() {
+  localStorage.setItem('categories', JSON.stringify(categories));
+  updateAllSubcats();
+}
 
 function showSection(section) {
   document.getElementById('main-section').style.display = section === 'main' ? 'flex' : 'none';
@@ -25,8 +34,21 @@ function loadSubcats(cat) {
     card.className = 'subcat-card';
     card.innerHTML = `<h3>${sub.toUpperCase()}</h3>`;
     card.onclick = () => loadProducts(sub);
+    if (isAdmin) {
+      const delBtn = document.createElement('button');
+      delBtn.className = 'delete-btn';
+      delBtn.textContent = 'Delete';
+      delBtn.onclick = (e) => {
+        e.stopPropagation();
+        categories[cat] = categories[cat].filter(s => s !== sub);
+        saveCategories();
+        loadSubcats(cat);
+      };
+      card.appendChild(delBtn);
+    }
     subcatsDiv.appendChild(card);
   });
+  document.getElementById('add-subcat-form').style.display = isAdmin ? 'flex' : 'none';
   showSection('subcat');
 }
 
@@ -176,6 +198,18 @@ function deleteProduct(i) {
   loadProducts(currentSubcat);
 }
 
+function addSubcat() {
+  const newSub = document.getElementById('new-subcat').value.trim().toLowerCase();
+  if (newSub && !categories[currentCat].includes(newSub)) {
+    categories[currentCat].push(newSub);
+    saveCategories();
+    loadSubcats(currentCat);
+    document.getElementById('new-subcat').value = '';
+  } else {
+    alert('Invalid or duplicate subcategory');
+  }
+}
+
 document.querySelectorAll('.category-card').forEach(card => {
   card.onclick = () => loadSubcats(card.dataset.cat);
 });
@@ -190,13 +224,14 @@ document.getElementById('show-login').addEventListener('click', () => {
 
 document.getElementById('loginForm').addEventListener('submit', e => {
   e.preventDefault();
-  if (document.getElementById('username').value === 'admin' && document.getElementById('password').value === '12345') {
+  if (document.getElementById('username').value === 'zues50' && document.getElementById('password').value === 'zues12345') {
     isAdmin = true;
     document.querySelector('.login-form').style.display = 'none';
     document.getElementById('show-login').style.display = 'none';
     document.getElementById('logout').style.display = 'block';
     document.getElementById('welcome').style.display = 'inline';
     if (currentSubcat) loadProducts(currentSubcat);
+    else if (currentCat) loadSubcats(currentCat);
   } else {
     alert('Invalid');
   }
@@ -208,9 +243,11 @@ document.getElementById('logout').addEventListener('click', () => {
   document.getElementById('logout').style.display = 'none';
   document.getElementById('welcome').style.display = 'none';
   if (currentSubcat) loadProducts(currentSubcat);
+  else if (currentCat) loadSubcats(currentCat);
 });
 
 document.querySelector('.add-btn').addEventListener('click', addProduct);
+document.getElementById('add-subcat-btn').addEventListener('click', addSubcat);
 
 const searchInput = document.querySelector('.search-input');
 const suggestions = document.querySelector('.suggestions');
