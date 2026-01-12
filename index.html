@@ -1,161 +1,260 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Exam Hub: Categories for Tests, Comps, Proctor Software, Cheating Devices. Admin manage products and subcategories." />
+  <meta charset="UTF-8">
   <title>Exam Hub</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Exam Hub for tests, competitions, proctoring, and more.">
+  <meta name="author" content="Exam Hub">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
   <style>
-    body {margin:0;font-family:'Poppins',sans-serif;background:linear-gradient(to bottom,#e3f2fd,#bbdefb);color:#212121;line-height:1.6;}
-    .container{max-width:1200px;margin:20px auto;padding:20px;background:#fff;box-shadow:0 10px 30px rgba(0,0,0,0.2);border-radius:20px;}
-    header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
-    h1{font-size:2.5rem;color:#0d47a1;margin:0;}
-    .auth-section{display:flex;align-items:center;gap:10px;}
-    .login-btn{padding:8px 16px;background:#2196f3;color:#fff;border:none;border-radius:6px;cursor:pointer;}
-    .login-form{display:none;gap:5px;}
-    .login-form input{padding:8px;border-radius:6px;border:1px solid #ccc;width:120px;}
-    .login-form button{padding:8px 16px;background:#2196f3;color:#fff;border:none;border-radius:6px;cursor:pointer;}
-    .logout{display:none;padding:8px 16px;background:#f44336;color:#fff;border:none;border-radius:6px;cursor:pointer;}
-    .welcome{display:none;color:#4caf50;font-weight:600;}
-    .search-bar{margin-bottom:20px;position:relative;}
-    .search-input{width:100%;padding:10px;border-radius:8px;border:1px solid #ccc;box-sizing:border-box;}
-    .suggestions{position:absolute;background:#fff;width:100%;border:1px solid #ccc;border-top:none;border-radius:0 0 8px 8px;z-index:10;max-height:200px;overflow-y:auto;display:none;}
-    .suggestion{padding:10px;cursor:pointer;transition:.3s;}
-    .suggestion:hover{background:#e3f2fd;}
-    #main-section{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;}
-    .category-card{background:#f9fbfd;padding:15px 30px;border-radius:12px;box-shadow:0 6px 15px rgba(0,0,0,0.1);text-align:center;cursor:pointer;transition:.3s;width:200px;}
-    .category-card:hover{transform:scale(1.05);box-shadow:0 8px 20px rgba(0,0,0,0.15);}
-    .category-card h2{font-size:1.4rem;color:#0d47a1;}
-    #subcat-section{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:40px;display:none;}
-    .subcat-card{background:#e3f2fd;padding:20px;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.1);text-align:center;cursor:pointer;transition:.3s;}
-    .subcat-card:hover{background:#bbdefb;transform:scale(1.02);box-shadow:0 6px 15px rgba(0,0,0,0.15);}
-    .subcat-card h3{font-size:1.3rem;color:#1565c0;}
-    .admin-subcat-controls{display:none;flex-direction:column;gap:10px;margin-top:20px;padding:15px;background:#e3f2fd;border-radius:10px;}
-    .admin-subcat-controls input{padding:8px;border-radius:6px;border:1px solid #ccc;}
-    .admin-subcat-controls button{padding:10px;background:#4caf50;color:#fff;border:none;border-radius:6px;cursor:pointer;transition:.3s;}
-    .admin-subcat-controls button:hover{background:#43a047;}
-    #products-section{padding:20px;display:none;}
-    .product-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:30px;}
-    .product-box{background:#f9fbfd;padding:20px;border-radius:12px;box-shadow:0 6px 15px rgba(0,0,0,0.1);transition:.3s;}
-    .product-box:hover{box-shadow:0 8px 20px rgba(0,0,0,0.15);}
-    .product-field{margin-bottom:12px;}
-    .product-field strong{display:block;color:#424242;font-size:1.1rem;}
-    .product-img{max-width:100%;height:auto;border-radius:8px;margin-bottom:12px;}
-    .product-video{width:100%;height:200px;border-radius:8px;margin-bottom:12px;}
-    .admin-controls{display:none;flex-direction:column;gap:12px;margin-top:20px;padding:15px;background:#e3f2fd;border-radius:10px;}
-    .admin-controls label{font-size:0.9rem;color:#424242;}
-    .admin-controls input, .admin-controls textarea, .admin-controls select{padding:8px;border-radius:6px;border:1px solid #ccc;width:100%;box-sizing:border-box;}
-    .admin-controls textarea{height:60px;}
-    .admin-controls button{padding:10px;background:#4caf50;color:#fff;border:none;border-radius:6px;cursor:pointer;transition:.3s;}
-    .admin-controls button:hover{background:#43a047;}
-    .product-actions{display:flex;gap:10px;margin-top:12px;justify-content:flex-end;}
-    .edit-btn, .delete-btn, .save-btn, .cancel-btn{padding:6px 12px;border:none;border-radius:6px;cursor:pointer;transition:.3s;}
-    .edit-btn{background:#ffc107;color:#fff;}
-    .edit-btn:hover{background:#ffb300;}
-    .delete-btn{background:#f44336;color:#fff;}
-    .delete-btn:hover{background:#d32f2f;}
-    .save-btn{background:#4caf50;color:#fff;}
-    .save-btn:hover{background:#43a047;}
-    .cancel-btn{background:#9e9e9e;color:#fff;}
-    .cancel-btn:hover{background:#757575;}
-    .back-btn{padding:10px 20px;background:#2196f3;color:#fff;border:none;border-radius:6px;cursor:pointer;margin-bottom:20px;transition:.3s;}
-    .back-btn:hover{background:#1976d2;}
-    footer{text-align:center;padding:20px;color:#757575;font-size:0.9rem;margin-top:30px;}
-    #announcements-section{margin-bottom:20px;}
-    .announcement-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:30px;}
-    .stars {unicode-bidi: bidi-override; direction: rtl; display: inline-block;}
-    .stars > span {display: inline-block; position: relative; width: 1.1em; color: #ccc; font-size: 1.2em;}
-    .stars > span.full {color: green;}
-    .stars > span.half::before {content: "\2605"; position: absolute; overflow: hidden; width: 50%; color: green;}
-    @media (max-width:768px){
-      .container{margin:10px;padding:15px;}
-      h1{font-size:2rem;}
-      .login-form input{width:100px;}
-      .product-list{grid-template-columns:1fr;}
-      .category-card{width:100%;}
-      #subcat-section{gap:20px;}
-      .subcat-card{padding:15px;}
+    :root {
+      --primary: #007bff;
+      --accent: #e3f2fd;
+      --success: #28a745;
+      --text: #212529;
+      --light: #f8fbff;
+    }
+    body {
+      font-family: 'Roboto', Arial, sans-serif;
+      background: var(--light);
+      color: var(--text);
+      margin: 0;
+      padding: 0;
+      line-height: 1.6;
+    }
+    header {
+      text-align: center;
+      padding: 40px 20px;
+      background: #ffffff;
+      position: relative;
+    }
+    .logo {
+      font-size: 2.8em;
+      font-weight: bold;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+    }
+    .logo i {
+      font-size: 1.2em;
+    }
+    .login {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      gap: 10px;
+    }
+    .login input {
+      padding: 8px;
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+    }
+    .login button {
+      padding: 8px 14px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .login button:hover {
+      background: #0056b3;
+    }
+    .logout {
+      padding: 8px 14px;
+      background: #d32f2f;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .logout:hover {
+      background: #b71c1c;
+    }
+    .container {
+      max-width: 1100px;
+      margin: auto;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: var(--primary);
+      font-size: 2.4em;
+      margin-bottom: 30px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+    .card {
+      background: #fff;
+      padding: 25px;
+      border-radius: 16px;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(0,123,255,0.1);
+      text-align: center;
+      transition: all 0.3s;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 30px rgba(0,123,255,0.15);
+    }
+    .hidden {
+      display: none;
+    }
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s;
+    }
+    .back {
+      background: var(--primary);
+      color: white;
+      margin-bottom: 20px;
+    }
+    .back:hover {
+      background: #0056b3;
+    }
+    .delete {
+      background: #d32f2f;
+      color: white;
+      margin-top: 10px;
+    }
+    .delete:hover {
+      background: #b71c1c;
+    }
+    .add {
+      background: var(--success);
+      color: white;
+    }
+    .add:hover {
+      background: #1e7e34;
+    }
+    input, textarea {
+      width: 100%;
+      margin-bottom: 15px;
+      padding: 12px;
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      font-size: 1em;
+    }
+    #search {
+      max-width: 600px;
+      margin: 0 auto 30px;
+      display: block;
+    }
+    #admin-form {
+      max-width: 600px;
+      margin: 40px auto 0;
+      padding: 30px;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,123,255,0.1);
+    }
+    #admin-form h3 {
+      color: var(--primary);
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .card strong {
+      display: block;
+      font-size: 1.2em;
+      margin-bottom: 10px;
+    }
+    .card small {
+      display: block;
+      margin-top: 10px;
+      color: #666;
+    }
+    @media (max-width: 768px) {
+      .logo {
+        font-size: 2.2em;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .login {
+        position: static;
+        justify-content: center;
+        margin-top: 20px;
+      }
+    }
+    @media (max-width: 480px) {
+      header {
+        padding: 30px 15px;
+      }
+      .container {
+        padding: 15px;
+      }
     }
   </style>
 </head>
+
 <body>
-  <div class="container">
-    <header>
-      <h1>Exam Hub - Study Resources</h1>
-      <div class="auth-section">
-        <span class="welcome" id="welcome">Welcome, Admin!</span>
-        <button class="login-btn" id="show-login">Login</button>
-        <form class="login-form" id="loginForm">
-          <input type="text" id="username" placeholder="Username" required>
-          <input type="password" id="password" placeholder="Password" required>
-          <button type="submit">Submit</button>
-        </form>
-        <button class="logout" id="logout">Logout</button>
-      </div>
-    </header>
-
-    <div class="search-bar">
-      <input type="text" class="search-input" placeholder="Search for exams (e.g., sat, deca)">
-      <div class="suggestions"></div>
-    </div>
-
-    <div id="announcements-section">
-      <h2>Announcements</h2>
-      <div class="announcement-list"></div>
-      <div class="admin-controls" id="add-announcement-form">
-        <label>Title:</label><input type="text" class="ann-title">
-        <label>Description:</label><textarea class="ann-desc"></textarea>
-        <label>Image URL:</label><input type="text" class="ann-image">
-        <button class="add-ann-btn">Add Announcement</button>
-      </div>
-    </div>
-
-    <div id="main-section">
-      <div class="category-card" data-cat="tests">
-        <h2>Tests</h2>
-      </div>
-      <div class="category-card" data-cat="comps">
-        <h2>Comps</h2>
-      </div>
-      <div class="category-card" data-cat="proctor">
-        <h2>Proctor Software</h2>
-      </div>
-      <div class="category-card" data-cat="cheating">
-        <h2>Cheating Devices</h2>
-      </div>
-    </div>
-
-    <div id="subcat-section">
-      <button class="back-btn" id="back-to-main">Back to Categories</button>
-      <div id="subcats"></div>
-      <div class="admin-subcat-controls" id="add-subcat-form">
-        <input type="text" id="new-subcat" placeholder="New Subcategory Name">
-        <button id="add-subcat-btn">Add Subcategory</button>
-      </div>
-    </div>
-
-    <div id="products-section">
-      <button class="back-btn" id="back-to-subcats">Back to Subcategories</button>
-      <h2 id="current-subcat"></h2>
-      <div class="product-list"></div>
-      <div class="admin-controls" id="add-product-form">
-        <label>Title:</label><input type="text" class="prod-title">
-        <label>Description:</label><textarea class="prod-desc"></textarea>
-        <label>Rating (0-5):</label><input type="number" class="prod-rating" min="0" max="5" step="0.5" value="0">
-        <label>Number of Reviews:</label><input type="number" class="prod-reviews" min="0" value="0">
-        <label>Discord User:</label><input type="text" class="prod-discord">
-        <label>Payment Method:</label><input type="text" class="prod-payment">
-        <label>Image URL:</label><input type="text" class="prod-image">
-        <label>Video URL:</label><input type="text" class="prod-video">
-        <button class="add-btn">Add Product</button>
-      </div>
-    </div>
-
-    <footer>© 2026 Exam Hub | Mobile Friendly</footer>
+<header>
+  <div class="logo"><i class="fas fa-graduation-cap"></i> Exam Hub</div>
+  <div id="login-form" class="login">
+    <input id="username" placeholder="Username">
+    <input id="password" type="password" placeholder="Password">
+    <button onclick="login()">Login</button>
   </div>
+  <div id="logout" class="login hidden">
+    <span id="admin-name"></span>
+    <button class="logout" onclick="logout()">Logout</button>
+  </div>
+</header>
 
-  <script>
+<div class="container">
+
+<!-- SEARCH -->
+<input id="search" placeholder="Search SAT, LSAT, DECA...">
+
+<!-- CATEGORIES -->
+<div id="categories" class="grid"></div>
+
+<!-- SUBCATEGORIES -->
+<div id="subcats" class="hidden">
+  <button class="btn back" onclick="showCategories()">Back</button>
+  <h2 id="subcat-title"></h2>
+  <div id="subcat-grid" class="grid"></div>
+</div>
+
+<!-- PRODUCTS -->
+<div id="products" class="hidden">
+  <button class="btn back" onclick="showSubcats()">Back</button>
+  <h2 id="product-title"></h2>
+  <div id="product-grid" class="grid"></div>
+
+  <div id="admin-form" class="hidden">
+    <h3>Add Product</h3>
+    <input id="p-title" placeholder="Title">
+    <textarea id="p-desc" placeholder="Description"></textarea>
+    <input id="p-rating" type="number" step="0.5" min="0" max="5" placeholder="Rating">
+    <button class="btn add" onclick="addProduct()">Add</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+/* =======================
+   DATA
+======================= */
 const categories = JSON.parse(localStorage.getItem('categories')) || {
   tests: ['sat','act','lsat','psat','dsat'],
   comps: ['deca','fbla','hosa','bpa','tsa'],
@@ -163,415 +262,185 @@ const categories = JSON.parse(localStorage.getItem('categories')) || {
   cheating: []
 };
 
-let announcements = JSON.parse(localStorage.getItem('announcements') || '[]');
-let allSubcats = Object.values(categories).flat();
-let isAdmin = false;
-let currentCat = '';
-let currentSub = '';
+let currentCat = null;
+let currentSub = null;
+let isAdmin = localStorage.getItem('isAdmin') === 'true';
 
-function productKey(cat, sub) {
+/* =======================
+   HELPERS
+======================= */
+function key(cat, sub) {
   return `products_\( {cat}_ \){sub}`;
 }
 
-function updateAllSubcats() {
-  allSubcats = Object.values(categories).flat();
+function updateAdminUI() {
+  document.getElementById('login-form').classList.toggle('hidden', isAdmin);
+  document.getElementById('logout').classList.toggle('hidden', !isAdmin);
+  if (isAdmin) {
+    document.getElementById('admin-name').textContent = 'Admin: zues50';
+  }
+  if (currentSub) loadProducts(currentSub);
 }
 
-function saveCategories() {
-  localStorage.setItem('categories', JSON.stringify(categories));
-  updateAllSubcats();
+/* =======================
+   AUTH
+======================= */
+function login() {
+  const user = document.getElementById('username').value;
+  const pass = document.getElementById('password').value;
+  if (user === 'zues50' && pass === 'zues12345') {
+    isAdmin = true;
+    localStorage.setItem('isAdmin', 'true');
+    updateAdminUI();
+  } else {
+    alert('Invalid credentials');
+  }
 }
 
-function showSection(section) {
-  document.getElementById('main-section').style.display = section === 'main' ? 'flex' : 'none';
-  document.getElementById('subcat-section').style.display = section === 'subcat' ? 'grid' : 'none';
-  document.getElementById('products-section').style.display = section === 'products' ? 'block' : 'none';
-  if (section === 'main') loadAnnouncements();
+function logout() {
+  isAdmin = false;
+  localStorage.setItem('isAdmin', 'false');
+  updateAdminUI();
+}
+
+/* =======================
+   UI NAV
+======================= */
+function showCategories() {
+  document.getElementById('categories').classList.remove('hidden');
+  document.getElementById('subcats').classList.add('hidden');
+  document.getElementById('products').classList.add('hidden');
+}
+
+function showSubcats() {
+  document.getElementById('products').classList.add('hidden');
+  document.getElementById('subcats').classList.remove('hidden');
+}
+
+/* =======================
+   RENDER
+======================= */
+function renderCategories() {
+  const el = document.getElementById('categories');
+  el.innerHTML = '';
+  Object.keys(categories).forEach(cat => {
+    const c = document.createElement('div');
+    c.className = 'card';
+    c.textContent = cat.toUpperCase();
+    c.onclick = () => loadSubcats(cat);
+    el.appendChild(c);
+  });
 }
 
 function loadSubcats(cat) {
   currentCat = cat;
-  const subcatsDiv = document.getElementById('subcats');
-  subcatsDiv.innerHTML = '';
-  categories[cat].sort().forEach(sub => {
-    const card = document.createElement('div');
-    card.className = 'subcat-card';
-    card.innerHTML = `<h3>${sub.toUpperCase()}</h3>`;
-    card.onclick = () => loadProducts(sub);
-    if (isAdmin) {
-      const delBtn = document.createElement('button');
-      delBtn.className = 'delete-btn';
-      delBtn.textContent = 'Delete';
-      delBtn.onclick = (e) => {
-        e.stopPropagation();
-        categories[cat] = categories[cat].filter(s => s !== sub);
-        saveCategories();
-        loadSubcats(cat);
-      };
-      card.appendChild(delBtn);
-    }
-    subcatsDiv.appendChild(card);
-  });
-  document.getElementById('add-subcat-form').style.display = isAdmin ? 'flex' : 'none';
-  showSection('subcat');
-}
+  const grid = document.getElementById('subcat-grid');
+  grid.innerHTML = '';
+  document.getElementById('subcat-title').textContent = cat.toUpperCase();
 
-function getStars(rating, reviews) {
-  let stars = `<div class="stars" data-rating="\( {rating}" data-reviews=" \){reviews}">`;
-  for (let i = 5; i >= 1; i--) {
-    if (rating >= i) {
-      stars += '<span class="full">★</span>';
-    } else if (rating >= i - 0.5) {
-      stars += '<span class="half">★</span>';
-    } else {
-      stars += '<span>☆</span>';
-    }
-  }
-  return stars + '</div>';
+  categories[cat].forEach(sub => {
+    const c = document.createElement('div');
+    c.className = 'card';
+    c.textContent = sub.toUpperCase();
+    c.onclick = () => loadProducts(sub);
+    grid.appendChild(c);
+  });
+
+  document.getElementById('categories').classList.add('hidden');
+  document.getElementById('subcats').classList.remove('hidden');
 }
 
 function loadProducts(sub) {
   currentSub = sub;
-  document.getElementById('current-subcat').textContent = sub.toUpperCase();
-  const list = document.querySelector('.product-list');
-  list.innerHTML = '';
-  const key = productKey(currentCat, currentSub);
-  let products = JSON.parse(localStorage.getItem(key) || '[]');
-  products.sort((a, b) => b.rating - a.rating);
-  products.forEach((prod, i) => {
-    const box = document.createElement('div');
-    box.className = 'product-box';
-    box.dataset.index = i;
-    let html = '';
-    if (prod.title) html += `<div class="product-field"><strong>Title:</strong> <span class="prod-title-span">${prod.title}</span></div>`;
-    if (prod.desc) html += `<div class="product-field"><strong>Description:</strong> <span class="prod-desc-span">${prod.desc}</span></div>`;
-    if (prod.rating !== undefined || prod.reviews !== undefined) html += `<div class="product-field"><strong>Rating:</strong> \( {getStars(prod.rating || 0, prod.reviews || 0)} ( \){prod.reviews || 0} reviews)</div>`;
-    if (prod.discord) html += `<div class="product-field"><strong>Discord User:</strong> <span class="prod-discord-span">${prod.discord}</span></div>`;
-    if (prod.payment) html += `<div class="product-field"><strong>Payment Method:</strong> <span class="prod-payment-span">${prod.payment}</span></div>`;
-    if (prod.tag) html += `<div class="product-field"><strong>Tag:</strong> ${prod.tag.toUpperCase()}</div>`;
-    box.innerHTML = html;
-    if (prod.image) {
-      const img = document.createElement('img');
-      img.src = prod.image;
-      img.className = 'product-img';
-      img.alt = 'Product Image';
-      box.appendChild(img);
-    }
-    if (prod.video) {
-      const iframe = document.createElement('iframe');
-      iframe.src = prod.video.replace('watch?v=', 'embed/');
-      iframe.className = 'product-video';
-      iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
-      iframe.allowFullscreen = true;
-      box.appendChild(iframe);
-    }
+  document.getElementById('product-title').textContent =
+    `${currentCat.toUpperCase()} → ${sub.toUpperCase()}`;
+
+  const grid = document.getElementById('product-grid');
+  grid.innerHTML = '';
+
+  const products = JSON.parse(localStorage.getItem(key(currentCat, currentSub)) || '[]');
+
+  products.forEach((p, i) => {
+    const c = document.createElement('div');
+    c.className = 'card';
+    c.innerHTML = `<strong>\( {p.title}</strong><p> \){p.desc}</p><small>⭐ ${p.rating}</small>`;
     if (isAdmin) {
-      const actions = document.createElement('div');
-      actions.className = 'product-actions';
-      const edit = document.createElement('button');
-      edit.className = 'edit-btn';
-      edit.textContent = 'Edit';
-      edit.onclick = () => editProduct(box, i);
       const del = document.createElement('button');
-      del.className = 'delete-btn';
+      del.className = 'btn delete';
       del.textContent = 'Delete';
       del.onclick = () => deleteProduct(i);
-      actions.appendChild(edit);
-      actions.appendChild(del);
-      box.appendChild(actions);
+      c.appendChild(del);
     }
-    list.appendChild(box);
+    grid.appendChild(c);
   });
-  document.getElementById('add-product-form').style.display = isAdmin ? 'flex' : 'none';
-  showSection('products');
+
+  document.getElementById('admin-form').classList.toggle('hidden', !isAdmin);
+  document.getElementById('subcats').classList.add('hidden');
+  document.getElementById('products').classList.remove('hidden');
 }
 
-function loadAnnouncements() {
-  const list = document.querySelector('.announcement-list');
-  list.innerHTML = '';
-  announcements.forEach((ann, i) => {
-    const box = document.createElement('div');
-    box.className = 'product-box';
-    box.dataset.index = i;
-    let html = '';
-    if (ann.title) html += `<div class="product-field"><strong>Title:</strong> <span class="prod-title-span">${ann.title}</span></div>`;
-    if (ann.desc) html += `<div class="product-field"><strong>Description:</strong> <span class="prod-desc-span">${ann.desc}</span></div>`;
-    box.innerHTML = html;
-    if (ann.image) {
-      const img = document.createElement('img');
-      img.src = ann.image;
-      img.className = 'product-img';
-      img.alt = 'Announcement Image';
-      box.appendChild(img);
-    }
-    if (isAdmin) {
-      const actions = document.createElement('div');
-      actions.className = 'product-actions';
-      const edit = document.createElement('button');
-      edit.className = 'edit-btn';
-      edit.textContent = 'Edit';
-      edit.onclick = () => editAnnouncement(box, i);
-      const del = document.createElement('button');
-      del.className = 'delete-btn';
-      del.textContent = 'Delete';
-      del.onclick = () => deleteAnnouncement(i);
-      actions.appendChild(edit);
-      actions.appendChild(del);
-      box.appendChild(actions);
-    }
-    list.appendChild(box);
-  });
-  document.getElementById('add-announcement-form').style.display = isAdmin ? 'flex' : 'none';
-}
-
+/* =======================
+   CRUD
+======================= */
 function addProduct() {
-  const title = document.querySelector('.prod-title').value.trim();
-  const desc = document.querySelector('.prod-desc').value.trim();
-  const rating = parseFloat(document.querySelector('.prod-rating').value) || 0;
-  const reviews = parseInt(document.querySelector('.prod-reviews').value) || 0;
-  const discord = document.querySelector('.prod-discord').value.trim();
-  const payment = document.querySelector('.prod-payment').value.trim();
-  const image = document.querySelector('.prod-image').value.trim();
-  const video = document.querySelector('.prod-video').value.trim();
-  if (title || desc || rating || reviews || discord || payment || image || video) {
-    const key = productKey(currentCat, currentSub);
-    const products = JSON.parse(localStorage.getItem(key) || '[]');
-    products.push({title, desc, rating, reviews, discord, payment, image, video, tag: currentSub, category: currentCat, subcategory: currentSub});
-    localStorage.setItem(key, JSON.stringify(products));
-    loadProducts(currentSub);
-    clearAddForm('.admin-controls');
-  } else {
-    alert('Fill at least one field');
-  }
-}
+  const title = document.getElementById('p-title').value;
+  const desc = document.getElementById('p-desc').value;
+  const rating = document.getElementById('p-rating').value;
 
-function addAnnouncement() {
-  const title = document.querySelector('.ann-title').value.trim();
-  const desc = document.querySelector('.ann-desc').value.trim();
-  const image = document.querySelector('.ann-image').value.trim();
-  if (title || desc || image) {
-    announcements.push({title, desc, image});
-    localStorage.setItem('announcements', JSON.stringify(announcements));
-    loadAnnouncements();
-    clearAddForm('#add-announcement-form');
-  } else {
-    alert('Fill at least one field');
-  }
-}
+  if (!title) return alert('Title required');
 
-function clearAddForm(selector) {
-  document.querySelectorAll(`${selector} input, ${selector} textarea`).forEach(el => el.value = '');
-  const rating = document.querySelector(`${selector} .prod-rating`);
-  if (rating) rating.value = '0';
-  const reviews = document.querySelector(`${selector} .prod-reviews`);
-  if (reviews) reviews.value = '0';
-}
+  const storageKey = key(currentCat, currentSub);
+  const products = JSON.parse(localStorage.getItem(storageKey) || '[]');
 
-function editProduct(box, i) {
-  const fields = ['title', 'desc', 'discord', 'payment'];
-  const inputs = [];
-  fields.forEach(field => {
-    const span = box.querySelector(`.prod-${field}-span`);
-    if (span) {
-      const input = field === 'desc' ? document.createElement('textarea') : document.createElement('input');
-      input.value = span.textContent;
-      span.replaceWith(input);
-      inputs.push(input);
-    }
-  });
-  const ratingField = Array.from(box.querySelectorAll('.product-field')).find(field => field.textContent.includes('Rating:'));
-  let ratingValue = 0;
-  let reviewsValue = 0;
-  if (ratingField) {
-    const stars = ratingField.querySelector('.stars');
-    if (stars) {
-      ratingValue = parseFloat(stars.dataset.rating || 0);
-      reviewsValue = parseInt(stars.dataset.reviews || 0);
-    }
-    ratingField.innerHTML = '<strong>Rating:</strong> <input type="number" class="edit-rating" min="0" max="5" step="0.5"> <strong>Reviews:</strong> <input type="number" class="edit-reviews" min="0">';
-    ratingField.querySelector('.edit-rating').value = ratingValue;
-    ratingField.querySelector('.edit-reviews').value = reviewsValue;
-  }
-  const imageInput = document.createElement('input');
-  imageInput.value = box.querySelector('.product-img')?.src || '';
-  const imageField = document.createElement('div');
-  imageField.className = 'product-field';
-  imageField.innerHTML = '<strong>Image URL:</strong>';
-  imageField.appendChild(imageInput);
-  box.insertBefore(imageField, box.querySelector('.product-actions'));
-  const videoInput = document.createElement('input');
-  videoInput.value = box.querySelector('.product-video')?.src.replace('embed/', 'watch?v=') || '';
-  const videoField = document.createElement('div');
-  videoField.className = 'product-field';
-  videoField.innerHTML = '<strong>Video URL:</strong>';
-  videoField.appendChild(videoInput);
-  box.insertBefore(videoField, box.querySelector('.product-actions'));
-  const actions = box.querySelector('.product-actions');
-  actions.innerHTML = '';
-  const save = document.createElement('button');
-  save.className = 'save-btn';
-  save.textContent = 'Save';
-  save.onclick = () => saveEdit(i, inputs[0]?.value, inputs[1]?.value, box.querySelector('.edit-rating')?.value, box.querySelector('.edit-reviews')?.value, inputs[2]?.value, inputs[3]?.value, imageInput.value, videoInput.value);
-  const cancel = document.createElement('button');
-  cancel.className = 'cancel-btn';
-  cancel.textContent = 'Cancel';
-  cancel.onclick = () => loadProducts(currentSub);
-  actions.appendChild(save);
-  actions.appendChild(cancel);
-}
-
-function saveEdit(i, title, desc, rating, reviews, discord, payment, image, video) {
-  const key = productKey(currentCat, currentSub);
-  const products = JSON.parse(localStorage.getItem(key) || '[]');
-
-  products[i] = {
+  products.push({
     title,
     desc,
-    rating: parseFloat(rating),
-    reviews: parseInt(reviews),
-    discord,
-    payment,
-    image,
-    video,
-    tag: currentSub,
+    rating,
     category: currentCat,
     subcategory: currentSub
-  };
+  });
 
-  localStorage.setItem(key, JSON.stringify(products));
+  localStorage.setItem(storageKey, JSON.stringify(products));
   loadProducts(currentSub);
+
+  document.getElementById('p-title').value = '';
+  document.getElementById('p-desc').value = '';
+  document.getElementById('p-rating').value = '';
 }
 
 function deleteProduct(i) {
-  const key = productKey(currentCat, currentSub);
-  const products = JSON.parse(localStorage.getItem(key) || '[]');
-
-  products.splice(i, 1);
-  localStorage.setItem(key, JSON.stringify(products));
+  const storageKey = key(currentCat, currentSub);
+  const products = JSON.parse(localStorage.getItem(storageKey));
+  products.splice(i,1);
+  localStorage.setItem(storageKey, JSON.stringify(products));
   loadProducts(currentSub);
 }
 
-function editAnnouncement(box, i) {
-  const titleInput = document.createElement('input');
-  titleInput.value = box.querySelector('.prod-title-span')?.textContent || '';
-  box.querySelector('.prod-title-span')?.replaceWith(titleInput);
-  const descTa = document.createElement('textarea');
-  descTa.value = box.querySelector('.prod-desc-span')?.textContent || '';
-  box.querySelector('.prod-desc-span')?.replaceWith(descTa);
-  const imageInput = document.createElement('input');
-  imageInput.value = box.querySelector('.product-img')?.src || '';
-  const imageField = document.createElement('div');
-  imageField.className = 'product-field';
-  imageField.innerHTML = '<strong>Image URL:</strong>';
-  imageField.appendChild(imageInput);
-  box.appendChild(imageField);
-  const actions = box.querySelector('.product-actions');
-  actions.innerHTML = '';
-  const save = document.createElement('button');
-  save.className = 'save-btn';
-  save.textContent = 'Save';
-  save.onclick = () => saveAnnouncementEdit(i, titleInput.value, descTa.value, imageInput.value);
-  const cancel = document.createElement('button');
-  cancel.className = 'cancel-btn';
-  cancel.textContent = 'Cancel';
-  cancel.onclick = () => loadAnnouncements();
-  actions.appendChild(save);
-  actions.appendChild(cancel);
-}
+/* =======================
+   SEARCH (FIXED)
+======================= */
+document.getElementById('search').addEventListener('input', e => {
+  const q = e.target.value.toLowerCase();
+  if (!q) return;
 
-function saveAnnouncementEdit(i, title, desc, image) {
-  announcements[i] = {title, desc, image};
-  localStorage.setItem('announcements', JSON.stringify(announcements));
-  loadAnnouncements();
-}
-
-function deleteAnnouncement(i) {
-  announcements.splice(i, 1);
-  localStorage.setItem('announcements', JSON.stringify(announcements));
-  loadAnnouncements();
-}
-
-function addSubcat() {
-  const newSub = document.getElementById('new-subcat').value.trim().toLowerCase();
-  if (newSub && !categories[currentCat].includes(newSub)) {
-    categories[currentCat].push(newSub);
-    saveCategories();
-    loadSubcats(currentCat);
-    document.getElementById('new-subcat').value = '';
-  } else {
-    alert('Invalid or duplicate subcategory');
-  }
-}
-
-document.querySelectorAll('.category-card').forEach(card => {
-  card.onclick = () => loadSubcats(card.dataset.cat);
-});
-
-document.getElementById('back-to-main').onclick = () => showSection('main');
-document.getElementById('back-to-subcats').onclick = () => loadSubcats(currentCat);
-
-document.getElementById('show-login').addEventListener('click', () => {
-  document.getElementById('show-login').style.display = 'none';
-  document.querySelector('.login-form').style.display = 'flex';
-});
-
-document.getElementById('loginForm').addEventListener('submit', e => {
-  e.preventDefault();
-  if (document.getElementById('username').value === 'zues50' && document.getElementById('password').value === 'zues12345') {
-    isAdmin = true;
-    document.querySelector('.login-form').style.display = 'none';
-    document.getElementById('show-login').style.display = 'none';
-    document.getElementById('logout').style.display = 'block';
-    document.getElementById('welcome').style.display = 'inline';
-    if (currentSub) loadProducts(currentSub);
-    else if (currentCat) loadSubcats(currentCat);
-    else loadAnnouncements();
-  } else {
-    alert('Invalid');
-  }
-});
-
-document.getElementById('logout').addEventListener('click', () => {
-  isAdmin = false;
-  document.getElementById('show-login').style.display = 'block';
-  document.getElementById('logout').style.display = 'none';
-  document.getElementById('welcome').style.display = 'none';
-  if (currentSub) loadProducts(currentSub);
-  else if (currentCat) loadSubcats(currentCat);
-  else loadAnnouncements();
-});
-
-document.querySelector('.add-btn').addEventListener('click', addProduct);
-document.getElementById('add-subcat-btn').addEventListener('click', addSubcat);
-document.querySelector('.add-ann-btn').addEventListener('click', addAnnouncement);
-
-const searchInput = document.querySelector('.search-input');
-const suggestions = document.querySelector('.suggestions');
-searchInput.addEventListener('input', () => {
-  const val = searchInput.value.toLowerCase();
-  suggestions.innerHTML = '';
-  if (val) {
-    const matches = allSubcats.filter(sub => sub.toLowerCase().startsWith(val));
-    matches.forEach(match => {
-      const div = document.createElement('div');
-      div.className = 'suggestion';
-      div.textContent = match.toUpperCase();
-      div.onclick = () => {
-        const cat = Object.keys(categories).find(c => categories[c].includes(match));
+  for (const cat in categories) {
+    for (const sub of categories[cat]) {
+      if (sub.startsWith(q)) {
         currentCat = cat;
-        loadProducts(match);
-        suggestions.style.display = 'none';
-        searchInput.value = '';
-      };
-      suggestions.appendChild(div);
-    });
-    suggestions.style.display = matches.length ? 'block' : 'none';
-  } else {
-    suggestions.style.display = 'none';
+        loadProducts(sub);
+        e.target.value = '';
+        return;
+      }
+    }
   }
 });
 
-showSection('main');
-  </script>
+/* =======================
+   INIT
+======================= */
+renderCategories();
+showCategories();
+updateAdminUI();
+</script>
 </body>
 </html>
