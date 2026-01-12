@@ -169,6 +169,10 @@ let isAdmin = false;
 let currentCat = '';
 let currentSub = '';
 
+function productKey(cat, sub) {
+  return `products_\( {cat}_ \){sub}`;
+}
+
 function updateAllSubcats() {
   allSubcats = Object.values(categories).flat();
 }
@@ -231,7 +235,7 @@ function loadProducts(sub) {
   document.getElementById('current-subcat').textContent = sub.toUpperCase();
   const list = document.querySelector('.product-list');
   list.innerHTML = '';
-  const key = `products_\( {currentCat}_ \){currentSub}`;
+  const key = productKey(currentCat, currentSub);
   let products = JSON.parse(localStorage.getItem(key) || '[]');
   products.sort((a, b) => b.rating - a.rating);
   products.forEach((prod, i) => {
@@ -271,7 +275,7 @@ function loadProducts(sub) {
       const del = document.createElement('button');
       del.className = 'delete-btn';
       del.textContent = 'Delete';
-      del.onclick = () => deleteProduct(i, key);
+      del.onclick = () => deleteProduct(i);
       actions.appendChild(edit);
       actions.appendChild(del);
       box.appendChild(actions);
@@ -330,7 +334,7 @@ function addProduct() {
   const image = document.querySelector('.prod-image').value.trim();
   const video = document.querySelector('.prod-video').value.trim();
   if (title || desc || rating || reviews || discord || payment || image || video) {
-    const key = `products_\( {currentCat}_ \){currentSub}`;
+    const key = productKey(currentCat, currentSub);
     const products = JSON.parse(localStorage.getItem(key) || '[]');
     products.push({title, desc, rating, reviews, discord, payment, image, video, tag: currentSub, category: currentCat, subcategory: currentSub});
     localStorage.setItem(key, JSON.stringify(products));
@@ -417,15 +421,31 @@ function editProduct(box, i) {
 }
 
 function saveEdit(i, title, desc, rating, reviews, discord, payment, image, video) {
-  const key = `products_\( {currentCat}_ \){currentSub}`;
+  const key = productKey(currentCat, currentSub);
   const products = JSON.parse(localStorage.getItem(key) || '[]');
-  products[i] = {title, desc, rating: parseFloat(rating), reviews: parseInt(reviews), discord, payment, image, video, tag: currentSub, category: currentCat, subcategory: currentSub};
+
+  products[i] = {
+    title,
+    desc,
+    rating: parseFloat(rating),
+    reviews: parseInt(reviews),
+    discord,
+    payment,
+    image,
+    video,
+    tag: currentSub,
+    category: currentCat,
+    subcategory: currentSub
+  };
+
   localStorage.setItem(key, JSON.stringify(products));
   loadProducts(currentSub);
 }
 
-function deleteProduct(i, key) {
+function deleteProduct(i) {
+  const key = productKey(currentCat, currentSub);
   const products = JSON.parse(localStorage.getItem(key) || '[]');
+
   products.splice(i, 1);
   localStorage.setItem(key, JSON.stringify(products));
   loadProducts(currentSub);
