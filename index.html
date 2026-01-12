@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Exam Hub: Categories for Tests, Comps, Proctor Software, Cheating Devices, Announcements. Admin manage products and subcategories." />
+  <meta name="description" content="Exam Hub: Categories for Tests, Comps, Proctor Software, Cheating Devices. Admin manage products and subcategories." />
   <title>Exam Hub</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
@@ -63,6 +63,8 @@
     .back-btn{padding:10px 20px;background:#2196f3;color:#fff;border:none;border-radius:6px;cursor:pointer;margin-bottom:20px;transition:.3s;}
     .back-btn:hover{background:#1976d2;}
     footer{text-align:center;padding:20px;color:#757575;font-size:0.9rem;margin-top:30px;}
+    #announcements-section{margin-bottom:20px;}
+    .announcement-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:30px;}
     @media (max-width:768px){
       .container{margin:10px;padding:15px;}
       h1{font-size:2rem;}
@@ -95,6 +97,17 @@
       <div class="suggestions"></div>
     </div>
 
+    <div id="announcements-section">
+      <h2>Announcements</h2>
+      <div class="announcement-list"></div>
+      <div class="admin-controls" id="add-announcement-form">
+        <label>Title:</label><input type="text" class="ann-title">
+        <label>Description:</label><textarea class="ann-desc"></textarea>
+        <label>Image URL:</label><input type="text" class="ann-image">
+        <button class="add-ann-btn">Add Announcement</button>
+      </div>
+    </div>
+
     <div id="main-section">
       <div class="category-card" data-cat="tests">
         <img class="cat-logo" src="https://via.placeholder.com/100/2196f3/ffffff?text=Tests" alt="Tests Logo">
@@ -112,10 +125,6 @@
         <img class="cat-logo" src="https://via.placeholder.com/100/2196f3/ffffff?text=Cheating" alt="Cheating Logo">
         <h2>Cheating Devices</h2>
       </div>
-      <div class="category-card" data-cat="announcements">
-        <img class="cat-logo" src="https://via.placeholder.com/100/2196f3/ffffff?text=Announce" alt="Announcements Logo">
-        <h2>Announcements</h2>
-      </div>
     </div>
 
     <div id="subcat-section">
@@ -132,14 +141,14 @@
       <h2 id="current-subcat"></h2>
       <div class="product-list"></div>
       <div class="admin-controls" id="add-product-form">
-        <label for="title">Title:</label><input type="text" class="prod-title" id="title">
-        <label for="desc">Description:</label><textarea class="prod-desc" id="desc"></textarea>
-        <label for="rating">Rating:</label><select class="prod-rating" id="rating"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
-        <label for="discord">Discord User:</label><input type="text" class="prod-discord" id="discord">
-        <label for="payment">Payment Method:</label><input type="text" class="prod-payment" id="payment">
-        <label for="image">Image URL:</label><input type="text" class="prod-image" id="image">
-        <label for="video">Video URL:</label><input type="text" class="prod-video" id="video">
-        <button class="add-btn">Add</button>
+        <label>Title:</label><input type="text" class="prod-title">
+        <label>Description:</label><textarea class="prod-desc"></textarea>
+        <label>Rating:</label><select class="prod-rating"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+        <label>Discord User:</label><input type="text" class="prod-discord">
+        <label>Payment Method:</label><input type="text" class="prod-payment">
+        <label>Image URL:</label><input type="text" class="prod-image">
+        <label>Video URL:</label><input type="text" class="prod-video">
+        <button class="add-btn">Add Product</button>
       </div>
     </div>
 
@@ -172,6 +181,7 @@ function showSection(section) {
   document.getElementById('main-section').style.display = section === 'main' ? 'flex' : 'none';
   document.getElementById('subcat-section').style.display = section === 'subcat' ? 'grid' : 'none';
   document.getElementById('products-section').style.display = section === 'products' ? 'block' : 'none';
+  if (section === 'main') loadAnnouncements();
 }
 
 function loadSubcats(cat) {
@@ -244,23 +254,18 @@ function loadProducts(sub) {
       const del = document.createElement('button');
       del.className = 'delete-btn';
       del.textContent = 'Delete';
-      del.onclick = () => deleteProduct(i);
       actions.appendChild(edit);
       actions.appendChild(del);
       box.appendChild(actions);
     }
     list.appendChild(box);
   });
-  adjustAddForm(false);
   document.getElementById('add-product-form').style.display = isAdmin ? 'flex' : 'none';
   showSection('products');
 }
 
 function loadAnnouncements() {
-  currentCat = 'announcements';
-  currentSubcat = '';
-  document.getElementById('current-subcat').textContent = 'ANNOUNCEMENTS';
-  const list = document.querySelector('.product-list');
+  const list = document.querySelector('.announcement-list');
   list.innerHTML = '';
   announcements.forEach((ann, i) => {
     const box = document.createElement('div');
@@ -294,74 +299,74 @@ function loadAnnouncements() {
     }
     list.appendChild(box);
   });
-  adjustAddForm(true);
-  document.getElementById('add-product-form').style.display = isAdmin ? 'flex' : 'none';
-  showSection('products');
+  document.getElementById('add-announcement-form').style.display = isAdmin ? 'flex' : 'none';
 }
 
-function adjustAddForm(isAnn) {
-  const hideFields = ['rating', 'discord', 'payment', 'video'];
-  hideFields.forEach(field => {
-    const labels = document.querySelectorAll(`label[for="${field}"]`);
-    const inputs = document.querySelectorAll(`.\( {field ? `prod- \){field}` : ''}`);
-    labels.forEach(label => label.style.display = isAnn ? 'none' : 'block');
-    inputs.forEach(input => input.style.display = isAnn ? 'none' : 'block');
-  });
-  document.querySelector('.add-btn').textContent = isAnn ? 'Add Announcement' : 'Add Product';
-}
-
-function addItem() {
+function addProduct() {
   const title = document.querySelector('.prod-title').value.trim();
   const desc = document.querySelector('.prod-desc').value.trim();
+  const rating = document.querySelector('.prod-rating').value;
+  const discord = document.querySelector('.prod-discord').value.trim();
+  const payment = document.querySelector('.prod-payment').value.trim();
   const image = document.querySelector('.prod-image').value.trim();
-  if (currentCat === 'announcements') {
-    if (title && desc) {
-      announcements.push({title, desc, image: image || ''});
-      localStorage.setItem('announcements', JSON.stringify(announcements));
-      loadAnnouncements();
-      clearAddForm();
-    } else {
-      alert('Fill required fields');
-    }
+  const video = document.querySelector('.prod-video').value.trim();
+  if (title || desc || rating || discord || payment || image || video) {
+    const key = `\( {currentCat}_ \){currentSubcat}`;
+    const products = JSON.parse(localStorage.getItem(key) || '[]');
+    products.push({title, desc, rating, discord, payment, image, video});
+    localStorage.setItem(key, JSON.stringify(products));
+    loadProducts(currentSubcat);
+    clearAddForm('.admin-controls');
   } else {
-    const rating = document.querySelector('.prod-rating').value;
-    const discord = document.querySelector('.prod-discord').value.trim();
-    const payment = document.querySelector('.prod-payment').value.trim();
-    const video = document.querySelector('.prod-video').value.trim();
-    if (title && desc && rating && discord && payment) {
-      const key = `\( {currentCat}_ \){currentSubcat}`;
-      const products = JSON.parse(localStorage.getItem(key) || '[]');
-      products.push({title, desc, rating, discord, payment, image: image || '', video: video || ''});
-      localStorage.setItem(key, JSON.stringify(products));
-      loadProducts(currentSubcat);
-      clearAddForm();
-    } else {
-      alert('Fill required fields');
-    }
+    alert('Fill at least one field');
   }
 }
 
-function clearAddForm() {
-  document.querySelectorAll('.admin-controls input, .admin-controls textarea').forEach(el => el.value = '');
-  document.querySelector('.prod-rating').value = '1';
+function addAnnouncement() {
+  const title = document.querySelector('.ann-title').value.trim();
+  const desc = document.querySelector('.ann-desc').value.trim();
+  const image = document.querySelector('.ann-image').value.trim();
+  if (title || desc || image) {
+    announcements.push({title, desc, image});
+    localStorage.setItem('announcements', JSON.stringify(announcements));
+    loadAnnouncements();
+    clearAddForm('#add-announcement-form');
+  } else {
+    alert('Fill at least one field');
+  }
+}
+
+function clearAddForm(selector) {
+  document.querySelectorAll(`${selector} input, ${selector} textarea`).forEach(el => el.value = '');
+  const rating = document.querySelector(`${selector} .prod-rating`);
+  if (rating) rating.value = '1';
 }
 
 function editProduct(box, i) {
   const fields = ['title', 'desc', 'discord', 'payment'];
+  const inputs = [];
   fields.forEach(field => {
-    const input = field === 'desc' ? document.createElement('textarea') : document.createElement('input');
-    input.value = box.querySelector(`.prod-${field}-span`)?.textContent || '';
-    box.querySelector(`.prod-${field}-span`)?.replaceWith(input);
+    const span = box.querySelector(`.prod-${field}-span`);
+    if (span) {
+      const input = field === 'desc' ? document.createElement('textarea') : document.createElement('input');
+      input.value = span.textContent;
+      span.replaceWith(input);
+      inputs.push(input);
+    }
   });
-  const ratingSel = document.createElement('select');
-  [1,2,3,4,5].forEach(n => {
-    const opt = document.createElement('option');
-    opt.value = n;
-    opt.text = n;
-    if (n == box.querySelector('.prod-rating-span')?.textContent) opt.selected = true;
-    ratingSel.add(opt);
-  });
-  box.querySelector('.prod-rating-span')?.replaceWith(ratingSel);
+  const ratingSpan = box.querySelector('.prod-rating-span');
+  if (ratingSpan) {
+    const ratingSel = document.createElement('select');
+    [1,2,3,4,5].forEach(n => {
+      const opt = document.createElement('option');
+      opt.value = n;
+      opt.text = n;
+      if (n == ratingSpan.textContent) opt.selected = true;
+      ratingSel.add(opt);
+    });
+    ratingSpan.replaceWith(ratingSel);
+    inputs.push(ratingSel);
+  }
   const imageInput = document.createElement('input');
   imageInput.value = box.querySelector('.product-img')?.src || '';
   const imageField = document.createElement('div');
@@ -381,16 +386,7 @@ function editProduct(box, i) {
   const save = document.createElement('button');
   save.className = 'save-btn';
   save.textContent = 'Save';
-  save.onclick = () => {
-    const newTitle = box.querySelector('input')?.value || ''; // first input is title
-    const newDesc = box.querySelector('textarea')?.value || '';
-    const newRating = ratingSel.value;
-    const newDiscord = box.querySelectorAll('input')[1]?.value || ''; // adjust indices
-    const newPayment = box.querySelectorAll('input')[2]?.value || '';
-    const newImage = imageInput.value;
-    const newVideo = videoInput.value;
-    saveEdit(i, newTitle, newDesc, newRating, newDiscord, newPayment, newImage, newVideo);
-  };
+  save.onclick = () => saveEdit(i, inputs[0]?.value, inputs[1]?.value, inputs[4]?.value || inputs[3]?.value, inputs[2]?.value, inputs[3]?.value || inputs[2]?.value, imageInput.value, videoInput.value);
   const cancel = document.createElement('button');
   cancel.className = 'cancel-btn';
   cancel.textContent = 'Cancel';
@@ -468,22 +464,11 @@ function addSubcat() {
 }
 
 document.querySelectorAll('.category-card').forEach(card => {
-  const cat = card.dataset.cat;
-  if (cat === 'announcements') {
-    card.onclick = loadAnnouncements;
-  } else {
-    card.onclick = () => loadSubcats(cat);
-  }
+  card.onclick = () => loadSubcats(card.dataset.cat);
 });
 
 document.getElementById('back-to-main').onclick = () => showSection('main');
-document.getElementById('back-to-subcats').onclick = () => {
-  if (currentCat === 'announcements') {
-    showSection('main');
-  } else {
-    loadSubcats(currentCat);
-  }
-};
+document.getElementById('back-to-subcats').onclick = () => loadSubcats(currentCat);
 
 document.getElementById('show-login').addEventListener('click', () => {
   document.getElementById('show-login').style.display = 'none';
@@ -499,8 +484,8 @@ document.getElementById('loginForm').addEventListener('submit', e => {
     document.getElementById('logout').style.display = 'block';
     document.getElementById('welcome').style.display = 'inline';
     if (currentSubcat) loadProducts(currentSubcat);
-    else if (currentCat === 'announcements') loadAnnouncements();
     else if (currentCat) loadSubcats(currentCat);
+    else loadAnnouncements();
   } else {
     alert('Invalid');
   }
@@ -512,12 +497,13 @@ document.getElementById('logout').addEventListener('click', () => {
   document.getElementById('logout').style.display = 'none';
   document.getElementById('welcome').style.display = 'none';
   if (currentSubcat) loadProducts(currentSubcat);
-  else if (currentCat === 'announcements') loadAnnouncements();
   else if (currentCat) loadSubcats(currentCat);
+  else loadAnnouncements();
 });
 
-document.querySelector('.add-btn').addEventListener('click', addItem);
+document.querySelector('.add-btn').addEventListener('click', addProduct);
 document.getElementById('add-subcat-btn').addEventListener('click', addSubcat);
+document.querySelector('.add-ann-btn').addEventListener('click', addAnnouncement);
 
 const searchInput = document.querySelector('.search-input');
 const suggestions = document.querySelector('.suggestions');
