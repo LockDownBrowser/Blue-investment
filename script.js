@@ -97,7 +97,8 @@ function addProduct() {
     products.push({title, desc, rating, discord, payment, image, video});
     localStorage.setItem(key, JSON.stringify(products));
     loadProducts(currentSubcat);
-    document.querySelectorAll('.admin-controls input, .admin-controls textarea, .admin-controls select').forEach(el => el.value = '');
+    document.querySelectorAll('.admin-controls input, .admin-controls textarea').forEach(el => el.value = '');
+    document.querySelector('.prod-rating').value = '1';
   } else {
     alert('Fill required fields');
   }
