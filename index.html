@@ -219,7 +219,7 @@ function getStars(rating, reviews) {
     } else if (rating >= i - 0.5) {
       stars += '<span class="half">★</span>';
     } else {
-      stars += '<span>★</span>';
+      stars += '<span>☆</span>';
     }
   }
   return stars + '</div>';
@@ -535,6 +535,7 @@ searchInput.addEventListener('input', () => {
       div.textContent = match.toUpperCase();
       div.onclick = () => {
         const cat = Object.keys(categories).find(c => categories[c].includes(match));
+        currentCat = cat;
         loadProducts(match);
         suggestions.style.display = 'none';
         searchInput.value = '';
