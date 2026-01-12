@@ -329,7 +329,7 @@ function addProduct() {
   if (title || desc || rating || reviews || discord || payment || image || video) {
     const key = `\( {currentCat}_ \){currentSubcat}`;
     const products = JSON.parse(localStorage.getItem(key) || '[]');
-    products.push({title, desc, rating, reviews, discord, payment, image, video});
+    products.push({title, desc, rating, reviews, discord, payment, image, video, tag: currentSubcat});
     localStorage.setItem(key, JSON.stringify(products));
     loadProducts(currentSubcat);
     clearAddForm('.admin-controls');
@@ -416,7 +416,7 @@ function editProduct(box, i) {
 function saveEdit(i, title, desc, rating, reviews, discord, payment, image, video) {
   const key = `\( {currentCat}_ \){currentSubcat}`;
   const products = JSON.parse(localStorage.getItem(key) || '[]');
-  products[i] = {title, desc, rating: parseFloat(rating), reviews: parseInt(reviews), discord, payment, image, video};
+  products[i] = {title, desc, rating: parseFloat(rating), reviews: parseInt(reviews), discord, payment, image, video, tag: currentSubcat};
   localStorage.setItem(key, JSON.stringify(products));
   loadProducts(currentSubcat);
 }
