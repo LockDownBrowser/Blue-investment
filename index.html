@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Exam Hub: Categories for Tests, Comps, Proctor Software. Admin manage products and subcategories." />
+  <meta name="description" content="Exam Hub: Categories for Tests, Comps, Proctor Software, Cheating Devices, Announcements. Admin manage products and subcategories." />
   <title>Exam Hub</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
@@ -27,6 +27,7 @@
     .category-card{background:#f9fbfd;padding:15px 30px;border-radius:12px;box-shadow:0 6px 15px rgba(0,0,0,0.1);text-align:center;cursor:pointer;transition:.3s;width:200px;}
     .category-card:hover{transform:scale(1.05);box-shadow:0 8px 20px rgba(0,0,0,0.15);}
     .category-card h2{font-size:1.4rem;color:#0d47a1;}
+    .cat-logo{width:100px;height:100px;margin-bottom:10px;border-radius:50%;}
     #subcat-section{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:40px;display:none;}
     .subcat-card{background:#e3f2fd;padding:20px;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.1);text-align:center;cursor:pointer;transition:.3s;}
     .subcat-card:hover{background:#bbdefb;transform:scale(1.02);box-shadow:0 6px 15px rgba(0,0,0,0.15);}
@@ -49,7 +50,7 @@
     .admin-controls textarea{height:60px;}
     .admin-controls button{padding:10px;background:#4caf50;color:#fff;border:none;border-radius:6px;cursor:pointer;transition:.3s;}
     .admin-controls button:hover{background:#43a047;}
-    .product-actions{display:none;gap:10px;margin-top:12px;justify-content:flex-end;}
+    .product-actions{display:flex;gap:10px;margin-top:12px;justify-content:flex-end;}
     .edit-btn, .delete-btn, .save-btn, .cancel-btn{padding:6px 12px;border:none;border-radius:6px;cursor:pointer;transition:.3s;}
     .edit-btn{background:#ffc107;color:#fff;}
     .edit-btn:hover{background:#ffb300;}
@@ -96,13 +97,24 @@
 
     <div id="main-section">
       <div class="category-card" data-cat="tests">
+        <img class="cat-logo" src="https://via.placeholder.com/100/2196f3/ffffff?text=Tests" alt="Tests Logo">
         <h2>Tests</h2>
       </div>
       <div class="category-card" data-cat="comps">
+        <img class="cat-logo" src="https://via.placeholder.com/100/2196f3/ffffff?text=Comps" alt="Comps Logo">
         <h2>Comps</h2>
       </div>
       <div class="category-card" data-cat="proctor">
+        <img class="cat-logo" src="https://via.placeholder.com/100/2196f3/ffffff?text=Proctor" alt="Proctor Logo">
         <h2>Proctor Software</h2>
+      </div>
+      <div class="category-card" data-cat="cheating">
+        <img class="cat-logo" src="https://via.placeholder.com/100/2196f3/ffffff?text=Cheating" alt="Cheating Logo">
+        <h2>Cheating Devices</h2>
+      </div>
+      <div class="category-card" data-cat="announcements">
+        <img class="cat-logo" src="https://via.placeholder.com/100/2196f3/ffffff?text=Announce" alt="Announcements Logo">
+        <h2>Announcements</h2>
       </div>
     </div>
 
@@ -120,14 +132,14 @@
       <h2 id="current-subcat"></h2>
       <div class="product-list"></div>
       <div class="admin-controls" id="add-product-form">
-        <label>Title:</label><input type="text" class="prod-title">
-        <label>Description:</label><textarea class="prod-desc"></textarea>
-        <label>Rating:</label><select class="prod-rating"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
-        <label>Discord User:</label><input type="text" class="prod-discord">
-        <label>Payment Method:</label><input type="text" class="prod-payment">
-        <label>Image URL:</label><input type="text" class="prod-image">
-        <label>Video URL:</label><input type="text" class="prod-video">
-        <button class="add-btn">Add Product</button>
+        <label for="title">Title:</label><input type="text" class="prod-title" id="title">
+        <label for="desc">Description:</label><textarea class="prod-desc" id="desc"></textarea>
+        <label for="rating">Rating:</label><select class="prod-rating" id="rating"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+        <label for="discord">Discord User:</label><input type="text" class="prod-discord" id="discord">
+        <label for="payment">Payment Method:</label><input type="text" class="prod-payment" id="payment">
+        <label for="image">Image URL:</label><input type="text" class="prod-image" id="image">
+        <label for="video">Video URL:</label><input type="text" class="prod-video" id="video">
+        <button class="add-btn">Add</button>
       </div>
     </div>
 
@@ -138,8 +150,10 @@
 let categories = localStorage.getItem('categories') ? JSON.parse(localStorage.getItem('categories')) : {
   tests: ['lsat', 'sat', 'act', 'psat', 'dsat'],
   comps: ['deca', 'hosa', 'tsa', 'fbla', 'bpa'],
-  proctor: ['lockdown-browser', 'honorlock', 'proctorio', 'proctoru', 'examity']
+  proctor: ['lockdown-browser', 'honorlock', 'proctorio', 'proctoru', 'examity'],
+  cheating: []
 };
+let announcements = JSON.parse(localStorage.getItem('announcements') || '[]');
 let allSubcats = Object.values(categories).flat();
 let isAdmin = false;
 let currentCat = '';
@@ -198,13 +212,13 @@ function loadProducts(sub) {
     const box = document.createElement('div');
     box.className = 'product-box';
     box.dataset.index = i;
-    box.innerHTML = `
-      <div class="product-field"><strong>Title:</strong> <span class="prod-title-span">${prod.title}</span></div>
-      <div class="product-field"><strong>Description:</strong> <span class="prod-desc-span">${prod.desc}</span></div>
-      <div class="product-field"><strong>Rating:</strong> <span class="prod-rating-span">${prod.rating}</span></div>
-      <div class="product-field"><strong>Discord User:</strong> <span class="prod-discord-span">${prod.discord}</span></div>
-      <div class="product-field"><strong>Payment Method:</strong> <span class="prod-payment-span">${prod.payment}</span></div>
-    `;
+    let html = '';
+    if (prod.title) html += `<div class="product-field"><strong>Title:</strong> <span class="prod-title-span">${prod.title}</span></div>`;
+    if (prod.desc) html += `<div class="product-field"><strong>Description:</strong> <span class="prod-desc-span">${prod.desc}</span></div>`;
+    if (prod.rating) html += `<div class="product-field"><strong>Rating:</strong> <span class="prod-rating-span">${prod.rating}</span></div>`;
+    if (prod.discord) html += `<div class="product-field"><strong>Discord User:</strong> <span class="prod-discord-span">${prod.discord}</span></div>`;
+    if (prod.payment) html += `<div class="product-field"><strong>Payment Method:</strong> <span class="prod-payment-span">${prod.payment}</span></div>`;
+    box.innerHTML = html;
     if (prod.image) {
       const img = document.createElement('img');
       img.src = prod.image;
@@ -231,63 +245,123 @@ function loadProducts(sub) {
       del.className = 'delete-btn';
       del.textContent = 'Delete';
       del.onclick = () => deleteProduct(i);
-      actions.append(edit, del);
+      actions.appendChild(edit);
+      actions.appendChild(del);
       box.appendChild(actions);
     }
     list.appendChild(box);
   });
+  adjustAddForm(false);
   document.getElementById('add-product-form').style.display = isAdmin ? 'flex' : 'none';
   showSection('products');
 }
 
-function addProduct() {
+function loadAnnouncements() {
+  currentCat = 'announcements';
+  currentSubcat = '';
+  document.getElementById('current-subcat').textContent = 'ANNOUNCEMENTS';
+  const list = document.querySelector('.product-list');
+  list.innerHTML = '';
+  announcements.forEach((ann, i) => {
+    const box = document.createElement('div');
+    box.className = 'product-box';
+    box.dataset.index = i;
+    let html = '';
+    if (ann.title) html += `<div class="product-field"><strong>Title:</strong> <span class="prod-title-span">${ann.title}</span></div>`;
+    if (ann.desc) html += `<div class="product-field"><strong>Description:</strong> <span class="prod-desc-span">${ann.desc}</span></div>`;
+    box.innerHTML = html;
+    if (ann.image) {
+      const img = document.createElement('img');
+      img.src = ann.image;
+      img.className = 'product-img';
+      img.alt = 'Announcement Image';
+      box.appendChild(img);
+    }
+    if (isAdmin) {
+      const actions = document.createElement('div');
+      actions.className = 'product-actions';
+      const edit = document.createElement('button');
+      edit.className = 'edit-btn';
+      edit.textContent = 'Edit';
+      edit.onclick = () => editAnnouncement(box, i);
+      const del = document.createElement('button');
+      del.className = 'delete-btn';
+      del.textContent = 'Delete';
+      del.onclick = () => deleteAnnouncement(i);
+      actions.appendChild(edit);
+      actions.appendChild(del);
+      box.appendChild(actions);
+    }
+    list.appendChild(box);
+  });
+  adjustAddForm(true);
+  document.getElementById('add-product-form').style.display = isAdmin ? 'flex' : 'none';
+  showSection('products');
+}
+
+function adjustAddForm(isAnn) {
+  const hideFields = ['rating', 'discord', 'payment', 'video'];
+  hideFields.forEach(field => {
+    const labels = document.querySelectorAll(`label[for="${field}"]`);
+    const inputs = document.querySelectorAll(`.\( {field ? `prod- \){field}` : ''}`);
+    labels.forEach(label => label.style.display = isAnn ? 'none' : 'block');
+    inputs.forEach(input => input.style.display = isAnn ? 'none' : 'block');
+  });
+  document.querySelector('.add-btn').textContent = isAnn ? 'Add Announcement' : 'Add Product';
+}
+
+function addItem() {
   const title = document.querySelector('.prod-title').value.trim();
   const desc = document.querySelector('.prod-desc').value.trim();
-  const rating = document.querySelector('.prod-rating').value;
-  const discord = document.querySelector('.prod-discord').value.trim();
-  const payment = document.querySelector('.prod-payment').value.trim();
   const image = document.querySelector('.prod-image').value.trim();
-  const video = document.querySelector('.prod-video').value.trim();
-  if (title && desc && rating && discord && payment) {
-    const key = `\( {currentCat}_ \){currentSubcat}`;
-    const products = JSON.parse(localStorage.getItem(key) || '[]');
-    products.push({title, desc, rating, discord, payment, image, video});
-    localStorage.setItem(key, JSON.stringify(products));
-    loadProducts(currentSubcat);
-    document.querySelectorAll('.admin-controls input, .admin-controls textarea').forEach(el => el.value = '');
-    document.querySelector('.prod-rating').value = '1';
+  if (currentCat === 'announcements') {
+    if (title && desc) {
+      announcements.push({title, desc, image: image || ''});
+      localStorage.setItem('announcements', JSON.stringify(announcements));
+      loadAnnouncements();
+      clearAddForm();
+    } else {
+      alert('Fill required fields');
+    }
   } else {
-    alert('Fill required fields');
+    const rating = document.querySelector('.prod-rating').value;
+    const discord = document.querySelector('.prod-discord').value.trim();
+    const payment = document.querySelector('.prod-payment').value.trim();
+    const video = document.querySelector('.prod-video').value.trim();
+    if (title && desc && rating && discord && payment) {
+      const key = `\( {currentCat}_ \){currentSubcat}`;
+      const products = JSON.parse(localStorage.getItem(key) || '[]');
+      products.push({title, desc, rating, discord, payment, image: image || '', video: video || ''});
+      localStorage.setItem(key, JSON.stringify(products));
+      loadProducts(currentSubcat);
+      clearAddForm();
+    } else {
+      alert('Fill required fields');
+    }
   }
 }
 
+function clearAddForm() {
+  document.querySelectorAll('.admin-controls input, .admin-controls textarea').forEach(el => el.value = '');
+  document.querySelector('.prod-rating').value = '1';
+}
+
 function editProduct(box, i) {
-  const titleInput = document.createElement('input');
-  titleInput.value = box.querySelector('.prod-title-span').textContent;
-  box.querySelector('.prod-title-span').replaceWith(titleInput);
-
-  const descTa = document.createElement('textarea');
-  descTa.value = box.querySelector('.prod-desc-span').textContent;
-  box.querySelector('.prod-desc-span').replaceWith(descTa);
-
+  const fields = ['title', 'desc', 'discord', 'payment'];
+  fields.forEach(field => {
+    const input = field === 'desc' ? document.createElement('textarea') : document.createElement('input');
+    input.value = box.querySelector(`.prod-${field}-span`)?.textContent || '';
+    box.querySelector(`.prod-${field}-span`)?.replaceWith(input);
+  });
   const ratingSel = document.createElement('select');
   [1,2,3,4,5].forEach(n => {
     const opt = document.createElement('option');
     opt.value = n;
     opt.text = n;
-    if (n == box.querySelector('.prod-rating-span').textContent) opt.selected = true;
+    if (n == box.querySelector('.prod-rating-span')?.textContent) opt.selected = true;
     ratingSel.add(opt);
   });
-  box.querySelector('.prod-rating-span').replaceWith(ratingSel);
-
-  const discordInput = document.createElement('input');
-  discordInput.value = box.querySelector('.prod-discord-span').textContent;
-  box.querySelector('.prod-discord-span').replaceWith(discordInput);
-
-  const paymentInput = document.createElement('input');
-  paymentInput.value = box.querySelector('.prod-payment-span').textContent;
-  box.querySelector('.prod-payment-span').replaceWith(paymentInput);
-
+  box.querySelector('.prod-rating-span')?.replaceWith(ratingSel);
   const imageInput = document.createElement('input');
   imageInput.value = box.querySelector('.product-img')?.src || '';
   const imageField = document.createElement('div');
@@ -295,7 +369,6 @@ function editProduct(box, i) {
   imageField.innerHTML = '<strong>Image URL:</strong>';
   imageField.appendChild(imageInput);
   box.appendChild(imageField);
-
   const videoInput = document.createElement('input');
   videoInput.value = box.querySelector('.product-video')?.src.replace('embed/', 'watch?v=') || '';
   const videoField = document.createElement('div');
@@ -303,18 +376,27 @@ function editProduct(box, i) {
   videoField.innerHTML = '<strong>Video URL:</strong>';
   videoField.appendChild(videoInput);
   box.appendChild(videoField);
-
   const actions = box.querySelector('.product-actions');
   actions.innerHTML = '';
   const save = document.createElement('button');
   save.className = 'save-btn';
   save.textContent = 'Save';
-  save.onclick = () => saveEdit(i, titleInput.value, descTa.value, ratingSel.value, discordInput.value, paymentInput.value, imageInput.value, videoInput.value);
+  save.onclick = () => {
+    const newTitle = box.querySelector('input')?.value || ''; // first input is title
+    const newDesc = box.querySelector('textarea')?.value || '';
+    const newRating = ratingSel.value;
+    const newDiscord = box.querySelectorAll('input')[1]?.value || ''; // adjust indices
+    const newPayment = box.querySelectorAll('input')[2]?.value || '';
+    const newImage = imageInput.value;
+    const newVideo = videoInput.value;
+    saveEdit(i, newTitle, newDesc, newRating, newDiscord, newPayment, newImage, newVideo);
+  };
   const cancel = document.createElement('button');
   cancel.className = 'cancel-btn';
   cancel.textContent = 'Cancel';
   cancel.onclick = () => loadProducts(currentSubcat);
-  actions.append(save, cancel);
+  actions.appendChild(save);
+  actions.appendChild(cancel);
 }
 
 function saveEdit(i, title, desc, rating, discord, payment, image, video) {
@@ -333,6 +415,46 @@ function deleteProduct(i) {
   loadProducts(currentSubcat);
 }
 
+function editAnnouncement(box, i) {
+  const titleInput = document.createElement('input');
+  titleInput.value = box.querySelector('.prod-title-span')?.textContent || '';
+  box.querySelector('.prod-title-span')?.replaceWith(titleInput);
+  const descTa = document.createElement('textarea');
+  descTa.value = box.querySelector('.prod-desc-span')?.textContent || '';
+  box.querySelector('.prod-desc-span')?.replaceWith(descTa);
+  const imageInput = document.createElement('input');
+  imageInput.value = box.querySelector('.product-img')?.src || '';
+  const imageField = document.createElement('div');
+  imageField.className = 'product-field';
+  imageField.innerHTML = '<strong>Image URL:</strong>';
+  imageField.appendChild(imageInput);
+  box.appendChild(imageField);
+  const actions = box.querySelector('.product-actions');
+  actions.innerHTML = '';
+  const save = document.createElement('button');
+  save.className = 'save-btn';
+  save.textContent = 'Save';
+  save.onclick = () => saveAnnouncementEdit(i, titleInput.value, descTa.value, imageInput.value);
+  const cancel = document.createElement('button');
+  cancel.className = 'cancel-btn';
+  cancel.textContent = 'Cancel';
+  cancel.onclick = () => loadAnnouncements();
+  actions.appendChild(save);
+  actions.appendChild(cancel);
+}
+
+function saveAnnouncementEdit(i, title, desc, image) {
+  announcements[i] = {title, desc, image};
+  localStorage.setItem('announcements', JSON.stringify(announcements));
+  loadAnnouncements();
+}
+
+function deleteAnnouncement(i) {
+  announcements.splice(i, 1);
+  localStorage.setItem('announcements', JSON.stringify(announcements));
+  loadAnnouncements();
+}
+
 function addSubcat() {
   const newSub = document.getElementById('new-subcat').value.trim().toLowerCase();
   if (newSub && !categories[currentCat].includes(newSub)) {
@@ -346,11 +468,22 @@ function addSubcat() {
 }
 
 document.querySelectorAll('.category-card').forEach(card => {
-  card.onclick = () => loadSubcats(card.dataset.cat);
+  const cat = card.dataset.cat;
+  if (cat === 'announcements') {
+    card.onclick = loadAnnouncements;
+  } else {
+    card.onclick = () => loadSubcats(cat);
+  }
 });
 
 document.getElementById('back-to-main').onclick = () => showSection('main');
-document.getElementById('back-to-subcats').onclick = () => loadSubcats(currentCat);
+document.getElementById('back-to-subcats').onclick = () => {
+  if (currentCat === 'announcements') {
+    showSection('main');
+  } else {
+    loadSubcats(currentCat);
+  }
+};
 
 document.getElementById('show-login').addEventListener('click', () => {
   document.getElementById('show-login').style.display = 'none';
@@ -366,6 +499,7 @@ document.getElementById('loginForm').addEventListener('submit', e => {
     document.getElementById('logout').style.display = 'block';
     document.getElementById('welcome').style.display = 'inline';
     if (currentSubcat) loadProducts(currentSubcat);
+    else if (currentCat === 'announcements') loadAnnouncements();
     else if (currentCat) loadSubcats(currentCat);
   } else {
     alert('Invalid');
@@ -378,10 +512,11 @@ document.getElementById('logout').addEventListener('click', () => {
   document.getElementById('logout').style.display = 'none';
   document.getElementById('welcome').style.display = 'none';
   if (currentSubcat) loadProducts(currentSubcat);
+  else if (currentCat === 'announcements') loadAnnouncements();
   else if (currentCat) loadSubcats(currentCat);
 });
 
-document.querySelector('.add-btn').addEventListener('click', addProduct);
+document.querySelector('.add-btn').addEventListener('click', addItem);
 document.getElementById('add-subcat-btn').addEventListener('click', addSubcat);
 
 const searchInput = document.querySelector('.search-input');
