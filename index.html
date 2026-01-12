@@ -64,6 +64,10 @@
     footer{text-align:center;padding:20px;color:#757575;font-size:0.9rem;margin-top:30px;}
     #announcements-section{margin-bottom:20px;}
     .announcement-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:30px;}
+    .stars {unicode-bidi: bidi-override; direction: rtl; display: inline-block;}
+    .stars > span {display: inline-block; position: relative; width: 1.1em; color: #ccc; font-size: 1.2em;}
+    .stars > span.full {color: green;}
+    .stars > span.half::before {content: "\2605"; position: absolute; overflow: hidden; width: 50%; color: green;}
     @media (max-width:768px){
       .container{margin:10px;padding:15px;}
       h1{font-size:2rem;}
@@ -138,7 +142,8 @@
       <div class="admin-controls" id="add-product-form">
         <label>Title:</label><input type="text" class="prod-title">
         <label>Description:</label><textarea class="prod-desc"></textarea>
-        <label>Rating:</label><select class="prod-rating"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+        <label>Rating (0-5):</label><input type="number" class="prod-rating" min="0" max="5" step="0.5" value="0">
+        <label>Number of Reviews:</label><input type="number" class="prod-reviews" min="0" value="0">
         <label>Discord User:</label><input type="text" class="prod-discord">
         <label>Payment Method:</label><input type="text" class="prod-payment">
         <label>Image URL:</label><input type="text" class="prod-image">
@@ -206,6 +211,20 @@ function loadSubcats(cat) {
   showSection('subcat');
 }
 
+function getStars(rating) {
+  let stars = '<div class="stars">';
+  for (let i = 5; i >= 1; i--) {
+    if (rating >= i) {
+      stars += '<span class="full">★</span>';
+    } else if (rating >= i - 0.5) {
+      stars += '<span class="half">★</span>';
+    } else {
+      stars += '<span>☆</span>';
+    }
+  }
+  return stars + '</div>';
+}
+
 function loadProducts(sub) {
   currentSubcat = sub;
   document.getElementById('current-subcat').textContent = sub.toUpperCase();
@@ -220,7 +239,7 @@ function loadProducts(sub) {
     let html = '';
     if (prod.title) html += `<div class="product-field"><strong>Title:</strong> <span class="prod-title-span">${prod.title}</span></div>`;
     if (prod.desc) html += `<div class="product-field"><strong>Description:</strong> <span class="prod-desc-span">${prod.desc}</span></div>`;
-    if (prod.rating) html += `<div class="product-field"><strong>Rating:</strong> <span class="prod-rating-span">${prod.rating}</span></div>`;
+    if (prod.rating || prod.reviews) html += `<div class="product-field"><strong>Rating:</strong> \( {getStars(prod.rating || 0)} ( \){prod.reviews || 0} reviews)</div>`;
     if (prod.discord) html += `<div class="product-field"><strong>Discord User:</strong> <span class="prod-discord-span">${prod.discord}</span></div>`;
     if (prod.payment) html += `<div class="product-field"><strong>Payment Method:</strong> <span class="prod-payment-span">${prod.payment}</span></div>`;
     box.innerHTML = html;
@@ -249,6 +268,7 @@ function loadProducts(sub) {
       const del = document.createElement('button');
       del.className = 'delete-btn';
       del.textContent = 'Delete';
+      del.onclick = () => deleteProduct(i, key);
       actions.appendChild(edit);
       actions.appendChild(del);
       box.appendChild(actions);
@@ -300,15 +320,16 @@ function loadAnnouncements() {
 function addProduct() {
   const title = document.querySelector('.prod-title').value.trim();
   const desc = document.querySelector('.prod-desc').value.trim();
-  const rating = document.querySelector('.prod-rating').value;
+  const rating = parseFloat(document.querySelector('.prod-rating').value) || 0;
+  const reviews = parseInt(document.querySelector('.prod-reviews').value) || 0;
   const discord = document.querySelector('.prod-discord').value.trim();
   const payment = document.querySelector('.prod-payment').value.trim();
   const image = document.querySelector('.prod-image').value.trim();
   const video = document.querySelector('.prod-video').value.trim();
-  if (title || desc || rating || discord || payment || image || video) {
+  if (title || desc || rating || reviews || discord || payment || image || video) {
     const key = `\( {currentCat}_ \){currentSubcat}`;
     const products = JSON.parse(localStorage.getItem(key) || '[]');
-    products.push({title, desc, rating, discord, payment, image, video});
+    products.push({title, desc, rating, reviews, discord, payment, image, video});
     localStorage.setItem(key, JSON.stringify(products));
     loadProducts(currentSubcat);
     clearAddForm('.admin-controls');
@@ -334,7 +355,9 @@ function addAnnouncement() {
 function clearAddForm(selector) {
   document.querySelectorAll(`${selector} input, ${selector} textarea`).forEach(el => el.value = '');
   const rating = document.querySelector(`${selector} .prod-rating`);
-  if (rating) rating.value = '1';
+  if (rating) rating.value = '0';
+  const reviews = document.querySelector(`${selector} .prod-reviews`);
+  if (reviews) reviews.value = '0';
 }
 
 function editProduct(box, i) {
@@ -349,18 +372,21 @@ function editProduct(box, i) {
       inputs.push(input);
     }
   });
-  const ratingSpan = box.querySelector('.prod-rating-span');
-  if (ratingSpan) {
-    const ratingSel = document.createElement('select');
-    [1,2,3,4,5].forEach(n => {
-      const opt = document.createElement('option');
-      opt.value = n;
-      opt.text = n;
-      if (n == ratingSpan.textContent) opt.selected = true;
-      ratingSel.add(opt);
-    });
-    ratingSpan.replaceWith(ratingSel);
-    inputs.push(ratingSel);
+  const ratingField = box.querySelector('.product-field strong').parentNode;
+  if (ratingField.textContent.includes('Rating:')) {
+    const ratingInput = document.createElement('input');
+    ratingInput.type = 'number';
+    ratingInput.min = 0;
+    ratingInput.max = 5;
+    ratingInput.step = 0.5;
+    ratingInput.value = parseFloat(box.querySelector('.stars').dataset.rating || 0);
+    const reviewsInput = document.createElement('input');
+    reviewsInput.type = 'number';
+    reviewsInput.min = 0;
+    reviewsInput.value = parseInt(box.querySelector('.stars').dataset.reviews || 0);
+    ratingField.innerHTML = '<strong>Rating:</strong> <input type="number" class="edit-rating" min="0" max="5" step="0.5"> <strong>Reviews:</strong> <input type="number" class="edit-reviews" min="0">';
+    ratingField.querySelector('.edit-rating').value = ratingInput.value;
+    ratingField.querySelector('.edit-reviews').value = reviewsInput.value;
   }
   const imageInput = document.createElement('input');
   imageInput.value = box.querySelector('.product-img')?.src || '';
@@ -381,7 +407,7 @@ function editProduct(box, i) {
   const save = document.createElement('button');
   save.className = 'save-btn';
   save.textContent = 'Save';
-  save.onclick = () => saveEdit(i, inputs[0]?.value, inputs[1]?.value, inputs[4]?.value || inputs[3]?.value, inputs[2]?.value, inputs[3]?.value || inputs[2]?.value, imageInput.value, videoInput.value);
+  save.onclick = () => saveEdit(i, inputs[0]?.value, inputs[1]?.value, box.querySelector('.edit-rating')?.value, box.querySelector('.edit-reviews')?.value, inputs[2]?.value, inputs[3]?.value, imageInput.value, videoInput.value);
   const cancel = document.createElement('button');
   cancel.className = 'cancel-btn';
   cancel.textContent = 'Cancel';
@@ -390,16 +416,15 @@ function editProduct(box, i) {
   actions.appendChild(cancel);
 }
 
-function saveEdit(i, title, desc, rating, discord, payment, image, video) {
+function saveEdit(i, title, desc, rating, reviews, discord, payment, image, video) {
   const key = `\( {currentCat}_ \){currentSubcat}`;
   const products = JSON.parse(localStorage.getItem(key) || '[]');
-  products[i] = {title, desc, rating, discord, payment, image, video};
+  products[i] = {title, desc, rating: parseFloat(rating), reviews: parseInt(reviews), discord, payment, image, video};
   localStorage.setItem(key, JSON.stringify(products));
   loadProducts(currentSubcat);
 }
 
-function deleteProduct(i) {
-  const key = `\( {currentCat}_ \){currentSubcat}`;
+function deleteProduct(i, key) {
   const products = JSON.parse(localStorage.getItem(key) || '[]');
   products.splice(i, 1);
   localStorage.setItem(key, JSON.stringify(products));
