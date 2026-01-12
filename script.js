@@ -1,198 +1,239 @@
-let assets = JSON.parse(localStorage.getItem('assets')) || { USDT: 10000 };
-let trades = JSON.parse(localStorage.getItem('trades')) || [];
-let prices = { USDT: 1 };
+// script.js
 
-const symbolToId = {
-    BTC: 'bitcoin', ETH: 'ethereum', SOL: 'solana', USDT: 'tether',
-    ADA: 'cardano', XRP: 'ripple', BNB: 'binancecoin', DOGE: 'dogecoin',
-    DOT: 'polkadot-new', LINK: 'chainlink'
+const categories = {
+  tests: ['lsat', 'sat', 'act', 'psat', 'dsat'],
+  comps: ['deca', 'hosa', 'tsa', 'fbla', 'bpa'],
+  proctor: ['lockdown-browser', 'honorlock', 'proctorio', 'proctoru', 'examity']
 };
+const allSubcats = Object.values(categories).flat();
+let isAdmin = false;
+let currentCat = '';
+let currentSubcat = '';
 
-async function fetchPrices(symbols) {
-    const needed = symbols.filter(s => s !== 'USDT' && !prices[s]);
-    if (needed.length === 0) return;
-    const ids = needed.map(s => symbolToId[s] || s.toLowerCase()).join(',');
-    try {
-        const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd`);
-        const data = await res.json();
-        needed.forEach(s => {
-            const id = symbolToId[s] || s.toLowerCase();
-            if (data[id] && data[id].usd) prices[s] = data[id].usd;
-        });
-    } catch (err) {
-        console.error('Price fetch failed:', err);
+function showSection(section) {
+  document.getElementById('main-section').style.display = section === 'main' ? 'flex' : 'none';
+  document.getElementById('subcat-section').style.display = section === 'subcat' ? 'grid' : 'none';
+  document.getElementById('products-section').style.display = section === 'products' ? 'block' : 'none';
+}
+
+function loadSubcats(cat) {
+  currentCat = cat;
+  const subcatsDiv = document.getElementById('subcats');
+  subcatsDiv.innerHTML = '';
+  categories[cat].forEach(sub => {
+    const card = document.createElement('div');
+    card.className = 'subcat-card';
+    card.innerHTML = `<h3>${sub.toUpperCase()}</h3>`;
+    card.onclick = () => loadProducts(sub);
+    subcatsDiv.appendChild(card);
+  });
+  showSection('subcat');
+}
+
+function loadProducts(sub) {
+  currentSubcat = sub;
+  document.getElementById('current-subcat').textContent = sub.toUpperCase();
+  const list = document.querySelector('.product-list');
+  list.innerHTML = '';
+  const key = `\( {currentCat}_ \){sub}`;
+  const products = JSON.parse(localStorage.getItem(key) || '[]');
+  products.forEach((prod, i) => {
+    const box = document.createElement('div');
+    box.className = 'product-box';
+    box.dataset.index = i;
+    box.innerHTML = `
+      <div class="product-field"><strong>Title:</strong> <span class="prod-title-span">${prod.title}</span></div>
+      <div class="product-field"><strong>Description:</strong> <span class="prod-desc-span">${prod.desc}</span></div>
+      <div class="product-field"><strong>Rating:</strong> <span class="prod-rating-span">${prod.rating}</span></div>
+      <div class="product-field"><strong>Discord User:</strong> <span class="prod-discord-span">${prod.discord}</span></div>
+      <div class="product-field"><strong>Payment Method:</strong> <span class="prod-payment-span">${prod.payment}</span></div>
+    `;
+    if (prod.image) {
+      const img = document.createElement('img');
+      img.src = prod.image;
+      img.className = 'product-img';
+      img.alt = 'Product Image';
+      box.appendChild(img);
     }
-}
-
-function save() {
-    localStorage.setItem('assets', JSON.stringify(assets));
-    localStorage.setItem('trades', JSON.stringify(trades));
-}
-
-function updateTotal() {
-    let total = 0;
-    for (const c in assets) {
-        if (assets[c] > 0) total += assets[c] * (prices[c] || 0);
+    if (prod.video) {
+      const iframe = document.createElement('iframe');
+      iframe.src = prod.video.replace('watch?v=', 'embed/');
+      iframe.className = 'product-video';
+      iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+      iframe.allowFullscreen = true;
+      box.appendChild(iframe);
     }
-    document.getElementById('total-usd').innerText = 'Total: $' + total.toFixed(2) + ' USD';
+    if (isAdmin) {
+      const actions = document.createElement('div');
+      actions.className = 'product-actions';
+      const edit = document.createElement('button');
+      edit.className = 'edit-btn';
+      edit.textContent = 'Edit';
+      edit.onclick = () => editProduct(box, i);
+      const del = document.createElement('button');
+      del.className = 'delete-btn';
+      del.textContent = 'Delete';
+      del.onclick = () => deleteProduct(i);
+      actions.append(edit, del);
+      box.appendChild(actions);
+    }
+    list.appendChild(box);
+  });
+  document.getElementById('add-product-form').style.display = isAdmin ? 'flex' : 'none';
+  showSection('products');
 }
 
-function updateAssets() {
-    const list = document.getElementById('assets');
-    list.innerHTML = '';
-    Object.keys(assets).sort().forEach(c => {
-        if (assets[c] <= 0) return;
-        const id = symbolToId[c] || c.toLowerCase();
-        const value = (assets[c] * (prices[c] || 0)).toFixed(2);
-        const li = document.createElement('li');
-        li.innerHTML = '<img src="https://cryptologos.cc/logos/' + id + '-' + c.toLowerCase() + '-logo.png?v=029" width="40" onerror="this.src=\'https://via.placeholder.com/40\'">' +
-                       '<div><strong>' + c + '</strong>: ' + assets[c].toFixed(6) + '<br>' +
-                       '<span style="color:#60a5fa;">$' + value + '</span></div>';
-        list.appendChild(li);
+function addProduct() {
+  const title = document.querySelector('.prod-title').value.trim();
+  const desc = document.querySelector('.prod-desc').value.trim();
+  const rating = document.querySelector('.prod-rating').value;
+  const discord = document.querySelector('.prod-discord').value.trim();
+  const payment = document.querySelector('.prod-payment').value.trim();
+  const image = document.querySelector('.prod-image').value.trim();
+  const video = document.querySelector('.prod-video').value.trim();
+  if (title && desc && rating && discord && payment) {
+    const key = `\( {currentCat}_ \){currentSubcat}`;
+    const products = JSON.parse(localStorage.getItem(key) || '[]');
+    products.push({title, desc, rating, discord, payment, image, video});
+    localStorage.setItem(key, JSON.stringify(products));
+    loadProducts(currentSubcat);
+    document.querySelectorAll('.admin-controls input, .admin-controls textarea, .admin-controls select').forEach(el => el.value = '');
+  } else {
+    alert('Fill required fields');
+  }
+}
+
+function editProduct(box, i) {
+  const titleInput = document.createElement('input');
+  titleInput.value = box.querySelector('.prod-title-span').textContent;
+  box.querySelector('.prod-title-span').replaceWith(titleInput);
+
+  const descTa = document.createElement('textarea');
+  descTa.value = box.querySelector('.prod-desc-span').textContent;
+  box.querySelector('.prod-desc-span').replaceWith(descTa);
+
+  const ratingSel = document.createElement('select');
+  [1,2,3,4,5].forEach(n => {
+    const opt = document.createElement('option');
+    opt.value = n;
+    opt.text = n;
+    if (n == box.querySelector('.prod-rating-span').textContent) opt.selected = true;
+    ratingSel.add(opt);
+  });
+  box.querySelector('.prod-rating-span').replaceWith(ratingSel);
+
+  const discordInput = document.createElement('input');
+  discordInput.value = box.querySelector('.prod-discord-span').textContent;
+  box.querySelector('.prod-discord-span').replaceWith(discordInput);
+
+  const paymentInput = document.createElement('input');
+  paymentInput.value = box.querySelector('.prod-payment-span').textContent;
+  box.querySelector('.prod-payment-span').replaceWith(paymentInput);
+
+  const imageInput = document.createElement('input');
+  imageInput.value = box.querySelector('.product-img')?.src || '';
+  const imageField = document.createElement('div');
+  imageField.className = 'product-field';
+  imageField.innerHTML = '<strong>Image URL:</strong>';
+  imageField.appendChild(imageInput);
+  box.appendChild(imageField);
+
+  const videoInput = document.createElement('input');
+  videoInput.value = box.querySelector('.product-video')?.src.replace('embed/', 'watch?v=') || '';
+  const videoField = document.createElement('div');
+  videoField.className = 'product-field';
+  videoField.innerHTML = '<strong>Video URL:</strong>';
+  videoField.appendChild(videoInput);
+  box.appendChild(videoField);
+
+  const actions = box.querySelector('.product-actions');
+  actions.innerHTML = '';
+  const save = document.createElement('button');
+  save.className = 'save-btn';
+  save.textContent = 'Save';
+  save.onclick = () => saveEdit(i, titleInput.value, descTa.value, ratingSel.value, discordInput.value, paymentInput.value, imageInput.value, videoInput.value);
+  const cancel = document.createElement('button');
+  cancel.className = 'cancel-btn';
+  cancel.textContent = 'Cancel';
+  cancel.onclick = () => loadProducts(currentSubcat);
+  actions.append(save, cancel);
+}
+
+function saveEdit(i, title, desc, rating, discord, payment, image, video) {
+  const key = `\( {currentCat}_ \){currentSubcat}`;
+  const products = JSON.parse(localStorage.getItem(key) || '[]');
+  products[i] = {title, desc, rating, discord, payment, image, video};
+  localStorage.setItem(key, JSON.stringify(products));
+  loadProducts(currentSubcat);
+}
+
+function deleteProduct(i) {
+  const key = `\( {currentCat}_ \){currentSubcat}`;
+  const products = JSON.parse(localStorage.getItem(key) || '[]');
+  products.splice(i, 1);
+  localStorage.setItem(key, JSON.stringify(products));
+  loadProducts(currentSubcat);
+}
+
+document.querySelectorAll('.category-card').forEach(card => {
+  card.onclick = () => loadSubcats(card.dataset.cat);
+});
+
+document.getElementById('back-to-main').onclick = () => showSection('main');
+document.getElementById('back-to-subcats').onclick = () => loadSubcats(currentCat);
+
+document.getElementById('show-login').addEventListener('click', () => {
+  document.getElementById('show-login').style.display = 'none';
+  document.querySelector('.login-form').style.display = 'flex';
+});
+
+document.getElementById('loginForm').addEventListener('submit', e => {
+  e.preventDefault();
+  if (document.getElementById('username').value === 'admin' && document.getElementById('password').value === '12345') {
+    isAdmin = true;
+    document.querySelector('.login-form').style.display = 'none';
+    document.getElementById('show-login').style.display = 'none';
+    document.getElementById('logout').style.display = 'block';
+    document.getElementById('welcome').style.display = 'inline';
+    if (currentSubcat) loadProducts(currentSubcat);
+  } else {
+    alert('Invalid');
+  }
+});
+
+document.getElementById('logout').addEventListener('click', () => {
+  isAdmin = false;
+  document.getElementById('show-login').style.display = 'block';
+  document.getElementById('logout').style.display = 'none';
+  document.getElementById('welcome').style.display = 'none';
+  if (currentSubcat) loadProducts(currentSubcat);
+});
+
+document.querySelector('.add-btn').addEventListener('click', addProduct);
+
+const searchInput = document.querySelector('.search-input');
+const suggestions = document.querySelector('.suggestions');
+searchInput.addEventListener('input', () => {
+  const val = searchInput.value.toLowerCase();
+  suggestions.innerHTML = '';
+  if (val) {
+    const matches = allSubcats.filter(sub => sub.toLowerCase().startsWith(val));
+    matches.forEach(match => {
+      const div = document.createElement('div');
+      div.className = 'suggestion';
+      div.textContent = match.toUpperCase();
+      div.onclick = () => {
+        const cat = Object.keys(categories).find(c => categories[c].includes(match));
+        loadProducts(match);
+        suggestions.style.display = 'none';
+        searchInput.value = '';
+      };
+      suggestions.appendChild(div);
     });
-}
+    suggestions.style.display = matches.length ? 'block' : 'none';
+  } else {
+    suggestions.style.display = 'none';
+  }
+});
 
-async function addCrypto() {
-    const sym = document.getElementById('crypto-type').value.toUpperCase().trim();
-    const amt = parseFloat(document.getElementById('amount').value);
-    if (sym && amt > 0) {
-        assets[sym] = (assets[sym] || 0) + amt;
-        save();
-        await fetchPrices([sym]);
-        refresh();
-        document.getElementById('secret-section').style.display = 'none';
-    }
-}
-
-document.getElementById('secret-btn').onclick = () => {
-    document.getElementById('secret-section').style.display = 'block';
-};
-
-function showTab(id) {
-    document.querySelectorAll('.tab').forEach(t => t.style.display = 'none');
-    document.getElementById(id).style.display = 'block';
-    refresh();
-}
-
-function refresh() {
-    updateTotal();
-    updateAssets();
-    const active = document.querySelector('.tab[style*="block"]');
-    if (active.id === 'trade') updateTrade();
-    if (active.id === 'manage') updateManage();
-    if (active.id === 'transfer') updateSwap();
-}
-
-function updateTrade() {
-    document.getElementById('available-usdt').innerText = 'Available: ' + (assets.USDT || 0).toFixed(2) + ' USDT';
-    const input = document.getElementById('trade-crypto');
-    const sym = input.value.toUpperCase().trim();
-    document.getElementById('current-price').innerText = prices[sym] ? 'Price: $' + prices[sym].toFixed(2) : '';
-    input.oninput = async () => {
-        const s = input.value.toUpperCase().trim();
-        if (s && !prices[s]) await fetchPrices([s]);
-        document.getElementById('current-price').innerText = prices[s] ? 'Price: $' + prices[s].toFixed(2) : '';
-    };
-    const lev = document.getElementById('leverage');
-    document.getElementById('lev-value').innerText = lev.value + 'x';
-    lev.oninput = () => document.getElementById('lev-value').innerText = lev.value + 'x';
-}
-
-async function startTrade() {
-    const sym = document.getElementById('trade-crypto').value.toUpperCase().trim();
-    const usdt = parseFloat(document.getElementById('usdt-amount').value);
-    const lev = parseInt(document.getElementById('leverage').value);
-    if (!sym || !usdt || usdt > (assets.USDT || 0)) return;
-    await fetchPrices([sym]);
-    const price = prices[sym];
-    if (!price) return;
-    assets.USDT -= usdt;
-    const pos = (usdt * lev) / price;
-    trades.push({ sym, pos, entry: price, lev });
-    save();
-    document.getElementById('liq-est').innerText = 'Liq Price: $' + (price * (1 - 1/lev)).toFixed(2);
-    showTab('manage');
-}
-
-async function updateManage() {
-    await fetchPrices(trades.map(t => t.sym));
-    const list = document.getElementById('manage-trades');
-    list.innerHTML = '';
-    trades.forEach((t, i) => {
-        const curr = prices[t.sym] || t.entry;
-        const pnl = (curr - t.entry) * t.pos;
-        const roi = (pnl / (t.pos * t.entry / t.lev)) * 100;
-        const li = document.createElement('li');
-        li.innerHTML = '<strong>' + t.sym + '/USDT ×' + t.lev + '</strong><br>' +
-                       'Pos: ' + t.pos.toFixed(6) + '<br>' +
-                       'Entry $' + t.entry.toFixed(2) + ' → Current $' + curr.toFixed(2) + '<br>' +
-                       'PnL: <span style="color:' + (pnl >= 0 ? 'lime' : 'red') + '">$' + pnl.toFixed(2) + '</span> ' +
-                       'ROI: <span style="color:' + (roi >= 0 ? 'lime' : 'red') + '">' + roi.toFixed(2) + '%</span><br>' +
-                       '<button onclick="closeTrade(' + i + ')">Close</button>';
-        list.appendChild(li);
-    });
-}
-
-async function closeTrade(i) {
-    const t = trades[i];
-    await fetchPrices([t.sym]);
-    const curr = prices[t.sym] || t.entry;
-    const pnl = (curr - t.entry) * t.pos;
-    assets.USDT = (assets.USDT || 0) + (t.pos * t.entry / t.lev) + pnl;
-    trades.splice(i, 1);
-    save();
-    refresh();
-}
-
-function updateSwap() {
-    const from = document.getElementById('from-crypto');
-    const to = document.getElementById('to-crypto');
-    from.innerHTML = to.innerHTML = '';
-    Object.keys(prices).sort().forEach(c => {
-        const opt = document.createElement('option');
-        opt.value = opt.textContent = c;
-        from.appendChild(opt.cloneNode(true));
-        to.appendChild(opt);
-    });
-    document.getElementById('transfer-amount').oninput = estimateSwap;
-    estimateSwap();
-}
-
-function estimateSwap() {
-    const from = document.getElementById('from-crypto').value;
-    const to = document.getElementById('to-crypto').value;
-    const amt = parseFloat(document.getElementById('transfer-amount').value) || 0;
-    if (from && to && amt > 0 && prices[from] && prices[to]) {
-        const value = amt * prices[from];
-        const received = value * 0.995 / prices[to];
-        document.getElementById('transfer-est').innerText = '≈ ' + received.toFixed(6) + ' ' + to + ' (0.5% fee)';
-    } else {
-        document.getElementById('transfer-est').innerText = '';
-    }
-}
-
-async function transferCrypto() {
-    const from = document.getElementById('from-crypto').value;
-    const to = document.getElementById('to-crypto').value;
-    const amt = parseFloat(document.getElementById('transfer-amount').value);
-    if (from === to || (assets[from] || 0) < amt) return;
-    await fetchPrices([from, to]);
-    const value = amt * prices[from];
-    const received = value * 0.995 / prices[to];
-    assets[from] -= amt;
-    if (assets[from] <= 0) delete assets[from];
-    assets[to] = (assets[to] || 0) + received;
-    save();
-    showTab('wallet');
-}
-
-window.onload = async () => {
-    const symbols = [...new Set([...Object.keys(assets), ...trades.map(t => t.sym)])];
-    await fetchPrices(symbols);
-    refresh();
-    setInterval(async () => {
-        const all = [...new Set([...Object.keys(assets), ...trades.map(t => t.sym)])];
-        await fetchPrices(all);
-        refresh();
-    }, 15000);
-};
+showSection('main');
