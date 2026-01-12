@@ -157,9 +157,9 @@
 
   <script>
 let categories = localStorage.getItem('categories') ? JSON.parse(localStorage.getItem('categories')) : {
-  tests: ['lsat', 'sat', 'act', 'psat', 'dsat'],
-  comps: ['deca', 'hosa', 'tsa', 'fbla', 'bpa'],
-  proctor: ['lockdown-browser', 'honorlock', 'proctorio', 'proctoru', 'examity'],
+  tests: ['act', 'dsat', 'lsat', 'psat', 'sat'],
+  comps: ['bpa', 'deca', 'fbla', 'hosa', 'tsa'],
+  proctor: ['examity', 'honorlock', 'lockdown-browser', 'proctorio', 'proctoru'],
   cheating: []
 };
 let announcements = JSON.parse(localStorage.getItem('announcements') || '[]');
@@ -188,7 +188,7 @@ function loadSubcats(cat) {
   currentCat = cat;
   const subcatsDiv = document.getElementById('subcats');
   subcatsDiv.innerHTML = '';
-  categories[cat].forEach(sub => {
+  categories[cat].sort().forEach(sub => {
     const card = document.createElement('div');
     card.className = 'subcat-card';
     card.innerHTML = `<h3>${sub.toUpperCase()}</h3>`;
@@ -231,7 +231,8 @@ function loadProducts(sub) {
   const list = document.querySelector('.product-list');
   list.innerHTML = '';
   const key = `\( {currentCat}_ \){currentSubcat}`;
-  const products = JSON.parse(localStorage.getItem(key) || '[]');
+  let products = JSON.parse(localStorage.getItem(key) || '[]');
+  products.sort((a, b) => b.rating - a.rating);
   products.forEach((prod, i) => {
     const box = document.createElement('div');
     box.className = 'product-box';
