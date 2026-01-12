@@ -3,71 +3,59 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="robots" content="index, follow" />
-  <meta name="description" content="Exam Hub: Detailed product categories for LSAT, SAT, ACT, PSAT, DSAT, Lockdown Browser, Honorlock, Proctorio, ProctorU, Examity. Admin login to add, edit, delete products." />
-  <title>Exam Hub - Product Catalog</title>
+  <meta name="description" content="Exam Hub: Categories for Tests, Comps, Proctor Software. Admin manage products." />
+  <title>Exam Hub</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
     body {margin:0;font-family:'Poppins',sans-serif;background:linear-gradient(to bottom,#e3f2fd,#bbdefb);color:#212121;line-height:1.6;}
-    .container{
-      max-width:1380px;
-      margin:20px auto;
-      padding:30px 20px;
-      background:#fff;
-      box-shadow:0 18px 50px rgba(0,0,0,0.24);
-      border-radius:28px;
-    }
-    header {display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;padding:0 20px;}
-    h1{font-size:3rem;color:#0d47a1;margin:0;text-shadow:1px 1px 3px rgba(0,0,0,0.15);}
-    .auth-section {display:flex;align-items:center;gap:15px;}
-    .login-form {display:flex;gap:10px;}
-    .login-form input {padding:10px;border-radius:8px;border:1px solid #ccc;width:150px;}
-    .login-form button {padding:10px 20px;background:#2196f3;color:#fff;border:none;border-radius:8px;cursor:pointer;transition:.3s;}
-    .login-form button:hover {background:#1976d2;}
-    .logout {display:none;padding:10px 20px;background:#f44336;color:#fff;border:none;border-radius:8px;cursor:pointer;transition:.3s;}
-    .logout:hover {background:#d32f2f;}
-    .welcome {display:none;color:#4caf50;font-weight:600;}
-    .intro {text-align:center;margin-bottom:40px;}
-    .intro p {font-size:1.2rem;color:#424242;max-width:800px;margin:0 auto;}
-    .categories {display:grid;grid-template-columns:repeat(auto-fit,minmax(350px,1fr));gap:25px;padding:0 20px;}
-    .category {background:#f9fbfd;padding:25px;border-radius:16px;box-shadow:0 8px 20px rgba(0,0,0,0.1);transition:.3s;}
-    .category:hover {box-shadow:0 12px 30px rgba(0,0,0,0.15);}
-    .category h2 {font-size:1.8rem;color:#0d47a1;margin-bottom:15px;display:flex;align-items:center;gap:12px;}
-    .category img.logo {width:45px;height:45px;object-fit:contain;border-radius:8px;}
-    .products {list-style:none;padding:0;margin:0;}
-    .product-item {margin:12px 0;padding:15px;background:#e3f2fd;border-radius:10px;display:flex;flex-direction:column;gap:8px;transition:.3s;}
-    .product-item:hover {background:#bbdefb;}
-    .product-name {font-weight:600;font-size:1.1rem;}
-    .product-desc {font-size:0.95rem;color:#616161;}
-    .product-actions {display:none;justify-content:flex-end;gap:10px;}
-    .edit-btn, .delete-btn, .save-btn, .cancel-btn {padding:6px 12px;border:none;border-radius:6px;cursor:pointer;transition:.3s;}
-    .edit-btn {background:#ffc107;color:#fff;}
-    .edit-btn:hover {background:#ffb300;}
-    .delete-btn {background:#f44336;color:#fff;}
-    .delete-btn:hover {background:#d32f2f;}
-    .save-btn {background:#4caf50;color:#fff;}
-    .save-btn:hover {background:#43a047;}
-    .cancel-btn {background:#9e9e9e;color:#fff;}
-    .cancel-btn:hover {background:#757575;}
-    .admin-controls {display:none;flex-direction:column;gap:10px;margin-top:20px;padding-top:15px;border-top:1px solid #eee;}
-    .admin-controls label {font-size:0.95rem;color:#424242;}
-    .admin-controls input, .admin-controls textarea {padding:10px;border-radius:8px;border:1px solid #ccc;width:100%;box-sizing:border-box;}
-    .admin-controls textarea {height:80px;resize:vertical;}
-    .admin-controls button {padding:10px 20px;background:#4caf50;color:#fff;border:none;border-radius:8px;cursor:pointer;transition:.3s;}
-    .admin-controls button:hover {background:#43a047;}
-    footer{text-align:center;padding:40px 20px;color:#757575;font-size:0.95rem;border-top:1px solid #eee;margin-top:50px;}
+    .container{max-width:1200px;margin:20px auto;padding:20px;background:#fff;box-shadow:0 10px 30px rgba(0,0,0,0.2);border-radius:20px;}
+    header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+    h1{font-size:2.5rem;color:#0d47a1;margin:0;}
+    .auth-section{display:flex;align-items:center;gap:10px;}
+    .login-form{display:flex;gap:5px;}
+    .login-form input{padding:8px;border-radius:6px;border:1px solid #ccc;width:120px;}
+    .login-form button{padding:8px 16px;background:#2196f3;color:#fff;border:none;border-radius:6px;cursor:pointer;}
+    .logout{display:none;padding:8px 16px;background:#f44336;color:#fff;border:none;border-radius:6px;cursor:pointer;}
+    .welcome{display:none;color:#4caf50;font-weight:600;}
+    #main-section, #subcat-section, #products-section{display:none;}
+    #main-section{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;}
+    .category-card{background:#f9fbfd;padding:20px;border-radius:12px;box-shadow:0 6px 15px rgba(0,0,0,0.1);text-align:center;cursor:pointer;transition:.3s;}
+    .category-card:hover{transform:scale(1.05);}
+    .category-card h2{font-size:1.6rem;color:#0d47a1;}
+    #subcat-section{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;}
+    .subcat-card{background:#e3f2fd;padding:15px;border-radius:10px;box-shadow:0 4px 10px rgba(0,0,0,0.1);text-align:center;cursor:pointer;transition:.3s;}
+    .subcat-card:hover{background:#bbdefb;}
+    .subcat-card h3{font-size:1.2rem;color:#1565c0;}
+    #products-section{padding:20px;}
+    .product-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;}
+    .product-box{background:#f9fbfd;padding:15px;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,0.1);}
+    .product-field{margin-bottom:10px;}
+    .product-field strong{display:block;color:#424242;}
+    .admin-controls{display:none;flex-direction:column;gap:10px;margin-top:20px;padding:15px;background:#e3f2fd;border-radius:10px;}
+    .admin-controls label{font-size:0.9rem;color:#424242;}
+    .admin-controls input, .admin-controls textarea, .admin-controls select{padding:8px;border-radius:6px;border:1px solid #ccc;width:100%;box-sizing:border-box;}
+    .admin-controls textarea{height:60px;}
+    .admin-controls button{padding:10px;background:#4caf50;color:#fff;border:none;border-radius:6px;cursor:pointer;}
+    .product-actions{display:none;gap:10px;margin-top:10px;}
+    .edit-btn, .delete-btn, .save-btn, .cancel-btn{padding:6px 12px;border:none;border-radius:6px;cursor:pointer;}
+    .edit-btn{background:#ffc107;color:#fff;}
+    .delete-btn{background:#f44336;color:#fff;}
+    .save-btn{background:#4caf50;color:#fff;}
+    .cancel-btn{background:#9e9e9e;color:#fff;}
+    .back-btn{padding:10px 20px;background:#2196f3;color:#fff;border:none;border-radius:6px;cursor:pointer;margin-bottom:20px;}
+    footer{text-align:center;padding:20px;color:#757575;font-size:0.9rem;margin-top:30px;}
     @media (max-width:768px){
-      .container{margin:12px;padding:26px 16px;}
-      h1{font-size:2.5rem;}
-      .login-form input {width:120px;}
-      .categories {grid-template-columns:1fr;}
+      .container{margin:10px;padding:15px;}
+      h1{font-size:2rem;}
+      .login-form input{width:100px;}
+      #main-section, #subcat-section, .product-list{grid-template-columns:1fr;}
     }
   </style>
 </head>
 <body>
   <div class="container">
     <header>
-      <h1>Exam Hub - Product Catalog</h1>
+      <h1>Exam Hub</h1>
       <div class="auth-section">
         <span class="welcome" id="welcome">Welcome, Admin!</span>
         <form class="login-form" id="loginForm">
@@ -79,226 +67,205 @@
       </div>
     </header>
 
-    <div class="intro">
-      <p>Explore our detailed product offerings across various exam categories. As an admin, log in to add, edit, or delete products with full details including name and description.</p>
-    </div>
-
-    <div class="categories">
-      <div class="category" data-cat="lsat">
-        <h2><img src="lsat-logo.png" alt="LSAT Logo" class="logo">LSAT</h2>
-        <ul class="products"></ul>
-        <div class="admin-controls">
-          <label for="product-name-lsat">Product Name:</label>
-          <input type="text" class="product-name-input" placeholder="Enter product name" required>
-          <label for="product-desc-lsat">Product Description:</label>
-          <textarea class="product-desc-input" placeholder="Enter product description" required></textarea>
-          <button class="add-btn">Add Product</button>
-        </div>
+    <div id="main-section">
+      <div class="category-card" data-cat="tests">
+        <h2>Tests</h2>
       </div>
-      <div class="category" data-cat="sat">
-        <h2><img src="sat-logo.png" alt="SAT Logo" class="logo">SAT</h2>
-        <ul class="products"></ul>
-        <div class="admin-controls">
-          <label for="product-name-sat">Product Name:</label>
-          <input type="text" class="product-name-input" placeholder="Enter product name" required>
-          <label for="product-desc-sat">Product Description:</label>
-          <textarea class="product-desc-input" placeholder="Enter product description" required></textarea>
-          <button class="add-btn">Add Product</button>
-        </div>
+      <div class="category-card" data-cat="comps">
+        <h2>Comps</h2>
       </div>
-      <div class="category" data-cat="act">
-        <h2><img src="act-logo.png" alt="ACT Logo" class="logo">ACT</h2>
-        <ul class="products"></ul>
-        <div class="admin-controls">
-          <label for="product-name-act">Product Name:</label>
-          <input type="text" class="product-name-input" placeholder="Enter product name" required>
-          <label for="product-desc-act">Product Description:</label>
-          <textarea class="product-desc-input" placeholder="Enter product description" required></textarea>
-          <button class="add-btn">Add Product</button>
-        </div>
-      </div>
-      <div class="category" data-cat="psat">
-        <h2><img src="psat-logo.png" alt="PSAT Logo" class="logo">PSAT</h2>
-        <ul class="products"></ul>
-        <div class="admin-controls">
-          <label for="product-name-psat">Product Name:</label>
-          <input type="text" class="product-name-input" placeholder="Enter product name" required>
-          <label for="product-desc-psat">Product Description:</label>
-          <textarea class="product-desc-input" placeholder="Enter product description" required></textarea>
-          <button class="add-btn">Add Product</button>
-        </div>
-      </div>
-      <div class="category" data-cat="dsat">
-        <h2><img src="dsat-logo.png" alt="DSAT Logo" class="logo">DSAT</h2>
-        <ul class="products"></ul>
-        <div class="admin-controls">
-          <label for="product-name-dsat">Product Name:</label>
-          <input type="text" class="product-name-input" placeholder="Enter product name" required>
-          <label for="product-desc-dsat">Product Description:</label>
-          <textarea class="product-desc-input" placeholder="Enter product description" required></textarea>
-          <button class="add-btn">Add Product</button>
-        </div>
-      </div>
-      <div class="category" data-cat="lockdown-browser">
-        <h2><img src="lockdown-browser-logo.png" alt="Lockdown Browser Logo" class="logo">Lockdown Browser</h2>
-        <ul class="products"></ul>
-        <div class="admin-controls">
-          <label for="product-name-lockdown-browser">Product Name:</label>
-          <input type="text" class="product-name-input" placeholder="Enter product name" required>
-          <label for="product-desc-lockdown-browser">Product Description:</label>
-          <textarea class="product-desc-input" placeholder="Enter product description" required></textarea>
-          <button class="add-btn">Add Product</button>
-        </div>
-      </div>
-      <div class="category" data-cat="honorlock">
-        <h2><img src="honorlock-logo.png" alt="Honorlock Logo" class="logo">Honorlock</h2>
-        <ul class="products"></ul>
-        <div class="admin-controls">
-          <label for="product-name-honorlock">Product Name:</label>
-          <input type="text" class="product-name-input" placeholder="Enter product name" required>
-          <label for="product-desc-honorlock">Product Description:</label>
-          <textarea class="product-desc-input" placeholder="Enter product description" required></textarea>
-          <button class="add-btn">Add Product</button>
-        </div>
-      </div>
-      <div class="category" data-cat="proctorio">
-        <h2><img src="proctorio-logo.png" alt="Proctorio Logo" class="logo">Proctorio</h2>
-        <ul class="products"></ul>
-        <div class="admin-controls">
-          <label for="product-name-proctorio">Product Name:</label>
-          <input type="text" class="product-name-input" placeholder="Enter product name" required>
-          <label for="product-desc-proctorio">Product Description:</label>
-          <textarea class="product-desc-input" placeholder="Enter product description" required></textarea>
-          <button class="add-btn">Add Product</button>
-        </div>
-      </div>
-      <div class="category" data-cat="proctoru">
-        <h2><img src="proctoru-logo.png" alt="ProctorU Logo" class="logo">ProctorU</h2>
-        <ul class="products"></ul>
-        <div class="admin-controls">
-          <label for="product-name-proctoru">Product Name:</label>
-          <input type="text" class="product-name-input" placeholder="Enter product name" required>
-          <label for="product-desc-proctoru">Product Description:</label>
-          <textarea class="product-desc-input" placeholder="Enter product description" required></textarea>
-          <button class="add-btn">Add Product</button>
-        </div>
-      </div>
-      <div class="category" data-cat="examity">
-        <h2><img src="examity-logo.png" alt="Examity Logo" class="logo">Examity</h2>
-        <ul class="products"></ul>
-        <div class="admin-controls">
-          <label for="product-name-examity">Product Name:</label>
-          <input type="text" class="product-name-input" placeholder="Enter product name" required>
-          <label for="product-desc-examity">Product Description:</label>
-          <textarea class="product-desc-input" placeholder="Enter product description" required></textarea>
-          <button class="add-btn">Add Product</button>
-        </div>
+      <div class="category-card" data-cat="proctor">
+        <h2>Proctor Software</h2>
       </div>
     </div>
 
-    <footer>
-      © 2026 Exam Hub | Hosted on GitHub | Manage your exam products efficiently.
-    </footer>
+    <div id="subcat-section">
+      <button class="back-btn" id="back-to-main">Back to Categories</button>
+      <div id="subcats"></div>
+    </div>
+
+    <div id="products-section">
+      <button class="back-btn" id="back-to-subcats">Back to Subcategories</button>
+      <h2 id="current-subcat"></h2>
+      <div class="product-list"></div>
+      <div class="admin-controls" id="add-product-form">
+        <label>Title:</label><input type="text" class="prod-title">
+        <label>Description:</label><textarea class="prod-desc"></textarea>
+        <label>About Me:</label><textarea class="prod-about"></textarea>
+        <label>Rating:</label><select class="prod-rating"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+        <label>Discord User:</label><input type="text" class="prod-discord">
+        <label>Payment Method:</label><input type="text" class="prod-payment">
+        <button class="add-btn">Add Product</button>
+      </div>
+    </div>
+
+    <footer>© 2026 Exam Hub | Mobile Friendly</footer>
   </div>
 
   <script>
-    const categories = ['lsat', 'sat', 'act', 'psat', 'dsat', 'lockdown-browser', 'honorlock', 'proctorio', 'proctoru', 'examity'];
+    const categories = {
+      tests: ['lsat', 'sat', 'act', 'psat', 'dsat'],
+      comps: ['deca', 'hosa', 'tsa', 'fbla', 'bpa'],
+      proctor: ['lockdown-browser', 'honorlock', 'proctorio', 'proctoru', 'examity']
+    };
     let isAdmin = false;
+    let currentCat = '';
+    let currentSubcat = '';
 
-    function loadProducts(cat) {
-      const products = JSON.parse(localStorage.getItem(cat) || '[]');
-      const ul = document.querySelector(`[data-cat="${cat}"] .products`);
-      ul.innerHTML = '';
+    function showSection(section) {
+      document.getElementById('main-section').style.display = section === 'main' ? 'grid' : 'none';
+      document.getElementById('subcat-section').style.display = section === 'subcat' ? 'block' : 'none';
+      document.getElementById('products-section').style.display = section === 'products' ? 'block' : 'none';
+    }
+
+    function loadSubcats(cat) {
+      currentCat = cat;
+      const subcatsDiv = document.getElementById('subcats');
+      subcatsDiv.innerHTML = '';
+      categories[cat].forEach(sub => {
+        const card = document.createElement('div');
+        card.className = 'subcat-card';
+        card.innerHTML = `<h3>${sub.toUpperCase()}</h3>`;
+        card.onclick = () => loadProducts(sub);
+        subcatsDiv.appendChild(card);
+      });
+      showSection('subcat');
+    }
+
+    function loadProducts(sub) {
+      currentSubcat = sub;
+      document.getElementById('current-subcat').textContent = sub.toUpperCase();
+      const list = document.querySelector('.product-list');
+      list.innerHTML = '';
+      const products = JSON.parse(localStorage.getItem(`\( {currentCat}_ \){sub}`) || '[]');
       products.forEach((prod, i) => {
-        const li = document.createElement('li');
-        li.className = 'product-item';
-        li.dataset.index = i;
-        const nameSpan = document.createElement('span');
-        nameSpan.className = 'product-name';
-        nameSpan.textContent = prod.name;
-        const descSpan = document.createElement('span');
-        descSpan.className = 'product-desc';
-        descSpan.textContent = prod.desc;
-        li.appendChild(nameSpan);
-        li.appendChild(descSpan);
-
+        const box = document.createElement('div');
+        box.className = 'product-box';
+        box.dataset.index = i;
+        box.innerHTML = `
+          <div class="product-field"><strong>Title:</strong> <span class="prod-title-span">${prod.title}</span></div>
+          <div class="product-field"><strong>Description:</strong> <span class="prod-desc-span">${prod.desc}</span></div>
+          <div class="product-field"><strong>About Me:</strong> <span class="prod-about-span">${prod.about}</span></div>
+          <div class="product-field"><strong>Rating:</strong> <span class="prod-rating-span">${prod.rating}</span></div>
+          <div class="product-field"><strong>Discord User:</strong> <span class="prod-discord-span">${prod.discord}</span></div>
+          <div class="product-field"><strong>Payment Method:</strong> <span class="prod-payment-span">${prod.payment}</span></div>
+        `;
         if (isAdmin) {
           const actions = document.createElement('div');
           actions.className = 'product-actions';
-          const editBtn = document.createElement('button');
-          editBtn.className = 'edit-btn';
-          editBtn.textContent = 'Edit';
-          editBtn.onclick = () => editProduct(cat, i, li);
-          const delBtn = document.createElement('button');
-          delBtn.className = 'delete-btn';
-          delBtn.textContent = 'Delete';
-          delBtn.onclick = () => {
-            products.splice(i, 1);
-            localStorage.setItem(cat, JSON.stringify(products));
-            loadProducts(cat);
-          };
-          actions.appendChild(editBtn);
-          actions.appendChild(delBtn);
-          li.appendChild(actions);
+          const edit = document.createElement('button');
+          edit.className = 'edit-btn';
+          edit.textContent = 'Edit';
+          edit.onclick = () => editProduct(box, i);
+          const del = document.createElement('button');
+          del.className = 'delete-btn';
+          del.textContent = 'Delete';
+          del.onclick = () => deleteProduct(i);
+          actions.append(edit, del);
+          box.appendChild(actions);
         }
-        ul.appendChild(li);
+        list.appendChild(box);
       });
+      document.getElementById('add-product-form').style.display = isAdmin ? 'flex' : 'none';
+      showSection('products');
     }
 
-    function editProduct(cat, i, li) {
-      const products = JSON.parse(localStorage.getItem(cat) || '[]');
-      const prod = products[i];
+    function addProduct() {
+      const title = document.querySelector('.prod-title').value.trim();
+      const desc = document.querySelector('.prod-desc').value.trim();
+      const about = document.querySelector('.prod-about').value.trim();
+      const rating = document.querySelector('.prod-rating').value;
+      const discord = document.querySelector('.prod-discord').value.trim();
+      const payment = document.querySelector('.prod-payment').value.trim();
+      if (title && desc && about && rating && discord && payment) {
+        const key = `\( {currentCat}_ \){currentSubcat}`;
+        const products = JSON.parse(localStorage.getItem(key) || '[]');
+        products.push({title, desc, about, rating, discord, payment});
+        localStorage.setItem(key, JSON.stringify(products));
+        loadProducts(currentSubcat);
+        document.querySelectorAll('.admin-controls input, .admin-controls textarea, .admin-controls select').forEach(el => el.value = '');
+      } else {
+        alert('Fill all fields');
+      }
+    }
 
-      const nameInput = document.createElement('input');
-      nameInput.type = 'text';
-      nameInput.value = prod.name;
-      nameInput.className = 'product-name-input';
+    function editProduct(box, i) {
+      const titleInput = document.createElement('input');
+      titleInput.value = box.querySelector('.prod-title-span').textContent;
+      box.querySelector('.prod-title-span').replaceWith(titleInput);
 
-      const descTextarea = document.createElement('textarea');
-      descTextarea.value = prod.desc;
-      descTextarea.className = 'product-desc-input';
+      const descTa = document.createElement('textarea');
+      descTa.value = box.querySelector('.prod-desc-span').textContent;
+      box.querySelector('.prod-desc-span').replaceWith(descTa);
 
-      const saveBtn = document.createElement('button');
-      saveBtn.className = 'save-btn';
-      saveBtn.textContent = 'Save';
-      saveBtn.onclick = () => {
-        products[i] = { name: nameInput.value.trim(), desc: descTextarea.value.trim() };
-        localStorage.setItem(cat, JSON.stringify(products));
-        loadProducts(cat);
-      };
+      const aboutTa = document.createElement('textarea');
+      aboutTa.value = box.querySelector('.prod-about-span').textContent;
+      box.querySelector('.prod-about-span').replaceWith(aboutTa);
 
-      const cancelBtn = document.createElement('button');
-      cancelBtn.className = 'cancel-btn';
-      cancelBtn.textContent = 'Cancel';
-      cancelBtn.onclick = () => loadProducts(cat);
+      const ratingSel = document.createElement('select');
+      [1,2,3,4,5].forEach(n => {
+        const opt = document.createElement('option');
+        opt.value = n;
+        opt.text = n;
+        if (n == box.querySelector('.prod-rating-span').textContent) opt.selected = true;
+        ratingSel.add(opt);
+      });
+      box.querySelector('.prod-rating-span').replaceWith(ratingSel);
 
-      const actions = li.querySelector('.product-actions');
+      const discordInput = document.createElement('input');
+      discordInput.value = box.querySelector('.prod-discord-span').textContent;
+      box.querySelector('.prod-discord-span').replaceWith(discordInput);
+
+      const paymentInput = document.createElement('input');
+      paymentInput.value = box.querySelector('.prod-payment-span').textContent;
+      box.querySelector('.prod-payment-span').replaceWith(paymentInput);
+
+      const actions = box.querySelector('.product-actions');
       actions.innerHTML = '';
-      actions.appendChild(saveBtn);
-      actions.appendChild(cancelBtn);
-
-      li.innerHTML = '';
-      li.appendChild(nameInput);
-      li.appendChild(descTextarea);
-      li.appendChild(actions);
+      const save = document.createElement('button');
+      save.className = 'save-btn';
+      save.textContent = 'Save';
+      save.onclick = () => saveEdit(i, titleInput.value, descTa.value, aboutTa.value, ratingSel.value, discordInput.value, paymentInput.value);
+      const cancel = document.createElement('button');
+      cancel.className = 'cancel-btn';
+      cancel.textContent = 'Cancel';
+      cancel.onclick = () => loadProducts(currentSubcat);
+      actions.append(save, cancel);
     }
 
-    categories.forEach(cat => loadProducts(cat));
+    function saveEdit(i, title, desc, about, rating, discord, payment) {
+      const key = `\( {currentCat}_ \){currentSubcat}`;
+      const products = JSON.parse(localStorage.getItem(key) || '[]');
+      products[i] = {title, desc, about, rating, discord, payment};
+      localStorage.setItem(key, JSON.stringify(products));
+      loadProducts(currentSubcat);
+    }
+
+    function deleteProduct(i) {
+      const key = `\( {currentCat}_ \){currentSubcat}`;
+      const products = JSON.parse(localStorage.getItem(key) || '[]');
+      products.splice(i, 1);
+      localStorage.setItem(key, JSON.stringify(products));
+      loadProducts(currentSubcat);
+    }
+
+    document.querySelectorAll('.category-card').forEach(card => {
+      card.onclick = () => loadSubcats(card.dataset.cat);
+    });
+
+    document.getElementById('back-to-main').onclick = () => showSection('main');
+    document.getElementById('back-to-subcats').onclick = () => loadSubcats(currentCat);
 
     document.getElementById('loginForm').addEventListener('submit', e => {
       e.preventDefault();
-      const user = document.getElementById('username').value;
-      const pass = document.getElementById('password').value;
-      if (user === 'admin' && pass === '12345') {
+      if (document.getElementById('username').value === 'admin' && document.getElementById('password').value === '12345') {
         isAdmin = true;
         document.querySelector('.login-form').style.display = 'none';
         document.getElementById('logout').style.display = 'block';
         document.getElementById('welcome').style.display = 'inline';
-        document.querySelectorAll('.admin-controls').forEach(el => el.style.display = 'flex');
-        document.querySelectorAll('.product-actions').forEach(el => el.style.display = 'flex');
-        categories.forEach(cat => loadProducts(cat));
+        if (currentSubcat) loadProducts(currentSubcat);
       } else {
-        alert('Invalid credentials');
+        alert('Invalid');
       }
     });
 
@@ -307,30 +274,12 @@
       document.querySelector('.login-form').style.display = 'flex';
       document.getElementById('logout').style.display = 'none';
       document.getElementById('welcome').style.display = 'none';
-      document.querySelectorAll('.admin-controls').forEach(el => el.style.display = 'none');
-      categories.forEach(cat => loadProducts(cat));
+      if (currentSubcat) loadProducts(currentSubcat);
     });
 
-    document.querySelectorAll('.add-btn').forEach(btn => {
-      btn.addEventListener('click', e => {
-        const catEl = e.target.closest('.category');
-        const cat = catEl.dataset.cat;
-        const nameInput = catEl.querySelector('.product-name-input');
-        const descInput = catEl.querySelector('.product-desc-input');
-        const name = nameInput.value.trim();
-        const desc = descInput.value.trim();
-        if (name && desc) {
-          const products = JSON.parse(localStorage.getItem(cat) || '[]');
-          products.push({ name, desc });
-          localStorage.setItem(cat, JSON.stringify(products));
-          loadProducts(cat);
-          nameInput.value = '';
-          descInput.value = '';
-        } else {
-          alert('Please fill in both name and description');
-        }
-      });
-    });
+    document.querySelector('.add-btn').addEventListener('click', addProduct);
+
+    showSection('main');
   </script>
 </body>
 </html>
